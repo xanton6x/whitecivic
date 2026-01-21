@@ -2,54 +2,62 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CAR MEET | Social Network</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CAR MEET | Telegram Style</title>
     <style>
-        :root { --cm-blue: #007aff; --cm-bg: #0b0b0c; --cm-card: #1c1c1e; --cm-text: #f2f2f7; --cm-gray: #8e8e93; --cm-border: #2c2c2e; --cm-gold: #ffcc00; --cm-online: #34c759; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--cm-bg); margin: 0; direction: rtl; color: var(--cm-text); overflow-x: hidden; }
-        header { background: rgba(28, 28, 30, 0.9); backdrop-filter: blur(10px); height: 60px; display: flex; justify-content: center; border-bottom: 1px solid var(--cm-border); position: sticky; top: 0; z-index: 100; }
-        .header-content { width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
-        .logo { font-weight: 900; font-size: 22px; cursor: pointer; color: white; text-decoration: none; }
-        .logo span { color: var(--cm-blue); }
-        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
-
-        /* Profile & Stars */
-        .profile-card { background: var(--cm-card); border-radius: 20px; overflow: hidden; border: 1px solid var(--cm-border); margin-bottom: 20px; text-align: center; padding-bottom: 20px; }
-        .avatar-container { position: relative; width: 90px; height: 90px; margin: -45px auto 0 auto; }
-        .profile-avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--cm-card); object-fit: cover; background: #333; }
-        .edit-avatar-badge { position: absolute; bottom: 0; right: 0; background: var(--cm-blue); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 3px solid var(--cm-card); cursor: pointer; font-size: 18px; font-weight: bold; }
-        .star-rating { color: var(--cm-gold); font-size: 20px; margin: 10px 0; cursor: pointer; }
-        .star-rating span { transition: 0.2s; }
-        .star-rating span:hover { transform: scale(1.2); }
-
-        /* Feed Cards */
-        .card { background: var(--cm-card); border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--cm-border); position: relative; }
-        .feed-meta { font-size: 13px; color: var(--cm-gray); margin-bottom: 10px; }
-        .feed-meta b { color: white; cursor: pointer; text-decoration: underline; }
-        .post-time { font-size: 11px; color: var(--cm-gray); display: block; }
-        .card-image { width: 100%; max-height: 350px; object-fit: cover; border-radius: 12px; margin-top: 10px; }
-        #imgPreview { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; display: none; margin-bottom: 10px; border: 2px solid var(--cm-blue); }
-
-        /* Comments */
-        .comment { font-size: 13px; margin-bottom: 5px; padding: 6px 10px; background: #2c2c2e; border-radius: 10px; }
-        .comment b { color: var(--cm-blue); }
-        .comment-input { width: 100%; background: #2c2c2e; border: none; color: white; padding: 8px 12px; border-radius: 20px; font-size: 13px; outline: none; margin-top: 10px; box-sizing: border-box; }
-
-        /* Popups & Modals */
-        .floating-btn { position: fixed; bottom: 20px; left: 20px; background: var(--cm-blue); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 400; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .users-popup { position: fixed; bottom: 80px; left: 20px; width: 260px; background: var(--cm-card); border-radius: 15px; display: none; flex-direction: column; max-height: 400px; border: 1px solid var(--cm-border); z-index: 500; }
-        .user-item { display: flex; align-items: center; gap: 10px; padding: 10px; cursor: pointer; position: relative; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #555; position: absolute; right: 35px; bottom: 10px; border: 2px solid var(--cm-card); }
-        .status-dot.online { background: var(--cm-online); }
-
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: var(--cm-card); padding: 25px; border-radius: 20px; width: 300px; text-align: center; border: 1px solid var(--cm-border); }
-        .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid var(--cm-border); background: #2c2c2e; color: white; box-sizing: border-box; outline: none; }
-        .error-box { color: #ff3b30; font-size: 13px; margin-bottom: 12px; font-weight: bold; background: rgba(255,59,48,0.1); padding: 8px; border-radius: 8px; display: none; }
+        :root { --tg-blue: #248bcf; --tg-bg: #18222d; --tg-card: #212d3b; --tg-text: #ffffff; --tg-gray: #7d8b99; --tg-border: #131b24; --tg-online: #4fce60; }
         
-        button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; padding: 8px 16px; }
-        .btn-primary { background: var(--cm-blue); color: white; width: 100%; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--tg-bg); margin: 0; direction: rtl; color: var(--tg-text); -webkit-tap-highlight-color: transparent; }
+        
+        /* Telegram Header Style */
+        header { background: var(--tg-card); height: 60px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--tg-border); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .header-content { width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center; padding: 0 16px; }
+        .logo { font-weight: bold; font-size: 20px; color: white; }
+        .logo span { color: var(--tg-blue); }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 12px; }
+
+        /* Telegram Card Style */
+        .card { background: var(--tg-card); border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--tg-border); position: relative; }
+        .feed-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .feed-meta b { font-size: 14px; color: var(--tg-blue); cursor: pointer; }
+        .post-time { font-size: 11px; color: var(--tg-gray); }
+        
+        /* Fixed Image Aspect */
+        .card-image { width: 100%; max-height: 300px; border-radius: 10px; object-fit: cover; margin-top: 8px; cursor: pointer; border: 1px solid var(--tg-border); }
+        #imgPreview { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; display: none; margin: 10px 0; border: 2px solid var(--tg-blue); }
+
+        /* Actions Bar */
+        .actions-bar { display: flex; gap: 15px; margin-top: 12px; border-top: 1px solid var(--tg-border); padding-top: 10px; }
+        .action-item { display: flex; align-items: center; gap: 5px; color: var(--tg-gray); font-size: 13px; cursor: pointer; background: none; border: none; padding: 5px 10px; border-radius: 20px; transition: 0.2s; }
+        .action-item:active { background: rgba(36, 139, 207, 0.1); }
+
+        /* Comments Modal (Full Screen on Mobile) */
+        .comments-modal { position: fixed; inset: 0; background: var(--tg-bg); z-index: 2000; display: none; flex-direction: column; }
+        .modal-header { height: 50px; background: var(--tg-card); display: flex; align-items: center; padding: 0 16px; gap: 15px; border-bottom: 1px solid var(--tg-border); }
+        .comments-list { flex-grow: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        .comment-bubble { background: var(--tg-card); padding: 8px 12px; border-radius: 12px; border-bottom-right-radius: 2px; align-self: flex-start; max-width: 85%; border: 1px solid var(--tg-border); }
+        .comment-bubble b { color: var(--tg-blue); font-size: 12px; display: block; }
+        .comment-bubble p { margin: 3px 0; font-size: 14px; }
+
+        .comment-input-area { background: var(--tg-card); padding: 10px 16px; display: flex; gap: 10px; border-top: 1px solid var(--tg-border); padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
+        .comment-input-area input { flex-grow: 1; background: #131b24; border: none; color: white; padding: 10px 15px; border-radius: 20px; outline: none; }
+
+        /* Telegram-like Error Notifications */
+        .error-bubble { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #e53935; color: white; padding: 10px 20px; border-radius: 25px; font-size: 14px; z-index: 3000; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        /* Profile Style */
+        .profile-card { background: var(--tg-card); border-radius: 15px; padding-bottom: 20px; text-align: center; margin-bottom: 15px; overflow: hidden; }
+        .avatar-container { position: relative; width: 100px; height: 100px; margin: 20px auto; }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--tg-blue); }
+        .edit-badge { position: absolute; bottom: 0; right: 0; background: var(--tg-blue); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
+
+        button { cursor: pointer; border-radius: 8px; font-weight: 600; border: none; transition: 0.2s; }
+        .btn-primary { background: var(--tg-blue); color: white; padding: 10px 20px; }
         .hidden { display: none !important; }
+
+        /* Floating Users */
+        .floating-btn { position: fixed; bottom: 25px; left: 20px; background: var(--tg-blue); width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 500; }
     </style>
 </head>
 <body>
@@ -59,12 +67,12 @@
         <div class="logo" onclick="location.href='index.html'">CAR<span>MEET</span></div>
         <div id="authNav">
             <span id="guestNav">
-                <button class="btn-primary" onclick="openModal('register')" style="width:auto">הרשמה</button>
+                <button class="btn-primary" onclick="openModal('register')">הרשמה</button>
                 <button style="background:none; color:white;" onclick="openModal('login')">כניסה</button>
             </span>
             <span id="userNav" class="hidden">
-                <button class="btn-primary" onclick="goMyProfile()" style="width:auto">פרופיל</button>
-                <button style="background:none; color:var(--cm-gray);" id="logoutBtn">יציאה</button>
+                <button class="btn-primary" onclick="goMyProfile()">פרופיל</button>
+                <button style="background:none; color:var(--tg-gray);" id="logoutBtn">יציאה</button>
             </span>
         </div>
     </div>
@@ -73,46 +81,53 @@
 <div class="container">
     <div id="profileHeader" class="hidden">
         <div class="profile-card">
-            <div style="height: 80px; background: linear-gradient(45deg, #1c1c1e, #007aff);"></div>
             <div class="avatar-container">
                 <img id="pAvatar" class="profile-avatar" src="">
-                <div id="editAvBtn" class="edit-avatar-badge hidden" onclick="document.getElementById('fileInp').click()">+</div>
+                <div id="editAvBtn" class="edit-badge hidden" onclick="document.getElementById('fileInp').click()">+</div>
             </div>
             <input type="file" id="fileInp" class="hidden" accept="image/*">
-            <div style="font-size:22px; font-weight:800; margin-top:10px;"><span id="pName"></span> <span id="pBadge"></span></div>
-            
-            <div id="ratingDisplay" class="star-rating"></div>
-            <div id="ratingValue" style="font-size:12px; color:var(--cm-gray);">דירוג: 0.0</div>
+            <div style="font-size:20px; font-weight:bold;"><span id="pName"></span> <span id="pBadge"></span></div>
+            <div id="ratingDisplay" style="color:var(--tg-gold); margin:10px 0; font-size:22px;"></div>
         </div>
     </div>
 
     <div class="card" id="postCreator">
-        <textarea id="postInp" style="width:100%; background:none; border:none; color:white; outline:none; resize:none; min-height:50px;" placeholder="שתף משהו עם הקהילה..."></textarea>
+        <textarea id="postInp" style="width:100%; background:none; border:none; color:white; outline:none; resize:none; min-height:40px; font-size:16px;" placeholder="מה חדש?"></textarea>
         <img id="imgPreview">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <label for="postImgInp" style="cursor:pointer; color:var(--cm-blue); font-size:13px;">🖼️ תמונה</label>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+            <label for="postImgInp" style="cursor:pointer; color:var(--tg-blue); font-size:14px;">🖼️ תמונה</label>
             <input type="file" id="postImgInp" class="hidden" accept="image/*">
-            <button class="btn-primary" id="sendPost" style="width:auto">פרסום</button>
+            <button class="btn-primary" id="sendPost">שלח</button>
         </div>
     </div>
 
     <div id="board"></div>
 </div>
 
-<div class="floating-btn hidden" id="usersToggleBtn" onclick="toggleUsers()">👥</div>
-<div class="users-popup" id="usersPopup">
-    <div style="padding:15px; font-weight:bold; border-bottom:1px solid var(--cm-border);">חברי הקהילה</div>
-    <div id="globalUsersList" style="overflow-y:auto; flex-grow:1;"></div>
+<div id="errorBubble" class="error-bubble"></div>
+
+<div id="commentsModal" class="comments-modal">
+    <div class="modal-header">
+        <span style="font-size:24px; cursor:pointer;" onclick="closeComments()">✕</span>
+        <span style="font-weight:bold;">תגובות</span>
+    </div>
+    <div id="activePostView" style="padding:16px; border-bottom:1px solid var(--tg-border);"></div>
+    <div id="commentsList" class="comments-list"></div>
+    <div class="comment-input-area">
+        <input type="text" id="comInput" placeholder="כתוב תגובה...">
+        <button class="btn-primary" id="comSendBtn">➤</button>
+    </div>
 </div>
 
+<div class="floating-btn hidden" id="usersToggleBtn" onclick="toggleUsers()">👥</div>
+
 <div class="modal-overlay" id="authModal">
-    <div class="modal">
-        <h3 id="modalTitle">כניסה</h3>
-        <div id="modalError" class="error-box"></div>
-        <input type="text" id="uName" placeholder="שם משתמש">
-        <input type="password" id="uPass" placeholder="סיסמה">
-        <button class="btn-primary" id="authDo">המשך</button>
-        <button style="background:none; color:var(--cm-gray); margin-top:10px;" onclick="closeModal()">ביטול</button>
+    <div class="modal" style="background:var(--tg-card); border-radius:15px; padding:25px; width:280px; text-align:center;">
+        <h3 id="modalTitle" style="margin-top:0;">כניסה</h3>
+        <input type="text" id="uName" placeholder="שם משתמש" style="width:100%; padding:10px; margin-bottom:10px; background:#131b24; border:none; color:white; border-radius:8px;">
+        <input type="password" id="uPass" placeholder="סיסמה" style="width:100%; padding:10px; margin-bottom:15px; background:#131b24; border:none; color:white; border-radius:8px;">
+        <button class="btn-primary" id="authDo" style="width:100%;">המשך</button>
+        <button style="background:none; color:var(--tg-gray); margin-top:10px;" onclick="closeModal()">ביטול</button>
     </div>
 </div>
 
@@ -128,16 +143,12 @@
 
     const q = new URLSearchParams(window.location.search);
     const profileId = q.get('user');
-    const SUPER_ADMIN = "anton";
     let currentUser = null;
-    let targetName = "הפיד הראשי";
+    let currentOpenPostId = null;
 
     onAuthStateChanged(auth, (u) => {
         if (u) {
             currentUser = u;
-            const myId = btoa(clean(u.email).toLowerCase());
-            set(ref(db, 'status/' + myId), { state: 'online' });
-            onDisconnect(ref(db, 'status/' + myId)).set({ state: 'offline' });
             document.getElementById('userNav').classList.remove('hidden');
             document.getElementById('guestNav').classList.add('hidden');
             document.getElementById('usersToggleBtn').classList.remove('hidden');
@@ -145,74 +156,15 @@
         if (profileId) loadProfileInfo();
     });
 
-    // --- AUTH WITH INTERNAL ALERTS ---
-    window.openModal = (m) => { 
-        window.authMode = m; 
-        document.getElementById('modalTitle').innerText = (m === 'login' ? 'כניסה' : 'הרשמה');
-        document.getElementById('modalError').style.display = 'none';
-        document.getElementById('authModal').style.display='flex'; 
-    };
-    window.closeModal = () => document.getElementById('authModal').style.display='none';
+    // --- TELEGRAM NOTIFICATIONS ---
+    function showError(msg) {
+        const b = document.getElementById('errorBubble');
+        b.innerText = msg;
+        b.style.display = 'block';
+        setTimeout(() => b.style.display = 'none', 3000);
+    }
 
-    document.getElementById('authDo').onclick = async () => {
-        const u = document.getElementById('uName').value.trim();
-        const p = document.getElementById('uPass').value;
-        const err = document.getElementById('modalError');
-        err.style.display = 'none';
-
-        if (!u || !p) { err.innerText = "נא למלא את כל השדות"; err.style.display='block'; return; }
-        if (p.length < 6) { err.innerText = "הסיסמה חייבת להכיל 6 תווים לפחות"; err.style.display='block'; return; }
-
-        try {
-            if(window.authMode === 'login') {
-                await signInWithEmailAndPassword(auth, toEmail(u), p);
-                location.reload();
-            } else {
-                const check = await get(ref(db, 'users/' + btoa(u.toLowerCase())));
-                if (check.exists()) { err.innerText = "שם המשתמש כבר קיים במערכת"; err.style.display='block'; return; }
-                
-                await createUserWithEmailAndPassword(auth, toEmail(u), p);
-                const role = (u.toLowerCase() === SUPER_ADMIN) ? 'admin' : 'user';
-                await set(ref(db, 'users/' + btoa(u.toLowerCase())), { username: u, role: role, avatar: "", ratingTotal: 0, ratingCount: 0 });
-                location.reload();
-            }
-        } catch(e) {
-            err.innerText = "שם משתמש או סיסמה לא נכונים"; err.style.display='block';
-        }
-    };
-
-    // --- FEED & POSTS ---
-    document.getElementById('postImgInp').onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                document.getElementById('imgPreview').src = ev.target.result;
-                document.getElementById('imgPreview').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    document.getElementById('sendPost').onclick = async () => {
-        if(!currentUser) return openModal('login');
-        const txt = document.getElementById('postInp').value;
-        const img = document.getElementById('imgPreview').src;
-        if(!txt && !img) return;
-
-        push(ref(db, 'feed'), {
-            from: clean(currentUser.email),
-            to: targetName,
-            toId: profileId || 'public',
-            text: txt,
-            image: img.startsWith('data') ? img : null,
-            time: Date.now()
-        });
-        document.getElementById('postInp').value = "";
-        document.getElementById('imgPreview').style.display = 'none';
-        document.getElementById('imgPreview').src = "";
-    };
-
+    // --- FEED RENDER ---
     onChildAdded(ref(db, 'feed'), (snap) => {
         const d = snap.val(), id = snap.key;
         if (profileId && d.toId !== profileId && btoa(d.from.toLowerCase()) !== profileId) return;
@@ -222,122 +174,129 @@
         onValue(ref(db, `feed/${id}`), s => {
             if(!s.exists()) { card.remove(); return; }
             const u = s.val();
-            const isAdmin = currentUser && clean(currentUser.email).toLowerCase() === SUPER_ADMIN;
-            const isOwner = currentUser && clean(currentUser.email) === u.from;
-
             card.innerHTML = `
                 <div class="feed-meta">
                     <b onclick="location.href='?user=${btoa(u.from.toLowerCase())}'">${u.from}</b>
-                    ${u.toId !== 'public' && u.from !== u.to ? ` ➔ <b onclick="location.href='?user=${u.toId}'">${u.to}</b>` : ''}
-                    <span class="post-time">${new Date(u.time).toLocaleString('he-IL')}</span>
+                    ${u.toId !== 'public' && u.from !== u.to ? ` ➔ <b>${u.to}</b>` : ''}
+                    <span class="post-time">${new Date(u.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
                 </div>
-                ${(isAdmin || isOwner) ? `<span style="position:absolute; left:15px; top:15px; cursor:pointer; color:#ff3b30; font-size:11px;" onclick="deletePost('${id}')">מחיקה</span>` : ''}
-                <div style="white-space:pre-wrap;">${u.text}</div>
-                ${u.image ? `<img src="${u.image}" class="card-image">` : ''}
-                <div style="margin-top:10px; display:flex; gap:15px; font-size:13px; color:var(--cm-gray);">
-                    <span style="cursor:pointer" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</span>
+                <div style="font-size:15px; white-space:pre-wrap;">${u.text}</div>
+                ${u.image ? `<img src="${u.image}" class="card-image" onclick="openComments('${id}')">` : ''}
+                <div class="actions-bar">
+                    <div class="action-item" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</div>
+                    <div class="action-item" onclick="openComments('${id}')">💬 תגובות</div>
                 </div>
-                <div id="coms-${id}" style="margin-top:10px;"></div>
-                <input type="text" class="comment-input" placeholder="הוסף תגובה..." onkeypress="if(event.key==='Enter') addComment('${id}', this)">
             `;
-            loadComments(id);
         });
         document.getElementById('board').prepend(card);
     });
 
-    // --- COMMENTS & RATING LOGIC ---
-    window.addComment = (pid, inp) => {
-        if(!currentUser || !inp.value.trim()) return;
-        push(ref(db, `feed/${pid}/comments`), { from: clean(currentUser.email), text: inp.value });
-        inp.value = "";
+    // --- COMMENTS SYSTEM (MODAL) ---
+    window.openComments = async (postId) => {
+        currentOpenPostId = postId;
+        const snap = await get(ref(db, `feed/${postId}`));
+        const post = snap.val();
+        
+        document.getElementById('activePostView').innerHTML = `
+            <div style="font-weight:bold; color:var(--tg-blue);">${post.from}</div>
+            <div style="margin-top:5px;">${post.text}</div>
+            ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-top:10px;">` : ''}
+        `;
+        
+        document.getElementById('commentsModal').style.display = 'flex';
+        loadComments(postId);
     };
 
-    function loadComments(pid) {
-        onValue(ref(db, `feed/${pid}/comments`), snap => {
-            const box = document.getElementById(`coms-${pid}`); box.innerHTML = "";
-            snap.forEach(c => { const m = c.val(); box.innerHTML += `<div class="comment"><b>${m.from}:</b> ${m.text}</div>`; });
+    window.closeComments = () => {
+        document.getElementById('commentsModal').style.display = 'none';
+        currentOpenPostId = null;
+    };
+
+    function loadComments(postId) {
+        onValue(ref(db, `feed/${postId}/comments`), snap => {
+            const list = document.getElementById('commentsList');
+            list.innerHTML = "";
+            snap.forEach(c => {
+                const m = c.val();
+                list.innerHTML += `<div class="comment-bubble"><b>${m.from}</b><p>${m.text}</p></div>`;
+            });
+            list.scrollTop = list.scrollHeight;
         });
     }
+
+    document.getElementById('comSendBtn').onclick = () => {
+        const txt = document.getElementById('comInput').value;
+        if(!currentUser || !txt.trim()) return;
+        push(ref(db, `feed/${currentOpenPostId}/comments`), { from: clean(currentUser.email), text: txt });
+        document.getElementById('comInput').value = "";
+    };
+
+    // --- AUTH WITH TELEGRAM ERRORS ---
+    window.openModal = (m) => { window.authMode = m; document.getElementById('authModal').style.display='flex'; };
+    window.closeModal = () => document.getElementById('authModal').style.display='none';
+    
+    document.getElementById('authDo').onclick = async () => {
+        const u = document.getElementById('uName').value.trim(), p = document.getElementById('uPass').value;
+        if(p.length < 6) return showError("סיסמה חייבת להיות 6 תווים לפחות");
+        
+        try {
+            if(window.authMode === 'login') {
+                await signInWithEmailAndPassword(auth, u+"@carmeet.com", p);
+                location.reload();
+            } else {
+                const check = await get(ref(db, 'users/' + btoa(u.toLowerCase())));
+                if(check.exists()) return showError("שם המשתמש כבר תפוס");
+                await createUserWithEmailAndPassword(auth, u+"@carmeet.com", p);
+                await set(ref(db, 'users/' + btoa(u.toLowerCase())), { username: u, role: 'user', avatar: "" });
+                location.reload();
+            }
+        } catch(e) { showError("פרטים שגויים, נסה שוב"); }
+    };
+
+    // --- OTHER HELPERS ---
+    const clean = (e) => e.split('@')[0];
+    window.toggleLike = (id) => {
+        if(!currentUser) return openModal('login');
+        const r = ref(db, `feed/${id}/likes/${btoa(clean(currentUser.email))}`);
+        get(r).then(s => s.exists() ? remove(r) : set(r, true));
+    };
+
+    document.getElementById('postImgInp').onchange = (e) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const p = document.getElementById('imgPreview');
+            p.src = ev.target.result; p.style.display = 'block';
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    };
+
+    document.getElementById('sendPost').onclick = async () => {
+        const txt = document.getElementById('postInp').value, img = document.getElementById('imgPreview').src;
+        if(!currentUser) return openModal('login');
+        if(!txt && !img) return;
+        push(ref(db, 'feed'), { from: clean(currentUser.email), to: (profileId?document.getElementById('pName').innerText:'הפיד הראשי'), toId: profileId||'public', text: txt, image: img.startsWith('data')?img:null, time: Date.now() });
+        document.getElementById('postInp').value = ""; document.getElementById('imgPreview').style.display = 'none';
+    };
 
     async function loadProfileInfo() {
         document.getElementById('profileHeader').classList.remove('hidden');
         onValue(ref(db, 'users/' + profileId), (s) => {
             if(!s.exists()) return;
             const d = s.val();
-            targetName = d.username;
             document.getElementById('pName').innerText = d.username;
             document.getElementById('pAvatar').src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}&background=random&color=fff`;
-            document.getElementById('pBadge').innerHTML = d.role === 'admin' ? '⭐' : '';
-            
-            const avg = d.ratingCount ? (d.ratingTotal / d.ratingCount).toFixed(1) : "0.0";
-            document.getElementById('ratingValue').innerText = `דירוג: ${avg} (${d.ratingCount || 0} הצבעות)`;
-            renderStars(avg);
-
-            const isMe = currentUser && btoa(clean(currentUser.email).toLowerCase()) === profileId;
-            document.getElementById('editAvBtn').classList.toggle('hidden', !isMe);
+            document.getElementById('editAvBtn').classList.toggle('hidden', !(currentUser && btoa(clean(currentUser.email).toLowerCase()) === profileId));
         });
     }
 
-    function renderStars(currentAvg) {
-        const box = document.getElementById('ratingDisplay'); box.innerHTML = "";
-        for(let i=1; i<=5; i++) {
-            const s = document.createElement('span');
-            s.innerHTML = i <= Math.round(currentAvg) ? "★" : "☆";
-            s.onclick = () => rateUser(i);
-            box.appendChild(s);
-        }
-    }
-
-    async function rateUser(score) {
-        if(!currentUser) return openModal('login');
-        const myId = btoa(clean(currentUser.email).toLowerCase());
-        if(myId === profileId) return; // אי אפשר לדרג את עצמך
-
-        const rRef = ref(db, `users/${profileId}/ratings/${myId}`);
-        const snap = await get(rRef);
-        if(snap.exists()) return; // כבר דירג
-
-        const userSnap = await get(ref(db, `users/${profileId}`));
-        const d = userSnap.val();
-        await update(ref(db, `users/${profileId}`), {
-            ratingTotal: (d.ratingTotal || 0) + score,
-            ratingCount: (d.ratingCount || 0) + 1
-        });
-        await set(rRef, score);
-    }
-
-    // --- UTILS ---
-    const clean = (e) => e.split('@')[0];
-    const toEmail = (n) => `${n.toLowerCase().trim()}@carmeet.com`;
-    window.deletePost = (id) => confirm('למחוק?') && remove(ref(db, `feed/${id}`));
-    window.toggleLike = (id) => {
-        if(!currentUser) return;
-        const r = ref(db, `feed/${id}/likes/${btoa(clean(currentUser.email))}`);
-        get(r).then(s => s.exists() ? remove(r) : set(r, true));
-    };
-    window.toggleUsers = () => { const p = document.getElementById('usersPopup'); p.style.display = p.style.display==='flex'?'none':'flex'; };
-    window.goMyProfile = () => location.href = '?user=' + btoa(clean(currentUser.email).toLowerCase());
-    document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=>location.href='index.html');
-    
     document.getElementById('fileInp').onchange = (e) => {
         const reader = new FileReader();
         reader.onload = (ev) => update(ref(db, 'users/' + profileId), { avatar: ev.target.result });
         reader.readAsDataURL(e.target.files[0]);
     };
 
-    onValue(ref(db, 'users'), snap => {
-        const list = document.getElementById('globalUsersList'); list.innerHTML = "";
-        snap.forEach(c => {
-            const u = c.val(), id = c.key;
-            list.innerHTML += `<div class="user-item" onclick="location.href='?user=${id}'">
-                <img src="${u.avatar || 'https://ui-avatars.com/api/?name='+u.username}" style="width:35px;height:35px;border-radius:50%;">
-                <div id="dot-${id}" class="status-dot"></div><span>${u.username}</span></div>`;
-            onValue(ref(db, 'status/'+id), s => {
-                const d = document.getElementById('dot-'+id);
-                if(d) s.exists() && s.val().state==='online' ? d.classList.add('online') : d.classList.remove('online');
-            });
-        });
-    });
+    window.goMyProfile = () => location.href = '?user=' + btoa(clean(currentUser.email).toLowerCase());
+    document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=>location.href='index.html');
 </script>
 </body>
 </html>
