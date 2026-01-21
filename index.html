@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CAR MEET | Live Feed</title>
+    <title>CAR MEET | Feed & Users Fixed</title>
     <style>
         :root { --cm-blue: #007aff; --cm-bg: #0b0b0c; --cm-card: #1c1c1e; --cm-text: #f2f2f7; --cm-gray: #8e8e93; --cm-border: #2c2c2e; --cm-gold: #ffcc00; --cm-online: #34c759; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--cm-bg); margin: 0; direction: rtl; color: var(--cm-text); overflow-x: hidden; }
@@ -13,39 +13,43 @@
         .logo span { color: var(--cm-blue); }
         .container { max-width: 600px; margin: 0 auto; padding: 15px; }
 
-        /* Post Header for Feed */
-        .feed-meta { font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
-        .feed-meta b { cursor: pointer; color: white; }
-        .feed-meta .arrow { color: var(--cm-gray); font-size: 12px; }
+        /* Feed Elements */
+        .feed-meta { font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; color: var(--cm-gray); }
+        .feed-meta b { cursor: pointer; color: white; text-decoration: underline; text-underline-offset: 3px; }
+        .feed-meta .arrow { color: var(--cm-blue); font-weight: bold; }
 
-        /* Elements from previous versions */
         .card { background: var(--cm-card); border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--cm-border); position: relative; }
-        .post-controls { position: absolute; left: 15px; top: 15px; display: flex; gap: 8px; }
-        .control-btn { font-size: 11px; cursor: pointer; padding: 4px 8px; border-radius: 5px; font-weight: bold; }
-        .del-style { color: #ff3b30; background: rgba(255,59,48,0.1); }
-        .edit-style { color: var(--cm-blue); background: rgba(0,122,255,0.1); }
-        .card-image { width: 100%; border-radius: 12px; margin-top: 10px; }
-        .card-actions { display: flex; gap: 20px; margin-top: 15px; border-top: 1px solid var(--cm-border); padding-top: 10px; }
+        .post-controls { position: absolute; left: 15px; top: 15px; }
+        .del-style { color: #ff3b30; background: rgba(255,59,48,0.1); font-size: 11px; padding: 4px 8px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .card-image { width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid #333; }
+        .card-actions { margin-top: 15px; border-top: 1px solid var(--cm-border); padding-top: 10px; }
         .action-btn { cursor: pointer; color: var(--cm-gray); font-size: 14px; background: none; border: none; }
-        
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: var(--cm-card); padding: 25px; border-radius: 20px; width: 300px; text-align: center; }
-        .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid var(--cm-border); background: #2c2c2e; color: white; box-sizing: border-box; outline: none; }
-        .error-msg { color: #ff3b30; font-size: 13px; margin-bottom: 10px; font-weight: bold; display: none; }
-        
+
+        /* Profile Section */
         .profile-card { background: var(--cm-card); border-radius: 20px; overflow: hidden; border: 1px solid var(--cm-border); margin-bottom: 20px; text-align: center; padding-bottom: 20px; }
         .profile-avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--cm-card); margin-top: -45px; object-fit: cover; background: #333; }
-        
-        button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; padding: 8px 16px; }
+
+        /* Floating Users List */
+        .floating-btn { position: fixed; bottom: 20px; left: 20px; background: var(--cm-blue); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 5px 15px rgba(0,122,255,0.4); z-index: 400; font-size: 22px; cursor: pointer; }
+        .users-popup { position: fixed; bottom: 80px; left: 20px; width: 260px; background: var(--cm-card); border: 1px solid var(--cm-border); border-radius: 15px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); z-index: 500; display: none; flex-direction: column; max-height: 400px; overflow: hidden; }
+        .users-header { padding: 15px; background: #2c2c2e; font-weight: bold; border-bottom: 1px solid var(--cm-border); display: flex; justify-content: space-between; }
+        .users-list { overflow-y: auto; padding: 10px; flex-grow: 1; }
+        .user-item { display: flex; align-items: center; gap: 12px; padding: 10px; cursor: pointer; border-radius: 10px; position: relative; transition: 0.2s; }
+        .user-item:hover { background: #2c2c2e; }
+        .user-item img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid #444; }
+        .status-dot { width: 11px; height: 11px; border-radius: 50%; background: #555; border: 2px solid var(--cm-card); position: absolute; right: 38px; bottom: 10px; }
+        .status-dot.online { background: var(--cm-online); box-shadow: 0 0 5px var(--cm-online); }
+
+        /* Auth Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: var(--cm-card); padding: 25px; border-radius: 20px; width: 300px; text-align: center; }
+        .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid var(--cm-border); background: #2c2c2e; color: white; box-sizing: border-box; }
+        .error-msg { color: #ff3b30; font-size: 13px; margin-bottom: 10px; font-weight: bold; display: none; }
+
+        button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; padding: 8px 16px; transition: 0.2s; }
         .btn-primary { background: var(--cm-blue); color: white; }
         .btn-outline { background: #2c2c2e; color: white; border: 1px solid var(--cm-border); }
         .hidden { display: none !important; }
-        .floating-btn { position: fixed; bottom: 20px; left: 20px; background: var(--cm-blue); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 5px 15px rgba(0,122,255,0.4); z-index: 400; font-size: 22px; cursor: pointer; }
-        
-        .users-popup { position: fixed; bottom: 80px; left: 20px; width: 250px; background: var(--cm-card); border: 1px solid var(--cm-border); border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 500; display: none; flex-direction: column; max-height: 400px; }
-        .user-item { display: flex; align-items: center; gap: 10px; padding: 8px; cursor: pointer; border-radius: 8px; position: relative; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #555; border: 2px solid var(--cm-card); position: absolute; right: 35px; bottom: 8px; }
-        .status-dot.online { background: var(--cm-online); }
     </style>
 </head>
 <body>
@@ -56,7 +60,7 @@
         <div id="authNav">
             <span id="guestNav">
                 <button class="btn-outline" onclick="openModal('login')">כניסה</button>
-                <button class="btn-primary" onclick="openModal('register')">צור פרופיל</button>
+                <button class="btn-primary" onclick="openModal('register')">הרשמה</button>
             </span>
             <span id="userNav" class="hidden">
                 <button class="btn-outline" onclick="goMyProfile()">פרופיל</button>
@@ -72,29 +76,28 @@
             <div style="height: 80px; background: linear-gradient(45deg, #1c1c1e, #007aff);"></div>
             <img id="pAvatar" class="profile-avatar" src="">
             <div style="font-size:22px; font-weight:800; margin-top:10px;"><span id="pName"></span> <span id="pBadge"></span></div>
-            <div id="pRating" style="color:var(--cm-gold); margin:5px 0;">⭐ 0.0</div>
             <button class="btn-outline" id="editAvBtn" onclick="document.getElementById('fileInp').click()">שנה תמונת פרופיל</button>
             <input type="file" id="fileInp" class="hidden" accept="image/*">
         </div>
     </div>
 
-    <div class="card" id="creator">
-        <div id="creatorTitle" style="font-size:12px; color:var(--cm-gray); margin-bottom:8px;">עדכן את הפיד...</div>
-        <textarea id="postInp" style="width:100%; background:none; border:none; color:white; outline:none; resize:none; min-height:60px;" placeholder="כתוב משהו..."></textarea>
-        <div style="display:flex; justify-content:space-between; margin-top:10px; align-items:center;">
+    <div class="card">
+        <div id="creatorTitle" style="font-size:12px; color:var(--cm-gray); margin-bottom:8px;">שתף משהו עם הקהילה...</div>
+        <textarea id="postInp" style="width:100%; background:none; border:none; color:white; outline:none; resize:none; min-height:60px;" placeholder="מה קורה?"></textarea>
+        <div style="display:flex; justify-content:space-between; margin-top:10px;">
             <label for="postImgInp" style="cursor:pointer; color:var(--cm-blue); font-size:14px;">🖼️ תמונה</label>
             <input type="file" id="postImgInp" class="hidden" accept="image/*">
-            <button class="btn-primary" id="sendPost">פרסום</button>
+            <button class="btn-primary" id="sendPost">פרסום בפיד</button>
         </div>
     </div>
 
-    <h3 id="feedLabel" style="margin: 20px 0 10px 0; font-size: 18px;">פיד עדכונים</h3>
+    <h3 id="feedLabel" style="margin: 20px 0 10px 0; font-size: 18px;">🔥 News Feed</h3>
     <div id="board"></div>
 </div>
 
 <div class="floating-btn hidden" id="usersToggleBtn" onclick="toggleUsers()">👥</div>
 <div class="users-popup" id="usersPopup">
-    <div style="padding:12px; border-bottom:1px solid var(--cm-border); font-weight:bold;">חברי הקהילה</div>
+    <div class="users-header"><span>חברים מחוברים</span><span style="cursor:pointer" onclick="toggleUsers()">✕</span></div>
     <div class="users-list" id="globalUsersList"></div>
 </div>
 
@@ -103,7 +106,7 @@
         <h3 id="modalTitle">כניסה</h3>
         <div id="modalError" class="error-msg"></div>
         <input type="text" id="uName" placeholder="שם משתמש">
-        <input type="password" id="uPass" placeholder="סיסמה (6+ תווים)">
+        <input type="password" id="uPass" placeholder="סיסמה">
         <button class="btn-primary" id="authDo" style="width:100%">המשך</button>
         <button class="btn-outline" onclick="closeModal()" style="width:100%; margin-top:10px;">ביטול</button>
     </div>
@@ -126,10 +129,10 @@
     const db = getDatabase(app);
 
     const q = new URLSearchParams(window.location.search);
-    const profileId = q.get('user'); // ID של הפרופיל שאנחנו מסתכלים עליו
+    const profileId = q.get('user');
     const SUPER_ADMIN = "anton";
     let currentUser = null;
-    let targetUserName = "הפיד הראשי";
+    let targetName = "הפיד הראשי";
 
     onAuthStateChanged(auth, (u) => {
         if (u) {
@@ -144,7 +147,32 @@
         if (profileId) loadProfileInfo();
     });
 
-    // --- NEWS FEED LOGIC ---
+    // --- FIX: USERS LIST ---
+    onValue(ref(db, 'users'), (snap) => {
+        const list = document.getElementById('globalUsersList');
+        list.innerHTML = "";
+        snap.forEach(c => {
+            const u = c.val(), id = c.key;
+            const avatarUrl = u.avatar || `https://ui-avatars.com/api/?name=${u.username}&background=random&color=fff`;
+            
+            const item = document.createElement('div');
+            item.className = 'user-item';
+            item.onclick = () => location.href = '?user=' + id;
+            item.innerHTML = `
+                <img src="${avatarUrl}">
+                <div id="dot-${id}" class="status-dot"></div>
+                <span style="font-weight:500;">${u.username} ${u.role==='admin'?'⭐':''}</span>
+            `;
+            list.appendChild(item);
+
+            onValue(ref(db, 'status/' + id), (s) => {
+                const dot = document.getElementById('dot-' + id);
+                if(dot) s.exists() && s.val().state === 'online' ? dot.classList.add('online') : dot.classList.remove('online');
+            });
+        });
+    });
+
+    // --- NEWS FEED ---
     document.getElementById('sendPost').onclick = async () => {
         if(!currentUser) return openModal('login');
         const txt = document.getElementById('postInp').value;
@@ -157,58 +185,49 @@
             img = await new Promise(r => { reader.onload=e=>r(e.target.result); reader.readAsDataURL(file); });
         }
 
-        const authorName = clean(currentUser.email);
-        const postData = {
-            from: authorName,
-            to: targetUserName, // שם המשתמש של הפרופיל, או "הפיד הראשי"
+        const author = clean(currentUser.email);
+        push(ref(db, 'feed'), {
+            from: author,
+            to: targetName,
             toId: profileId || 'public',
             text: txt,
             image: img,
             time: Date.now()
-        };
-
-        push(ref(db, 'feed'), postData);
+        });
         document.getElementById('postInp').value = "";
     };
 
     onChildAdded(ref(db, 'feed'), (snap) => {
-        const d = snap.val();
-        const id = snap.key;
-
-        // סינון: אם אנחנו בתוך פרופיל, נראה רק פוסטים שקשורים אליו
+        const d = snap.val(), id = snap.key;
         if (profileId && d.toId !== profileId && btoa(d.from.toLowerCase()) !== profileId) return;
 
         const card = document.createElement('div');
         card.className = 'card';
         card.id = `post-${id}`;
-
         onValue(ref(db, `feed/${id}`), s => {
             if(!s.exists()) { card.remove(); return; }
-            const upd = s.val();
+            const u = s.val();
             const isAdmin = currentUser && clean(currentUser.email) === SUPER_ADMIN;
-            const isOwner = currentUser && clean(currentUser.email) === upd.from;
+            const isOwner = currentUser && clean(currentUser.email) === u.from;
 
             card.innerHTML = `
-                ${(isAdmin || isOwner) ? `<div class="post-controls">
-                    <span class="control-btn del-style" onclick="deletePost('${id}')">מחיקה</span>
-                </div>` : ''}
+                ${(isAdmin || isOwner) ? `<div class="post-controls"><span class="del-style" onclick="deletePost('${id}')">מחיקה</span></div>` : ''}
                 <div class="feed-meta">
-                    <b onclick="location.href='?user=${btoa(upd.from.toLowerCase())}'">${upd.from}</b>
-                    ${upd.to !== "הפיד הראשי" && upd.to !== upd.from ? `<span class="arrow">➔</span> <b onclick="location.href='?user=${upd.toId}'">${upd.to}</b>` : ''}
+                    <b onclick="location.href='?user=${btoa(u.from.toLowerCase())}'">${u.from}</b>
+                    ${u.to !== "הפיד הראשי" && u.to !== u.from ? `<span class="arrow">➔</span> <b onclick="location.href='?user=${u.toId}'">${u.to}</b>` : ''}
                 </div>
-                <div style="white-space:pre-wrap;">${upd.text}</div>
-                ${upd.image ? `<img src="${upd.image}" class="card-image">` : ''}
+                <div style="white-space:pre-wrap; margin-top:5px;">${u.text}</div>
+                ${u.image ? `<img src="${u.image}" class="card-image">` : ''}
                 <div class="card-actions">
-                    <button class="action-btn" onclick="toggleLike('${id}')">❤️ ${upd.likes?Object.keys(upd.likes).length:0}</button>
+                    <button class="action-btn" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</button>
                 </div>
             `;
         });
         document.getElementById('board').prepend(card);
     });
 
-    // --- FUNCTIONS ---
-    window.deletePost = (id) => confirm('למחוק פוסט מהפיד?') && remove(ref(db, `feed/${id}`));
-    
+    // --- HELPERS ---
+    window.deletePost = (id) => confirm('למחוק?') && remove(ref(db, `feed/${id}`));
     window.toggleLike = (id) => {
         if(!currentUser) return openModal('login');
         const r = ref(db, `feed/${id}/likes/${btoa(clean(currentUser.email))}`);
@@ -221,34 +240,13 @@
         onValue(ref(db, 'users/' + profileId), (s) => {
             if(!s.exists()) return;
             const d = s.val();
-            targetUserName = d.username; // עדכון שם היעד לכתיבת פוסט
+            targetName = d.username;
             document.getElementById('creatorTitle').innerText = "כתוב משהו ל-" + d.username + "...";
             document.getElementById('pName').innerText = d.username;
-            document.getElementById('pAvatar').src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
-            document.getElementById('pBadge').innerHTML = d.role === 'admin' ? '⭐' : '';
-            
-            const isMyProfile = currentUser && btoa(clean(currentUser.email).toLowerCase()) === profileId;
-            document.getElementById('editAvBtn').classList.toggle('hidden', !isMyProfile);
+            document.getElementById('pAvatar').src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}&background=random&color=fff`;
+            document.getElementById('editAvBtn').classList.toggle('hidden', !(currentUser && btoa(clean(currentUser.email).toLowerCase()) === profileId));
         });
     }
-
-    // --- USERS & AUTH (From previous version) ---
-    onValue(ref(db, 'users'), (snap) => {
-        const list = document.getElementById('globalUsersList');
-        list.innerHTML = "";
-        snap.forEach(c => {
-            const u = c.val(), id = c.key;
-            const item = document.createElement('div');
-            item.className = 'user-item';
-            item.onclick = () => location.href = '?user=' + id;
-            item.innerHTML = `<img src="${u.avatar || 'https://ui-avatars.com/api/?name='+u.username}"><div id="dot-${id}" class="status-dot"></div><span>${u.username}</span>`;
-            list.appendChild(item);
-            onValue(ref(db, 'status/' + id), (s) => {
-                const dot = document.getElementById('dot-' + id);
-                if(dot) s.exists() && s.val().state === 'online' ? dot.classList.add('online') : dot.classList.remove('online');
-            });
-        });
-    });
 
     const clean = (e) => e.split('@')[0];
     const toEmail = (n) => `${n.toLowerCase().trim()}@carmeet.com`;
