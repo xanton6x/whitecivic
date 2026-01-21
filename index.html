@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>תן תגובה | Профили</title>
+    <title>תן תגובה | פרופילים</title>
     <style>
         :root { --pink: #e91e63; --violet: #667eea; --admin-gold: #ffc107; }
         body { font-family: 'Inter', system-ui, sans-serif; background: #667eea; margin: 0; padding: 10px; direction: rtl; }
@@ -23,24 +23,23 @@
         .btn-outline { background: #f1f1f1; color: #333; }
         .btn-primary { background: var(--violet); color: white; }
         
-        /* Аватарки */
         .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #eee; border: 2px solid white; }
-        .profile-avatar-big { width: 80px; height: 80px; border-radius: 50%; margin-bottom: 10px; border: 3px solid var(--violet); }
 
         .board { display: grid; grid-template-columns: 1fr; gap: 15px; }
         @media (min-width: 768px) { .board { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); } }
 
         .card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: right; }
         .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-
         .card textarea { width: 100%; border: none; outline: none; min-height: 80px; resize: none; font-size: 16px; direction: ltr; }
 
-        /* Список пользователей */
-        .user-list-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
-        .user-list-item:hover { background: #f9f9f9; }
+        /* Настройки профиля */
+        #profileSettings { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: center; }
+        .file-input-wrapper { margin: 15px 0; }
+        #avatarPreview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 3px solid var(--violet); display: inline-block; }
 
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; max-height: 80vh; overflow-y: auto; }
+        .user-list-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
         .hidden { display: none; }
     </style>
 </head>
@@ -64,10 +63,14 @@
     </div>
 </header>
 
-<div id="profileSettings" class="hidden" style="background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: center;">
+<div id="profileSettings" class="hidden">
     <h3>הגדרות פרופיל</h3>
-    <input type="text" id="avatarInput" placeholder="URL לתמונת פרופיל" style="width: 80%; padding: 10px; border-radius: 10px; border: 1px solid #ddd; margin-bottom: 10px;">
-    <button class="btn-primary" id="saveProfileBtn">שמור שינויים</button>
+    <img id="avatarPreview" src="https://ui-avatars.com/api/?name=User" alt="Preview">
+    <div class="file-input-wrapper">
+        <label for="filePicker" class="btn-outline" style="padding: 10px; display: inline-block; cursor: pointer;">העלה תמונה מהמכשיר 📸</label>
+        <input type="file" id="filePicker" accept="image/*" style="display: none;">
+    </div>
+    <p id="uploadStatus" style="font-size: 12px; color: green;"></p>
 </div>
 
 <div class="board" id="board"></div>
@@ -113,7 +116,6 @@
   const wallId = urlParams.get('user') || 'public';
   const SUPER_ADMIN = "anton@gmail.com";
 
-  // Хелпер для аватарок
   const getAv = (email, url) => url || `https://ui-avatars.com/api/?name=${email}&background=random`;
 
   onAuthStateChanged(auth, async (user) => {
@@ -124,24 +126,42 @@
         document.getElementById('userStatus').innerText = user.email;
         document.getElementById('myProfileBtn').onclick = () => window.location.href = '?user=' + btoa(user.email);
         
-        // Показываем настройки если на своей стене
         if (btoa(user.email) === wallId) {
             document.getElementById('profileSettings').classList.remove('hidden');
             const uSnap = await get(ref(db, 'users/' + btoa(user.email)));
-            if (uSnap.val()?.avatar) document.getElementById('avatarInput').value = uSnap.val().avatar;
+            if (uSnap.val()?.avatar) document.getElementById('avatarPreview').src = uSnap.val().avatar;
         }
     }
   });
 
-  // Сохранение аватара
-  document.getElementById('saveProfileBtn').onclick = () => {
-    const url = document.getElementById('avatarInput').value;
-    update(ref(db, 'users/' + btoa(auth.currentUser.email)), { avatar: url });
-    alert("פרופיל עודכן!");
-    location.reload();
+  // Логика загрузки файла и конвертации в Base64
+  document.getElementById('filePicker').onchange = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Ограничение размера (Base64 увеличивает размер на 33%, лучше держать до 1-2мб)
+    if (file.size > 1048576) { 
+        alert("הקובץ גדול מדי! בחר תמונה קטנה מ-1MB");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const base64String = event.target.result;
+        
+        // Показываем превью
+        document.getElementById('avatarPreview').src = base64String;
+        
+        // Сохраняем в базу данных
+        update(ref(db, 'users/' + btoa(auth.currentUser.email)), { avatar: base64String })
+            .then(() => {
+                document.getElementById('uploadStatus').innerText = "תמונה עודכנה בהצלחה! ✨";
+                setTimeout(() => location.reload(), 1000);
+            });
+    };
+    reader.readAsDataURL(file);
   };
 
-  // Список пользователей
   window.showUserList = () => {
     document.getElementById('userListOverlay').style.display = 'flex';
     const cont = document.getElementById('usersContainer');
@@ -164,7 +184,6 @@
   };
   window.closeUserList = () => document.getElementById('userListOverlay').style.display = 'none';
 
-  // Посты
   onChildAdded(ref(db, 'walls/' + wallId), async (snap) => {
     const data = snap.val();
     const id = snap.key;
@@ -181,7 +200,6 @@
     `;
     document.getElementById('board').prepend(div);
 
-    // Подгружаем актуальную аватарку автора
     onValue(ref(db, 'users/' + authorId), (uSnap) => {
         if (uSnap.val()?.avatar) document.getElementById(`av-${id}`).src = uSnap.val().avatar;
     });
@@ -194,7 +212,6 @@
     }
   });
 
-  // Auth
   document.getElementById('addBtn').onclick = () => {
     if (!auth.currentUser) return alert("התחבר כדי לפרסם!");
     push(ref(db, 'walls/' + wallId), { text: "", author: auth.currentUser.email });
@@ -205,11 +222,10 @@
   document.getElementById('authSubmit').onclick = async () => {
     const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
     try {
-        let res;
         if(window.act === 'register') {
-            res = await createUserWithEmailAndPassword(auth, e, p);
+            await createUserWithEmailAndPassword(auth, e, p);
             update(ref(db, 'users/' + btoa(e)), { email: e, role: (e === SUPER_ADMIN ? 'admin' : 'user') });
-        } else res = await signInWithEmailAndPassword(auth, e, p);
+        } else await signInWithEmailAndPassword(auth, e, p);
         closeModal();
     } catch(err) { alert(err.message); }
   };
