@@ -3,71 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Board: Likes & Comments</title>
+    <title>CarRate: Оцени тачку</title>
     <style>
-        :root { --pink: #e91e63; --violet: #667eea; --bg: #f0f2f5; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 20px; transition: background 0.5s; }
+        :root { --accent: #00d2ff; --dark: #2d3436; --card: #ffffff; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: white; margin: 0; padding: 20px; }
         
         header { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px 25px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
-            border-radius: 20px; margin-bottom: 30px; position: sticky; top: 10px; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 15px 25px; background: rgba(0,0,0,0.8); border-radius: 15px; margin-bottom: 30px; border: 1px solid #444;
         }
-        
-        .search-box { flex-grow: 1; margin: 0 20px; }
-        .search-box input { width: 100%; padding: 10px 15px; border-radius: 25px; border: 1px solid #ddd; outline: none; }
 
-        button { cursor: pointer; border: none; font-weight: 600; transition: 0.2s; }
-        .btn-add { background: var(--pink); color: white; padding: 10px 20px; border-radius: 12px; }
-        .btn-outline { background: #f1f3f5; padding: 10px 15px; border-radius: 12px; }
-
-        .profile-header { text-align: center; margin-bottom: 30px; color: white; background: var(--violet); padding: 40px; border-radius: 25px; }
-        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid white; object-fit: cover; background: #eee; }
+        .search-box input { background: #333; border: 1px solid #555; color: white; padding: 10px; border-radius: 8px; width: 250px; }
         
+        button { cursor: pointer; border: none; font-weight: bold; border-radius: 8px; padding: 10px 15px; }
+        .btn-main { background: var(--accent); color: black; }
+        
+        .profile-card { 
+            background: linear-gradient(45deg, #2d3436, #000); padding: 30px; border-radius: 20px; 
+            text-align: center; border: 1px solid var(--accent); margin-bottom: 30px;
+        }
+        .car-info { font-size: 1.2rem; color: var(--accent); margin: 10px 0; }
+        .average-score { font-size: 3rem; font-weight: 900; margin: 10px 0; }
+
         .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-        .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .mini-avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
-        
-        .card textarea { width: 100%; border: none; outline: none; min-height: 80px; resize: none; font-size: 16px; background: transparent; }
-        
-        /* Likes & Comments UI */
-        .card-footer { display: flex; gap: 15px; margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
-        .action-btn { background: none; color: #666; font-size: 14px; display: flex; align-items: center; gap: 5px; }
-        .action-btn:hover { color: var(--pink); }
+        .card { background: var(--card); color: #333; border-radius: 15px; padding: 20px; position: relative; }
+        .rating-badge { 
+            position: absolute; top: -10px; right: -10px; background: black; color: var(--accent); 
+            width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid var(--accent);
+        }
 
-        .comments-section { background: #f8f9fa; border-radius: 12px; padding: 10px; margin-top: 10px; font-size: 13px; }
-        .comment-item { margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px; }
-        .comment-input { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 5px 10px; margin-top: 5px; box-sizing: border-box; }
-
-        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: white; padding: 25px; border-radius: 20px; width: 320px; }
+        .rate-select { padding: 5px; border-radius: 5px; margin-bottom: 10px; width: 100%; border: 1px solid #ccc; }
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; color: black; padding: 30px; border-radius: 15px; width: 300px; }
         .hidden { display: none; }
     </style>
 </head>
-<body id="mainBody">
+<body>
 
 <header>
-    <div onclick="goToHome()" style="cursor:pointer; color: var(--violet); font-weight: bold;">🚀 Board</div>
-    <div class="search-box"><input type="text" id="searchInput" placeholder="Поиск по Email..."></div>
+    <div onclick="goToHome()" style="cursor:pointer; font-size: 24px;">🏎️ <span style="color:var(--accent)">Car</span>Rate</div>
+    <div class="search-box"><input type="text" id="searchInput" placeholder="Найти владельца (email)..."></div>
     <div style="display: flex; gap: 10px;">
-        <button class="btn-add" id="addBtn">+ Пост</button>
-        <div id="guestSection"><button class="btn-outline" onclick="openModal('login')">Вход</button></div>
+        <div id="guestSection"><button class="btn-main" onclick="openModal('login')">Вход</button></div>
         <div id="userSection" class="hidden">
-            <button class="btn-outline" id="myProfileBtn">Профиль</button>
-            <button class="btn-outline" onclick="window.logout()">Выход</button>
+            <button class="btn-main" id="myProfileBtn">Мой Гараж</button>
+            <button style="background:#ff7675" onclick="window.logout()">Выход</button>
         </div>
     </div>
 </header>
 
-<div id="profileInfo" class="profile-header hidden">
-    <img id="headerAvatar" class="profile-avatar" src="">
-    <h1 id="profileName" style="margin: 0;">Профиль</h1>
-    <div id="ownerControls" class="hidden" style="margin-top: 15px;">
-        <input type="text" id="avatarUrlInput" placeholder="URL Аватарки" style="padding: 8px; border-radius: 8px;">
-        <input type="color" id="wallColorPicker">
-        <button class="btn-add" id="saveProfileBtn">ОК</button>
+<div id="profileInfo" class="profile-card hidden">
+    <h1 id="profileName" style="margin:0">Гараж</h1>
+    <div class="car-info" id="carModelDisplay">Авто: Не указано</div>
+    <div class="average-score" id="avgScore">--</div>
+    <div style="font-size: 0.8rem;">ОБЩИЙ РЕЙТИНГ АВТО</div>
+    
+    <div id="ownerControls" class="hidden" style="margin-top:20px; border-top: 1px dashed #555; padding-top:15px;">
+        <input type="text" id="carModelInput" placeholder="Марка/Модель авто..." style="padding:8px; border-radius:5px;">
+        <button class="btn-main" id="saveProfileBtn">Обновить авто</button>
     </div>
+</div>
+
+<div style="margin-bottom: 20px;">
+    <h3>Оставить отзыв и оценку:</h3>
+    <select id="rateVal" class="rate-select" style="width: 100px; margin-right: 10px;">
+        <option value="10">10/10 - Идеал</option>
+        <option value="9">9/10</option>
+        <option value="8">8/10</option>
+        <option value="7">7/10</option>
+        <option value="6">6/10</option>
+        <option value="5">5/10 - Средне</option>
+        <option value="1">1/10 - Ведро</option>
+    </select>
+    <button class="btn-main" id="addBtn">Оценить тачку</button>
 </div>
 
 <div class="board" id="board"></div>
@@ -75,17 +83,17 @@
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
         <h3 id="modalTitle">Вход</h3>
-        <input type="email" id="authEmail" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="Email">
-        <input type="password" id="authPass" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="Пароль">
-        <button class="btn-add" style="width:100%" id="authSubmit">Продолжить</button>
-        <button style="width:100%; margin-top:5px;" onclick="closeModal()">Отмена</button>
+        <input type="email" id="authEmail" style="width:100%; margin-bottom:10px; padding:8px;" placeholder="Email">
+        <input type="password" id="authPass" style="width:100%; margin-bottom:10px; padding:8px;" placeholder="Пароль">
+        <button class="btn-main" style="width:100%" id="authSubmit">ОК</button>
+        <button onclick="closeModal()" style="width:100%; background:none; margin-top:10px;">Отмена</button>
     </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, remove, update, onValue, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, remove, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
@@ -107,98 +115,76 @@
   window.goToHome = () => window.location.href = window.location.pathname;
   window.goToProfile = (email) => { if(email && email !== 'Anonymous') window.location.href = `?user=${btoa(email)}`; };
 
-  // --- ЛОГИКА ПОСТОВ ---
+  // --- ДАННЫЕ ПРОФИЛЯ ---
+  if (wallOwnerId !== 'public') {
+    onValue(ref(db, 'profiles/' + wallOwnerId), (snap) => {
+        const data = snap.val() || {};
+        document.getElementById('profileName').innerText = `Владелец: ${atob(wallOwnerId).split('@')[0]}`;
+        document.getElementById('carModelDisplay').innerText = `🚗 Авто: ${data.car || 'Не указано'}`;
+        document.getElementById('profileInfo').classList.remove('hidden');
+    });
+
+    // Расчет среднего рейтинга
+    onValue(ref(db, 'walls/' + wallOwnerId), (snap) => {
+        let total = 0, count = 0;
+        snap.forEach(child => {
+            if(child.val().rate) { total += parseInt(child.val().rate); count++; }
+        });
+        document.getElementById('avgScore').innerText = count > 0 ? (total/count).toFixed(1) : '--';
+    });
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    document.getElementById('guestSection').classList.toggle('hidden', !!user);
+    document.getElementById('userSection').classList.toggle('hidden', !user);
+    if (user && btoa(user.email) === wallOwnerId) document.getElementById('ownerControls').classList.remove('hidden');
+    if (user) document.getElementById('myProfileBtn').onclick = () => goToProfile(user.email);
+  });
+
+  document.getElementById('saveProfileBtn').onclick = () => {
+    const car = document.getElementById('carModelInput').value;
+    update(ref(db, 'profiles/' + wallOwnerId), { car });
+    alert("Данные авто обновлены!");
+  };
+
+  // --- ПОСТИНГ ОТЗЫВА ---
+  document.getElementById('addBtn').onclick = () => {
+    const rate = document.getElementById('rateVal').value;
+    const author = auth.currentUser ? auth.currentUser.email : "Anonymous";
+    if (!auth.currentUser && localStorage.getItem('did_post_anon')) return alert("Войдите, чтобы оценивать больше!");
+    
+    push(ref(db, 'walls/' + wallOwnerId), { 
+        text: "", 
+        author: author, 
+        rate: rate,
+        ts: Date.now() 
+    });
+    if (!auth.currentUser) localStorage.setItem('did_post_anon', 'true');
+  };
+
   onChildAdded(ref(db, 'walls/' + wallOwnerId), (snap) => {
     const data = snap.val();
     const id = snap.key;
-    const card = document.createElement('div');
-    card.id = id; card.className = 'card';
-    card.innerHTML = `
-        <div class="card-header">
-            <img class="mini-avatar" id="av-${id}" src="https://ui-avatars.com/api/?name=${data.author}">
-            <b style="cursor:pointer" onclick="goToProfile('${data.author}')">${data.author.split('@')[0]}</b>
-        </div>
-        <textarea id="text-${id}">${data.text || ''}</textarea>
-        <div class="card-footer">
-            <button class="action-btn" id="like-${id}">❤️ <span id="count-${id}">${data.likes || 0}</span></button>
-            <button class="action-btn" onclick="document.getElementById('comm-box-${id}').classList.toggle('hidden')">💬 Комменты</button>
-        </div>
-        <div id="comm-box-${id}" class="comments-section hidden">
-            <div id="list-${id}"></div>
-            <input type="text" class="comment-input" placeholder="Ваш коммент..." id="inp-${id}">
-        </div>
+    const div = document.createElement('div');
+    div.id = id; div.className = 'card';
+    div.innerHTML = `
+        <div class="rating-badge">${data.rate || '?'}</div>
+        <small onclick="goToProfile('${data.author}')" style="cursor:pointer">Оценка от: <b>${data.author}</b></small>
+        <textarea placeholder="Оставьте комментарий к оценке...">${data.text || ''}</textarea>
+        ${(auth.currentUser?.email === data.author) ? `<button onclick="remove(ref(db, 'walls/${wallOwnerId}/${id}'))" style="font-size:10px; color:red; border:1px solid red; background:none;">Удалить мой отзыв</button>` : ''}
     `;
-    document.getElementById('board').prepend(card);
-
-    // Лайки
-    document.getElementById(`like-${id}`).onclick = () => {
-        update(ref(db, `walls/${wallOwnerId}/${id}`), { likes: increment(1) });
-    };
-
-    // Комменты
-    document.getElementById(`inp-${id}`).onkeypress = (e) => {
-        if (e.key === 'Enter' && auth.currentUser) {
-            const commRef = ref(db, `walls/${wallOwnerId}/${id}/comments`);
-            push(commRef, { text: e.target.value, user: auth.currentUser.email });
-            e.target.value = '';
-        } else if (e.key === 'Enter') alert("Войдите, чтобы комментить!");
-    };
-
-    // Слушатель комментов
-    onValue(ref(db, `walls/${wallOwnerId}/${id}/comments`), (cSnap) => {
-        const list = document.getElementById(`list-${id}`);
-        list.innerHTML = '';
-        cSnap.forEach(child => {
-            list.innerHTML += `<div class="comment-item"><b>${child.val().user.split('@')[0]}:</b> ${child.val().text}</div>`;
-        });
-    });
-
-    // Редактирование
-    const area = document.getElementById(`text-${id}`);
+    document.getElementById('board').prepend(div);
+    
+    const area = div.querySelector('textarea');
     if (auth.currentUser?.email !== data.author) area.readOnly = true;
     area.oninput = (e) => update(ref(db, `walls/${wallOwnerId}/${id}`), {text: e.target.value});
   });
 
-  // --- ОБЩИЕ ФУНКЦИИ ---
-  onAuthStateChanged(auth, (user) => {
-    document.getElementById('guestSection').classList.toggle('hidden', !!user);
-    document.getElementById('userSection').classList.toggle('hidden', !user);
-    if (user) document.getElementById('myProfileBtn').onclick = () => goToProfile(user.email);
-    if (user && btoa(user.email) === wallOwnerId) document.getElementById('ownerControls').classList.remove('hidden');
-  });
-
-  document.getElementById('addBtn').onclick = () => {
-    const author = auth.currentUser ? auth.currentUser.email : "Anonymous";
-    push(ref(db, 'walls/' + wallOwnerId), { text: "", author, likes: 0, ts: Date.now() });
-  };
-
-  document.getElementById('saveProfileBtn').onclick = () => {
-    update(ref(db, 'profiles/' + wallOwnerId), { 
-        color: document.getElementById('wallColorPicker').value,
-        avatar: document.getElementById('avatarUrlInput').value 
-    });
-    location.reload();
-  };
-
-  // Поиск
-  document.getElementById('searchInput').onkeypress = (e) => {
-    if(e.key === 'Enter') goToProfile(e.target.value);
-  };
-
-  // Слушатель изменений (лайки и текст)
-  onChildChanged(ref(db, 'walls/' + wallOwnerId), snap => {
-    const data = snap.val();
-    document.getElementById(`count-${snap.key}`).innerText = data.likes || 0;
-    const area = document.getElementById(`text-${snap.key}`);
-    if (document.activeElement !== area) area.value = data.text || '';
-  });
-
-  // Auth Modals
+  // Остальные системные функции (Auth, Search)
   window.openModal = (t) => { window.authT = t; document.getElementById('modalOverlay').style.display='flex'; };
   window.closeModal = () => document.getElementById('modalOverlay').style.display='none';
   document.getElementById('authSubmit').onclick = async () => {
-    const e = document.getElementById('authEmail').value;
-    const p = document.getElementById('authPass').value;
+    const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
     try {
         if(window.authT === 'register') await createUserWithEmailAndPassword(auth, e, p);
         else await signInWithEmailAndPassword(auth, e, p);
@@ -206,6 +192,8 @@
     } catch(err) { alert(err.message); }
   };
   window.logout = () => signOut(auth);
+  document.getElementById('searchInput').onkeypress = (e) => { if(e.key === 'Enter') goToProfile(e.target.value); };
+  onChildRemoved(ref(db, 'walls/' + wallOwnerId), s => document.getElementById(s.key)?.remove());
 </script>
 </body>
 </html>
