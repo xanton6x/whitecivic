@@ -6,36 +6,56 @@
     <title>CAR MEET | קהילת הרכב שלך</title>
     <style>
         :root { 
-            --cm-blue: #007aff; --cm-bg: #0f0f10; --cm-card: #1c1c1e; 
-            --cm-text: #f2f2f7; --cm-gray: #8e8e93; --cm-border: #38383a;
+            --cm-blue: #007aff; 
+            --cm-bg: #0b0b0c; 
+            --cm-card: #1c1c1e; 
+            --cm-text: #f2f2f7; 
+            --cm-gray: #8e8e93; 
+            --cm-border: #2c2c2e;
         }
-        body { font-family: system-ui, -apple-system, sans-serif; background: var(--cm-bg); margin: 0; direction: rtl; color: var(--cm-text); }
-        header { background: #1c1c1e; height: 60px; display: flex; justify-content: center; border-bottom: 1px solid var(--cm-border); position: sticky; top: 0; z-index: 100; }
-        .header-content { width: 100%; max-width: 900px; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
-        .logo { font-weight: 900; font-size: 22px; cursor: pointer; color: white; text-decoration: none; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--cm-bg); margin: 0; direction: rtl; color: var(--cm-text); }
+        
+        /* Header */
+        header { background: rgba(28, 28, 30, 0.8); backdrop-filter: blur(10px); height: 60px; display: flex; justify-content: center; border-bottom: 1px solid var(--cm-border); position: sticky; top: 0; z-index: 100; }
+        .header-content { width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
+        .logo { font-weight: 900; font-size: 22px; cursor: pointer; color: white; text-decoration: none; letter-spacing: 1px; }
         .logo span { color: var(--cm-blue); }
         
-        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
-        .profile-box { background: var(--cm-card); border-radius: 15px; padding: 25px; text-align: center; border: 1px solid var(--cm-border); margin-bottom: 20px; }
-        .profile-avatar { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--cm-blue); object-fit: cover; margin-bottom: 10px; }
-        
-        button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; padding: 10px 18px; transition: 0.2s; }
+        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+
+        /* Profile Style */
+        .profile-card { background: var(--cm-card); border-radius: 20px; overflow: hidden; border: 1px solid var(--cm-border); margin-bottom: 20px; }
+        .profile-cover { height: 100px; background: linear-gradient(45deg, #1c1c1e, #007aff); }
+        .profile-info { padding: 0 20px 20px 20px; text-align: center; position: relative; }
+        .profile-avatar-wrapper { position: relative; margin-top: -50px; display: inline-block; }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid var(--cm-card); object-fit: cover; background: #333; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .profile-name { font-size: 22px; font-weight: 800; margin: 10px 0 5px 0; }
+        .profile-actions { display: flex; gap: 10px; justify-content: center; margin-top: 15px; }
+
+        /* Buttons */
+        button { cursor: pointer; border: none; border-radius: 12px; font-weight: 600; padding: 10px 20px; transition: 0.2s; font-family: inherit; }
         .btn-primary { background: var(--cm-blue); color: white; }
         .btn-outline { background: #2c2c2e; color: white; border: 1px solid var(--cm-border); }
+        .btn-primary:hover { opacity: 0.9; }
 
-        .post-creator { background: var(--cm-card); border-radius: 15px; padding: 15px; border: 1px solid var(--cm-border); margin-bottom: 20px; }
-        .post-creator textarea { width: 100%; border: none; outline: none; min-height: 60px; resize: none; background: transparent; color: white; font-size: 16px; margin-bottom: 10px; }
-        .post-creator-actions { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--cm-border); padding-top: 10px; }
-        #imagePreview { max-width: 100%; max-height: 200px; object-fit: contain; margin-top: 10px; border-radius: 8px; display: none; }
-        
-        .card { background: var(--cm-card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--cm-border); }
-        .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; position: relative; }
-        .avatar-sm { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        .card-image { max-width: 100%; height: auto; border-radius: 8px; margin-top: 10px; }
+        /* Post Creator */
+        .post-creator { background: var(--cm-card); border-radius: 16px; padding: 15px; border: 1px solid var(--cm-border); margin-bottom: 20px; }
+        .post-creator textarea { width: 100%; border: none; outline: none; min-height: 50px; resize: none; background: transparent; color: white; font-size: 16px; }
+        .post-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; border-top: 1px solid var(--cm-border); padding-top: 10px; }
+        #imagePreview { width: 100%; max-height: 250px; object-fit: cover; border-radius: 12px; margin-top: 10px; display: none; border: 1px solid var(--cm-border); }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: #1c1c1e; padding: 25px; border-radius: 20px; width: 300px; text-align: center; border: 1px solid var(--cm-border); }
-        .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid var(--cm-border); background: #2c2c2e; color: white; box-sizing: border-box; }
+        /* Feed Cards */
+        .card { background: var(--cm-card); border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--cm-border); }
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .avatar-sm { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; }
+        .card-image { width: 100%; border-radius: 12px; margin-top: 12px; border: 1px solid var(--cm-border); }
+        .author-name { font-weight: 700; cursor: pointer; font-size: 15px; }
+        .post-time { font-size: 11px; color: var(--cm-gray); }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: var(--cm-card); padding: 30px; border-radius: 24px; width: 320px; text-align: center; border: 1px solid var(--cm-border); }
+        .modal input { width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 12px; border: 1px solid var(--cm-border); background: #2c2c2e; color: white; box-sizing: border-box; }
         
         .hidden { display: none; }
     </style>
@@ -46,9 +66,9 @@
     <div class="header-content">
         <div class="logo" onclick="location.href='?user=public'">CAR<span>MEET</span></div>
         <div id="authNav">
-            <button class="btn-outline" id="loginBtn" onclick="openModal()">כניסה</button>
+            <button class="btn-primary" id="loginBtn" onclick="openModal()">כניסה</button>
             <div id="userNav" class="hidden">
-                <button class="btn-outline" onclick="goMyProfile()">פרופיל</button>
+                <button class="btn-outline" onclick="goMyProfile()">הפרופיל שלי</button>
                 <button class="btn-outline" id="logoutBtn">יציאה</button>
             </div>
         </div>
@@ -56,21 +76,29 @@
 </header>
 
 <div class="container">
-    <div id="profileView" class="hidden">
-        <div class="profile-box">
-            <img id="pAvatar" class="profile-avatar" src="https://ui-avatars.com/api/?name=User">
-            <h2 id="pName"></h2>
-            <button class="btn-primary hidden" id="editAv">החלף תמונה 📸</button>
-            <input type="file" id="fileInp" class="hidden" accept="image/*">
+    <div id="profileHeader" class="hidden">
+        <div class="profile-card">
+            <div class="profile-cover"></div>
+            <div class="profile-info">
+                <div class="profile-avatar-wrapper">
+                    <img id="pAvatar" class="profile-avatar" src="">
+                </div>
+                <div id="pName" class="profile-name"></div>
+                <div class="profile-actions">
+                    <button class="btn-primary" id="addFriendBtn">הוסף חבר</button>
+                    <button class="btn-outline hidden" id="editAvBtn" onclick="document.getElementById('fileInp').click()">ערוך תמונה 📸</button>
+                </div>
+            </div>
         </div>
+        <input type="file" id="fileInp" class="hidden" accept="image/*">
     </div>
 
     <div class="post-creator">
-        <textarea id="postInp" placeholder="מה חדש בעולם הרכב?"></textarea>
+        <textarea id="postInp" placeholder="שתף משהו..."></textarea>
         <img id="imagePreview" src="">
-        <div class="post-creator-actions">
-            <label for="postImageInput" class="btn-outline">הוסף תמונה 🖼️</label>
-            <input type="file" id="postImageInput" class="hidden" accept="image/*">
+        <div class="post-actions">
+            <label for="postImgInp" style="cursor:pointer; color:var(--cm-blue); font-size:14px; font-weight:600;">🖼️ הוסף תמונה</label>
+            <input type="file" id="postImgInp" class="hidden" accept="image/*">
             <button class="btn-primary" id="sendPost">פרסום</button>
         </div>
     </div>
@@ -80,18 +108,18 @@
 
 <div class="modal-overlay" id="authModal">
     <div class="modal">
-        <h3>CAR MEET</h3>
+        <h2 style="margin-bottom:20px;">CAR MEET</h2>
         <input type="text" id="uName" placeholder="שם משתמש">
-        <input type="password" id="uPass" placeholder="סיסמה (6 תווים)">
+        <input type="password" id="uPass" placeholder="סיסמה">
         <button class="btn-primary" id="authDo" style="width:100%">כניסה / הרשמה</button>
-        <button class="btn-outline" onclick="closeModal()" style="width:100%; margin-top:8px;">ביטול</button>
+        <button class="btn-outline" onclick="closeModal()" style="width:100%; margin-top:10px; border:none;">ביטול</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getDatabase, ref, push, onChildAdded, update, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
@@ -106,131 +134,94 @@
 
     const q = new URLSearchParams(window.location.search);
     const wallId = q.get('user') || 'public';
-    let currentPostImage = null; // משתנה גלובלי לתמונת הפוסט הנוכחית
+    let currentImg = null;
 
-    // עזרים
-    const toEmail = (name) => `${name.toLowerCase().replace(/\s/g, '')}@carmeet.com`;
-    const getCleanName = (email) => email.split('@')[0];
+    const toEmail = (n) => `${n.toLowerCase().replace(/\s/g, '')}@carmeet.com`;
+    const cleanName = (e) => e.split('@')[0];
 
-    // כפתור כניסה/הרשמה
+    // Auth
     document.getElementById('authDo').onclick = async () => {
         const u = document.getElementById('uName').value.trim();
         const p = document.getElementById('uPass').value;
-        if(!u || p.length < 6) return alert("מלא שם וסיסמה (6+ תווים)");
-
+        if(!u || p.length < 6) return alert("שם וסיסמה (6+ תווים)");
         try {
             await signInWithEmailAndPassword(auth, toEmail(u), p);
-        } catch (err) {
-            try {
-                await createUserWithEmailAndPassword(auth, toEmail(u), p);
-                await update(ref(db, 'users/' + btoa(u.toLowerCase())), { username: u, avatar: "" });
-            } catch (err2) { alert("שגיאה: " + err2.message); }
+        } catch {
+            await createUserWithEmailAndPassword(auth, toEmail(u), p);
+            await update(ref(db, 'users/' + btoa(u.toLowerCase())), { username: u, avatar: "" });
         }
         location.reload();
     };
 
-    // ניהול מצב משתמש
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             document.getElementById('loginBtn').classList.add('hidden');
             document.getElementById('userNav').classList.remove('hidden');
-            const myName = getCleanName(user.email);
-            if (wallId === btoa(myName.toLowerCase())) {
-                document.getElementById('editAv').classList.remove('hidden');
+            if (wallId === btoa(cleanName(user.email).toLowerCase())) {
+                document.getElementById('editAvBtn').classList.remove('hidden');
+                document.getElementById('addFriendBtn').classList.add('hidden');
             }
         }
-        if (wallId !== 'public') loadWallHeader();
+        if (wallId !== 'public') loadProfile();
     });
 
-    async function loadWallHeader() {
-        document.getElementById('profileView').classList.remove('hidden');
+    async function loadProfile() {
+        document.getElementById('profileHeader').classList.remove('hidden');
         const s = await get(ref(db, 'users/' + wallId));
         if (s.exists()) {
             document.getElementById('pName').innerText = s.val().username;
-            document.getElementById('pAvatar').src = s.val().avatar || `https://ui-avatars.com/api/?name=${s.val().username}&background=random`;
+            document.getElementById('pAvatar').src = s.val().avatar || `https://ui-avatars.com/api/?name=${s.val().username}&background=random&size=128`;
         }
     }
 
     window.goMyProfile = () => {
-        if (auth.currentUser) location.href = '?user=' + btoa(getCleanName(auth.currentUser.email).toLowerCase());
+        if(auth.currentUser) location.href = '?user=' + btoa(cleanName(auth.currentUser.email).toLowerCase());
     };
 
-    document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => location.href = '?');
+    document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=> location.href='?');
 
-    // העלאת תמונת פוסט
-    document.getElementById('postImageInput').onchange = (e) => {
-        const file = e.target.files[0];
-        if (file && file.size < 1000000) { // עד 1MB
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                currentPostImage = ev.target.result;
-                document.getElementById('imagePreview').src = currentPostImage;
-                document.getElementById('imagePreview').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        } else {
-            currentPostImage = null;
-            document.getElementById('imagePreview').style.display = 'none';
-            alert("הקובץ גדול מדי (עד 1MB) או לא תקין.");
-        }
+    // Posts
+    document.getElementById('postImgInp').onchange = (e) => {
+        const reader = new FileReader();
+        reader.onload = (ev) => { currentImg = ev.target.result; document.getElementById('imagePreview').src = currentImg; document.getElementById('imagePreview').style.display='block'; };
+        reader.readAsDataURL(e.target.files[0]);
     };
 
-    // פרסום פוסט
     document.getElementById('sendPost').onclick = () => {
         const txt = document.getElementById('postInp').value.trim();
-        if (!auth.currentUser) return openModal();
-        if (!txt && !currentPostImage) return; // לא לפרסם פוסט ריק ללא תמונה
-
+        if(!auth.currentUser) return openModal();
+        if(!txt && !currentImg) return;
         push(ref(db, 'walls/' + wallId), {
-            text: txt,
-            author: getCleanName(auth.currentUser.email),
-            image: currentPostImage, // הוספת התמונה לפוסט
-            time: Date.now()
-        }).then(() => { 
-            document.getElementById('postInp').value = "";
-            currentPostImage = null;
-            document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('postImageInput').value = ''; // נקה את בחירת הקובץ
-        });
+            text: txt, author: cleanName(auth.currentUser.email),
+            image: currentImg, time: Date.now()
+        }).then(() => { location.reload(); });
     };
 
-    // הצגת פוסטים
     onChildAdded(ref(db, 'walls/' + wallId), (snap) => {
         const d = snap.val();
-        const id = snap.key;
         const authorId = btoa(d.author.toLowerCase());
-        
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
             <div class="card-header">
-                <img class="avatar-sm" id="img-${id}" src="https://ui-avatars.com/api/?name=${d.author}">
+                <img class="avatar-sm" id="a-${snap.key}" src="https://ui-avatars.com/api/?name=${d.author}">
                 <div>
-                    <div style="font-weight:bold; cursor:pointer;" onclick="location.href='?user=${authorId}'">${d.author}</div>
-                    <div style="font-size:11px; color:gray;">${new Date(d.time).toLocaleString()}</div>
+                    <div class="author-name" onclick="location.href='?user=${authorId}'">${d.author}</div>
+                    <div class="post-time">${new Date(d.time).toLocaleString()}</div>
                 </div>
             </div>
             <div style="white-space:pre-wrap;">${d.text}</div>
             ${d.image ? `<img src="${d.image}" class="card-image">` : ''}
         `;
         document.getElementById('board').prepend(card);
-        
-        get(ref(db, 'users/' + authorId)).then(s => {
-            if(s.val()?.avatar) document.getElementById(`img-${id}`).src = s.val().avatar;
-        });
+        get(ref(db, 'users/' + authorId)).then(s => { if(s.val()?.avatar) document.getElementById(`a-${snap.key}`).src = s.val().avatar; });
     });
 
-    // העלאת תמונת פרופיל
-    document.getElementById('editAv').onclick = () => document.getElementById('fileInp').click();
+    // Avatar Update
     document.getElementById('fileInp').onchange = (e) => {
-        const file = e.target.files[0];
-        if (file && file.size < 1000000) {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                update(ref(db, 'users/' + wallId), { avatar: ev.target.result }).then(() => location.reload());
-            };
-            reader.readAsDataURL(file);
-        } else { alert("הקובץ גדול מדי (עד 1MB)"); }
+        const reader = new FileReader();
+        reader.onload = (ev) => update(ref(db, 'users/' + wallId), { avatar: ev.target.result }).then(() => location.reload());
+        reader.readAsDataURL(e.target.files[0]);
     };
 
     window.openModal = () => document.getElementById('authModal').style.display = 'flex';
