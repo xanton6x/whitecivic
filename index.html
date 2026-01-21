@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VK Dark | תן תגובה</title>
+    <title>VK Style | תן תגובה</title>
     <style>
         :root { 
             --vk-blue: #71aaeb; 
@@ -14,6 +14,7 @@
             --vk-gray: #76787a; 
             --vk-border: #424242;
             --vk-input: #333333;
+            --vk-button-blue: #5181b8;
         }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif; background: var(--vk-bg); margin: 0; padding: 0; direction: rtl; color: var(--vk-text); }
         
@@ -24,20 +25,221 @@
         .container { max-width: 600px; margin: 15px auto; padding: 0 10px; }
 
         button { cursor: pointer; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; padding: 8px 16px; transition: 0.2s; }
-        .btn-primary { background: var(--vk-blue); color: #000; }
+        .btn-primary { background: var(--vk-button-blue); color: white; }
         .btn-outline { background: var(--vk-input); color: var(--vk-text); }
-        .btn-add-post { background: var(--vk-card); color: var(--vk-gray); width: 100%; text-align: right; border: 1px solid var(--vk-border); margin-bottom: 15px; padding: 12px 15px; font-size: 15px; }
+
+        .post-creator { background: var(--vk-card); border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--vk-border); }
+        .post-creator textarea { 
+            width: 100%; border: none; outline: none; min-height: 80px; 
+            resize: none; font-size: 16px; font-family: inherit; 
+            background: transparent; color: var(--vk-text); margin-bottom: 10px;
+        }
+        .post-creator-footer { display: flex; justify-content: flex-end; border-top: 1px solid var(--vk-border); padding-top: 10px; }
 
         .card { background: var(--vk-card); border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--vk-border); position: relative; }
         .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
         .avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #333; }
+        .header-info { display: flex; flex-direction: column; }
         .author-name { color: var(--vk-blue); font-weight: 700; font-size: 15px; text-decoration: none; cursor: pointer; }
-        
-        .card textarea { width: 100%; border: none; outline: none; min-height: 60px; resize: none; font-size: 15px; font-family: inherit; line-height: 1.5; background: transparent; color: var(--vk-text); }
+        .post-date { color: var(--vk-gray); font-size: 12px; margin-top: 2px; }
+        .post-text { font-size: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; margin-top: 5px; }
+
         .delete-btn { position: absolute; left: 10px; top: 10px; color: var(--vk-gray); background: none; font-size: 18px; opacity: 0.5; cursor: pointer; }
 
         #profileSettings { background: var(--vk-card); border-radius: 8px; border: 1px solid var(--vk-border); padding: 20px; margin-bottom: 15px; text-align: center; }
         #avatarPreview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 2px solid var(--vk-border); }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 200; }
-        .modal { background: var(--vk-card); padding:
+        .modal { background: var(--vk-card); padding: 25px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; border: 1px solid var(--vk-border); }
+        .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid var(--vk-border); border-radius: 8px; box-sizing: border-box; background: var(--vk-input); color: var(--vk-text); }
+        
+        .user-list-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid var(--vk-border); cursor: pointer; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <div class="logo" onclick="window.location.href=window.location.pathname">VK</div>
+        <div class="auth-buttons" style="display:flex; gap:8px;">
+            <button class="btn-outline" onclick="showUserList()">👥</button>
+            <span id="guestSection">
+                <button class="btn-outline" onclick="openModal('login')">כניסה</button>
+                <button class="btn-primary" onclick="openModal('register')">הרשמה</button>
+            </span>
+            <span id="userSection" class="hidden">
+                <button class="btn-outline" id="myProfileBtn">פרופיל</button>
+                <button class="btn-outline" onclick="window.logout()">יציאה</button>
+            </span>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div id="profileSettings" class="hidden">
+        <img id="avatarPreview" src="https://ui-avatars.com/api/?name=U" alt="Profile">
+        <br>
+        <label for="filePicker" class="btn-primary" style="display: inline-block; cursor: pointer;">החלף תמונה 📸</label>
+        <input type="file" id="filePicker" accept="image/*" style="display: none;">
+    </div>
+
+    <div class="post-creator" id="postCreatorSection">
+        <textarea id="newPostText" placeholder="מה חדש אצלך?"></textarea>
+        <div class="post-creator-footer">
+            <button class="btn-primary" id="publishBtn">פרסום</button>
+        </div>
+    </div>
+
+    <div id="board"></div>
+</div>
+
+<div class="modal-overlay" id="userListOverlay">
+    <div class="modal" style="padding:0; max-width: 400px;">
+        <h3 style="padding:15px; margin:0; border-bottom:1px solid var(--vk-border);">אנשים</h3>
+        <div id="usersContainer" style="max-height: 400px; overflow-y: auto; text-align: right;"></div>
+        <button class="btn-outline" style="width:100%; border-radius:0; border:none;" onclick="closeUserList()">סגור</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <h3 id="modalTitle" style="margin-top:0">כניסה ל-VK</h3>
+        <input type="email" id="authEmail" placeholder="אימייל">
+        <input type="password" id="authPass" placeholder="סיסמה">
+        <button class="btn-primary" style="width:100%" id="authSubmit">המשך</button>
+        <button class="btn-outline" style="width:100%; margin-top:10px;" onclick="closeModal()">ביטול</button>
+    </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getDatabase, ref, push, onChildAdded, onChildRemoved, remove, update, get, onValue, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
+    authDomain: "whitecivic-21e7f.firebaseapp.com",
+    databaseURL: "https://whitecivic-21e7f-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "whitecivic-21e7f",
+    storageBucket: "whitecivic-21e7f.firebasestorage.app",
+    messagingSenderId: "315183180745",
+    appId: "1:315183180745:web:6e71aa50d0b975d63c9618"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const wallId = urlParams.get('user') || 'public';
+  const SUPER_ADMIN = "anton@gmail.com";
+
+  const getAv = (email, url) => url || `https://ui-avatars.com/api/?name=${email}&background=random&color=fff`;
+
+  // פונקציית עזר לפורמט זמן
+  const formatTime = (ts) => {
+    if (!ts) return "";
+    const date = new Date(ts);
+    return date.toLocaleString('he-IL', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
+
+  onAuthStateChanged(auth, async (user) => {
+    document.getElementById('guestSection').classList.toggle('hidden', !!user);
+    document.getElementById('userSection').classList.toggle('hidden', !user);
+    if (user) {
+        document.getElementById('myProfileBtn').onclick = () => window.location.href = '?user=' + btoa(user.email);
+        if (btoa(user.email) === wallId) {
+            document.getElementById('profileSettings').classList.remove('hidden');
+            const uSnap = await get(ref(db, 'users/' + btoa(user.email)));
+            if (uSnap.val()?.avatar) document.getElementById('avatarPreview').src = uSnap.val().avatar;
+        }
+    }
+  });
+
+  document.getElementById('filePicker').onchange = function(e) {
+    const file = e.target.files[0];
+    if (file && file.size < 1048576) {
+        const reader = new FileReader();
+        reader.onload = (ev) => update(ref(db, 'users/' + btoa(auth.currentUser.email)), { avatar: ev.target.result }).then(() => location.reload());
+        reader.readAsDataURL(file);
+    } else { alert("קובץ גדול מדי"); }
+  };
+
+  document.getElementById('publishBtn').onclick = () => {
+    const text = document.getElementById('newPostText').value.trim();
+    if (!auth.currentUser) return openModal('login');
+    if (!text) return alert("אי אפשר לפרסם פוסט ריק");
+    
+    push(ref(db, 'walls/' + wallId), { 
+        text: text, 
+        author: auth.currentUser.email,
+        timestamp: Date.now() 
+    }).then(() => {
+        document.getElementById('newPostText').value = '';
+    });
+  };
+
+  window.showUserList = () => {
+    document.getElementById('userListOverlay').style.display = 'flex';
+    const cont = document.getElementById('usersContainer');
+    onValue(ref(db, 'users'), (snap) => {
+        cont.innerHTML = '';
+        snap.forEach(child => {
+            const u = child.val();
+            const div = document.createElement('div');
+            div.className = 'user-list-item';
+            div.onclick = () => { window.location.href = '?user=' + child.key; closeUserList(); };
+            div.innerHTML = `<img src="${getAv(u.email, u.avatar)}" class="avatar"><div><b>${u.email.split('@')[0]}</b></div>`;
+            cont.appendChild(div);
+        });
+    }, { onlyOnce: true });
+  };
+  window.closeUserList = () => document.getElementById('userListOverlay').style.display = 'none';
+
+  onChildAdded(ref(db, 'walls/' + wallId), (snap) => {
+    const data = snap.val(), id = snap.key, authorId = btoa(data.author);
+    const isOwnerOrAdmin = auth.currentUser && (btoa(auth.currentUser.email) === wallId || auth.currentUser.email === SUPER_ADMIN);
+    
+    const div = document.createElement('div');
+    div.id = id; div.className = 'card';
+    div.innerHTML = `
+        <div class="card-header">
+            <img id="av-${id}" src="${getAv(data.author)}" class="avatar">
+            <div class="header-info">
+                <span class="author-name" onclick="window.location.href='?user=${authorId}'">${data.author.split('@')[0]}</span>
+                <span class="post-date">${formatTime(data.timestamp)}</span>
+            </div>
+            ${isOwnerOrAdmin ? `<span class="delete-btn" onclick="if(confirm('למחוק?')) remove(ref(db, 'walls/${wallId}/${id}'))">✕</span>` : ''}
+        </div>
+        <div class="post-text">${data.text}</div>
+    `;
+    document.getElementById('board').prepend(div);
+
+    onValue(ref(db, 'users/' + authorId), (uSnap) => {
+        if (uSnap.val()?.avatar) document.getElementById(`av-${id}`).src = uSnap.val().avatar;
+    });
+  });
+
+  window.openModal = (t) => { 
+    window.act = t; 
+    document.getElementById('modalTitle').innerText = t === 'login' ? 'כניסה ל-VK' : 'הרשמה ל-VK';
+    document.getElementById('modalOverlay').style.display='flex'; 
+  };
+  window.closeModal = () => document.getElementById('modalOverlay').style.display='none';
+  
+  document.getElementById('authSubmit').onclick = async () => {
+    const e = document.getElementById('authEmail').value, p = document.getElementById('authPass').value;
+    try {
+        if(window.act === 'register') {
+            await createUserWithEmailAndPassword(auth, e, p);
+            update(ref(db, 'users/' + btoa(e)), { email: e, role: (e === SUPER_ADMIN ? 'admin' : 'user') });
+        } else await signInWithEmailAndPassword(auth, e, p);
+        closeModal();
+    } catch(err) { alert(err.message); }
+  };
+  window.logout = () => signOut(auth);
+  onChildRemoved(ref(db, 'walls/' + wallId), s => document.getElementById(s.key)?.remove());
+</script>
+</body>
+</html>
