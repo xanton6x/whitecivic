@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Padlet Mobile</title>
+    <title>תן תגובה</title>
     <style>
         :root { --pink: #e91e63; --violet: #667eea; }
-        body { font-family: 'Inter', sans-serif; background: #667eea; margin: 0; padding: 10px; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #667eea; margin: 0; padding: 10px; direction: rtl; }
         
         /* Адаптивный хедер */
         header { 
@@ -19,10 +19,11 @@
             border-radius: 20px; 
             margin-bottom: 20px;
             text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
         @media (min-width: 600px) {
-            header { flex-direction: row; justify-content: space-between; text-align: left; }
+            header { flex-direction: row; justify-content: space-between; text-align: right; }
         }
 
         .auth-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
@@ -35,16 +36,16 @@
         }
         button:active { transform: scale(0.95); }
 
-        .btn-add { background: var(--pink); color: white; width: 100%; }
+        .btn-add { background: var(--pink); color: white; width: 100%; font-size: 16px; }
         @media (min-width: 600px) { .btn-add { width: auto; } }
 
         .btn-outline { background: #f1f1f1; color: #333; }
         .btn-primary { background: var(--violet); color: white; }
 
-        /* Адаптивная сетка карточек */
+        /* Сетка карточек */
         .board { 
             display: grid; 
-            grid-template-columns: 1fr; /* По умолчанию одна колонка для мобильных */
+            grid-template-columns: 1fr; 
             gap: 15px; 
         }
 
@@ -57,31 +58,35 @@
             border-radius: 20px; 
             padding: 15px; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: right;
         }
 
         .card textarea { 
             width: 100%; border: none; outline: none; 
-            min-height: 120px; resize: none; font-size: 16px; /* 16px предотвращает зум в iOS */
-            padding: 5px 0;
+            min-height: 120px; resize: none; font-size: 16px;
+            padding: 10px 0;
+            font-family: inherit;
+            direction: ltr; /* Текст внутри (email/english) лучше оставить ltr */
         }
 
-        /* Модальные окна на весь экран для мобильных */
         .modal { 
             background: white; 
             padding: 25px; 
             border-radius: 20px; 
             width: 90%; 
             max-width: 350px; 
+            text-align: center;
         }
         
         .modal input { 
             width: 100%; padding: 15px; margin: 10px 0; 
             border: 1px solid #ddd; border-radius: 12px; 
             box-sizing: border-box; font-size: 16px;
+            text-align: center;
         }
 
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .admin-only { display: none; background: #fff0f0; color: #ff4757; width: 100%; margin-top: 10px; padding: 10px; }
+        .admin-only { display: none; background: #fff0f0; color: #ff4757; width: 100%; margin-top: 10px; padding: 10px; border-radius: 10px; }
         .admin-mode .admin-only { display: block; }
         .hidden { display: none; }
     </style>
@@ -90,18 +95,18 @@
 
 <header>
     <div onclick="window.location.href=window.location.pathname" style="cursor:pointer">
-        <h2 style="margin:0">🚀 MyBoard</h2>
-        <small id="userStatus" style="color: #666;">Загрузка...</small>
+        <h2 style="margin:0">🚀 תן תגובה</h2>
+        <small id="userStatus" style="color: #666;">טוען...</small>
     </div>
     <div class="auth-buttons">
-        <button class="btn-add" id="addBtn">+ Пост</button>
+        <button class="btn-add" id="addBtn">+ פוסט חדש</button>
         <span id="guestSection">
-            <button class="btn-outline" onclick="openModal('login')">Войти</button>
-            <button class="btn-primary" onclick="openModal('register')">Регистрация</button>
+            <button class="btn-outline" onclick="openModal('login')">התחבר</button>
+            <button class="btn-primary" onclick="openModal('register')">הרשמה</button>
         </span>
         <span id="userSection" class="hidden">
-            <button class="btn-outline" id="myProfileBtn">Профиль</button>
-            <button class="btn-outline" onclick="window.logout()">Выход</button>
+            <button class="btn-outline" id="myProfileBtn">פרופיל שלי</button>
+            <button class="btn-outline" onclick="window.logout()">התנתק</button>
         </span>
     </div>
 </header>
@@ -110,114 +115,13 @@
 
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-        <h3 id="modalTitle" style="margin-top:0">Вход</h3>
-        <input type="email" id="authEmail" placeholder="Email">
-        <input type="password" id="authPass" placeholder="Пароль">
-        <button class="btn-primary" style="width:100%" id="authSubmit">Готово</button>
-        <button class="btn-outline" style="width:100%; margin-top:10px;" onclick="closeModal()">Отмена</button>
+        <h3 id="modalTitle" style="margin-top:0">כניסה</h3>
+        <input type="email" id="authEmail" placeholder="אימייל">
+        <input type="password" id="authPass" placeholder="סיסמה">
+        <button class="btn-primary" style="width:100%" id="authSubmit">אישור</button>
+        <button class="btn-outline" style="width:100%; margin-top:10px;" onclick="closeModal()">ביטול</button>
     </div>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
-    authDomain: "whitecivic-21e7f.firebaseapp.com",
-    databaseURL: "https://whitecivic-21e7f-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "whitecivic-21e7f",
-    storageBucket: "whitecivic-21e7f.firebasestorage.app",
-    messagingSenderId: "315183180745",
-    appId: "1:315183180745:web:6e71aa50d0b975d63c9618"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getDatabase(app);
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const wallId = urlParams.get('user') || 'public';
-  const cardsRef = ref(db, 'walls/' + wallId);
-
-  const ADMIN_EMAIL = "admin@test.com"; 
-  let currentAction = 'login';
-
-  window.openModal = (type) => {
-    currentAction = type;
-    document.getElementById('modalTitle').innerText = type === 'login' ? 'С возвращением' : 'Создать аккаунт';
-    document.getElementById('modalOverlay').style.display = 'flex';
-  };
-  window.closeModal = () => document.getElementById('modalOverlay').style.display = 'none';
-
-  document.getElementById('authSubmit').onclick = async () => {
-    const email = document.getElementById('authEmail').value;
-    const pass = document.getElementById('authPass').value;
-    try {
-        if (currentAction === 'register') await createUserWithEmailAndPassword(auth, email, pass);
-        else await signInWithEmailAndPassword(auth, email, pass);
-        closeModal();
-    } catch (e) { alert(e.message); }
-  };
-
-  window.logout = () => signOut(auth);
-
-  onAuthStateChanged(auth, (user) => {
-    document.getElementById('guestSection').classList.toggle('hidden', !!user);
-    document.getElementById('userSection').classList.toggle('hidden', !user);
-    document.getElementById('userStatus').innerText = user ? user.email : "Анонимный режим";
-    
-    if (user) {
-        document.getElementById('myProfileBtn').onclick = () => {
-            window.location.href = window.location.pathname + '?user=' + btoa(user.email);
-        };
-        if (user.email === ADMIN_EMAIL) document.body.classList.add('admin-mode');
-    }
-  });
-
-  document.getElementById('addBtn').onclick = () => {
-    if (!auth.currentUser) {
-        if (localStorage.getItem('did_post_anon')) return alert("Лимит! Войдите для новых постов.");
-        push(cardsRef, { text: "", author: "Anonymous" });
-        localStorage.setItem('did_post_anon', 'true');
-    } else {
-        push(cardsRef, { text: "", author: auth.currentUser.email });
-    }
-  };
-
-  onChildAdded(cardsRef, snap => {
-    const data = snap.val();
-    const id = snap.key;
-    const div = document.createElement('div');
-    div.id = id; div.className = 'card';
-    div.innerHTML = `
-        <div style="margin-bottom:10px;">
-            <small style="cursor:pointer; color:var(--violet); font-weight:bold;" onclick="window.location.href='?user=${btoa(data.author)}'">
-                👤 ${data.author.split('@')[0]}
-            </small>
-        </div>
-        <textarea placeholder="Напишите что-нибудь...">${data.text || ''}</textarea>
-        <button class="admin-only" style="border-radius:8px;">Удалить</button>
-    `;
-    document.getElementById('board').prepend(div);
-    
-    const area = div.querySelector('textarea');
-    if (auth.currentUser && (auth.currentUser.email === data.author || auth.currentUser.email === ADMIN_EMAIL)) {
-        area.oninput = (e) => update(ref(db, `walls/${wallId}/${id}`), {text: e.target.value});
-        div.querySelector('button').style.display = 'block';
-        div.querySelector('button').onclick = () => remove(ref(db, `walls/${wallId}/${id}`));
-    } else {
-        area.readOnly = true;
-    }
-  });
-
-  onChildChanged(cardsRef, snap => {
-    const area = document.getElementById(snap.key)?.querySelector('textarea');
-    if (area && document.activeElement !== area) area.value = snap.val().text;
-  });
-
-  onChildRemoved(cardsRef, snap => document.getElementById(snap.key)?.remove());
-</script>
-</body>
-</html>
+  import
