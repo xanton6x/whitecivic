@@ -1,7 +1,8 @@
 import { auth, clean } from "./config.js";
-import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { listenToFeed } from "./database.js";
-import { initProfile } from "./profile.js";
+import { loadProfile } from "./profile.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
 
 const q = new URLSearchParams(window.location.search);
 const profileId = q.get('user');
