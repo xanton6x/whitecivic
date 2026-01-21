@@ -3,62 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Padlet: Hybrid Mode</title>
+    <title>Padlet Pro</title>
     <style>
-        :root { --pink: #e91e63; --violet: #667eea; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-attachment: fixed; margin: 0; padding: 20px; color: #333; }
-        
+        :root { --pink: #e91e63; --violet: #667eea; --dark: #2d3436; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-attachment: fixed; margin: 0; padding: 20px; }
+
         header { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px 25px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
-            border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            padding: 15px 30px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
 
-        .auth-group { display: flex; gap: 8px; }
-        .hidden { display: none !important; }
-        
-        input { padding: 8px 12px; border-radius: 10px; border: 1px solid #ddd; outline: none; }
-        button { cursor: pointer; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 600; transition: 0.2s; }
-        .btn-add { background: var(--pink); color: white; font-size: 16px; }
-        .btn-add:hover { transform: scale(1.05); }
-        .btn-login { background: #eee; }
+        .auth-buttons button { margin-left: 10px; }
+        button { cursor: pointer; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; transition: 0.2s; }
+        .btn-add { background: var(--pink); color: white; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3); }
+        .btn-outline { background: transparent; border: 2px solid var(--violet); color: var(--violet); }
+        .btn-primary { background: var(--violet); color: white; }
 
-        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); position: relative; }
-        .card textarea { width: 100%; border: none; outline: none; min-height: 100px; font-size: 16px; resize: none; background: transparent; }
-        .author-info { font-size: 11px; color: #999; margin-bottom: 8px; font-style: italic; }
-        
-        .btn-del { 
-            background: #fff0f0; color: #ff4757; font-size: 11px; margin-top: 15px; 
-            display: none; width: 100%; 
+        /* MODAL STYLES */
+        .modal-overlay { 
+            position: fixed; top:0; left:0; width:100%; height:100%; 
+            background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; 
         }
+        .modal { background: white; padding: 30px; border-radius: 20px; width: 320px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .modal h3 { margin-top: 0; color: var(--dark); }
+        .modal input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        .modal .btn-full { width: 100%; margin-top: 10px; }
+
+        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .card textarea { width: 100%; border: none; outline: none; min-height: 120px; font-size: 16px; resize: none; line-height: 1.5; }
+        .author { font-size: 11px; color: #aaa; margin-bottom: 10px; }
+        .btn-del { background: #fff0f0; color: #ff4757; width: 100%; margin-top: 15px; display: none; }
         .admin-mode .btn-del { display: block; }
+        
+        .hidden { display: none; }
     </style>
 </head>
-<body id="appBody">
+<body id="mainBody">
 
 <header>
     <div>
-        <h2 style="margin:0; color: var(--violet);">✨ SimpleBoard</h2>
-        <small id="status">Анонимный режим</small>
+        <h2 style="margin:0; color: var(--violet);">🚀 MyBoard</h2>
+        <small id="userStatus">Anonymous Mode</small>
     </div>
-
-    <div class="auth-group">
-        <div id="guestUI" class="auth-group">
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Пароль">
-            <button class="btn-login" onclick="window.handleAuth('login')">Войти</button>
-            <button style="background: var(--violet); color: white;" onclick="window.handleAuth('register')">Регистрация</button>
-        </div>
-        <div id="userUI" class="auth-group hidden">
-            <span id="userDisplay" style="align-self: center; margin-right: 10px; font-weight: bold;"></span>
-            <button onclick="window.handleAuth('logout')">Выйти</button>
-        </div>
-        <button class="btn-add" id="addBtn">+ Создать пост</button>
+    
+    <div class="auth-buttons">
+        <button class="btn-add" id="addBtn">+ New Post</button>
+        <span id="guestSection">
+            <button class="btn-outline" onclick="openModal('login')">Login</button>
+            <button class="btn-primary" onclick="openModal('register')">Sign Up</button>
+        </span>
+        <span id="userSection" class="hidden">
+            <button class="btn-outline" onclick="window.logout()">Logout</button>
+        </span>
     </div>
 </header>
 
 <div class="board" id="board"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <h3 id="modalTitle">Login</h3>
+        <input type="email" id="authEmail" placeholder="Email">
+        <input type="password" id="authPass" placeholder="Password">
+        <button class="btn-primary btn-full" id="authSubmit">Submit</button>
+        <button class="btn-outline btn-full" onclick="closeModal()">Cancel</button>
+    </div>
+</div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -81,81 +93,60 @@ const firebaseConfig = {
   const db = getDatabase(app);
   const cardsRef = ref(db, 'cards');
 
-  const ADMIN_EMAIL = "admin@test.com"; // ЗАМЕНИТЕ НА ВАШ
-  let currentUser = null;
+  const ADMIN_EMAIL = "admin@test.com"; // Поменяйте на свой email
+  let currentAction = 'login';
 
-  // Аутентификация
-  window.handleAuth = async (type) => {
-    const email = document.getElementById('email').value;
-    const pass = document.getElementById('password').value;
-    try {
-        if (type === 'register') await createUserWithEmailAndPassword(auth, email, pass);
-        if (type === 'login') await signInWithEmailAndPassword(auth, email, pass);
-        if (type === 'logout') await signOut(auth);
-    } catch (e) { alert("Ошибка: " + e.message); }
+  // --- MODAL LOGIC ---
+  window.openModal = (type) => {
+    currentAction = type;
+    document.getElementById('modalTitle').innerText = type === 'login' ? 'Welcome Back' : 'Create Account';
+    document.getElementById('modalOverlay').style.display = 'flex';
   };
 
+  window.closeModal = () => {
+    document.getElementById('modalOverlay').style.display = 'none';
+  };
+
+  document.getElementById('authSubmit').onclick = async () => {
+    const email = document.getElementById('authEmail').value;
+    const pass = document.getElementById('authPass').value;
+    try {
+        if (currentAction === 'register') await createUserWithEmailAndPassword(auth, email, pass);
+        else await signInWithEmailAndPassword(auth, email, pass);
+        closeModal();
+    } catch (e) { alert(e.message); }
+  };
+
+  window.logout = () => signOut(auth);
+
+  // --- AUTH OBSERVER ---
   onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    const isGuest = !user;
-    document.getElementById('guestUI').classList.toggle('hidden', !isGuest);
-    document.getElementById('userUI').classList.toggle('hidden', isGuest);
-    
+    const guestSec = document.getElementById('guestSection');
+    const userSec = document.getElementById('userSection');
+    const status = document.getElementById('userStatus');
+
     if (user) {
-        document.getElementById('userDisplay').innerText = user.email;
-        document.getElementById('status').innerText = "Вы вошли в систему";
+        guestSec.classList.add('hidden');
+        userSec.classList.remove('hidden');
+        status.innerText = `Logged in as: ${user.email}`;
         if (user.email === ADMIN_EMAIL) document.body.classList.add('admin-mode');
     } else {
+        guestSec.classList.remove('hidden');
+        userSec.classList.add('hidden');
+        status.innerText = "Anonymous Mode (Limit: 1 post)";
         document.body.classList.remove('admin-mode');
-        document.getElementById('status').innerText = "Анонимный режим (лимит: 1 пост)";
     }
   });
 
-  // Логика добавления поста
+  // --- BOARD LOGIC ---
   document.getElementById('addBtn').onclick = () => {
-    if (!currentUser) {
-        // Проверка лимита для анонима
-        const hasPosted = localStorage.getItem('anon_posted');
-        if (hasPosted) {
-            alert("Вы уже создали один анонимный пост. Пожалуйста, зарегистрируйтесь, чтобы создавать больше!");
+    const user = auth.currentUser;
+    if (!user) {
+        if (localStorage.getItem('did_post_anon')) {
+            alert("Limit reached! Please Login to post more.");
             return;
         }
-        // Если лимит не исчерпан, создаем анонимно
-        push(cardsRef, { text: "", author: "Аноним", timestamp: Date.now() });
-        localStorage.setItem('anon_posted', 'true');
+        push(cardsRef, { text: "", author: "Anonymous", ts: Date.now() });
+        localStorage.setItem('did_post_anon', 'true');
     } else {
-        // Для залогиненных лимита нет
-        push(cardsRef, { text: "", author: currentUser.email, timestamp: Date.now() });
-    }
-  };
-
-  // Отрисовка
-  function renderCard(id, data) {
-    let cardEl = document.getElementById(id);
-    if (!cardEl) {
-        cardEl = document.createElement('div');
-        cardEl.id = id;
-        cardEl.className = 'card';
-        cardEl.innerHTML = `
-            <div class="author-info">От: ${data.author}</div>
-            <textarea placeholder="Напишите здесь..."></textarea>
-            <button class="btn-del">Удалить (только Админ)</button>
-        `;
-        document.getElementById('board').prepend(cardEl);
-        
-        cardEl.querySelector('textarea').oninput = (e) => {
-            update(ref(db, 'cards/' + id), { text: e.target.value });
-        };
-        cardEl.querySelector('.btn-del').onclick = () => remove(ref(db, 'cards/' + id));
-    }
-    const area = cardEl.querySelector('textarea');
-    if (document.activeElement !== area) area.value = data.text || "";
-  }
-
-  onChildAdded(cardsRef, (snap) => renderCard(snap.key, snap.val()));
-  onChildChanged(cardsRef, (snap) => renderCard(snap.key, snap.val()));
-  onChildRemoved(cardsRef, (snap) => document.getElementById(snap.key)?.remove());
-
-</script>
-</body>
-</html>
+        push(cardsRef, { text: "", author: user.email, ts:
