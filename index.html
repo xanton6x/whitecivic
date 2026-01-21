@@ -3,71 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Padlet Clone</title>
+    <title>Padlet with Auth</title>
     <style>
-        :root {
-            --padlet-pink: #e91e63;
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        :root { --padlet-pink: #e91e63; --bg: #f4f7f6; }
+        body { font-family: 'Inter', sans-serif; background: #667eea; margin: 0; padding: 20px; }
+        
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px; background: rgba(255,255,255,0.9); border-radius: 15px; margin-bottom: 20px;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-gradient);
-            background-attachment: fixed;
-            margin: 0; padding: 20px; min-height: 100vh;
-        }
+        .auth-box { display: flex; gap: 10px; align-items: center; }
+        .hidden { display: none !important; }
 
-        header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 25px; background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(15px); border-radius: 20px; margin-bottom: 30px; color: white;
-        }
+        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .card textarea { width: 100%; border: none; outline: none; min-height: 80px; font-size: 16px; }
+        .author-tag { font-size: 10px; color: #888; margin-bottom: 5px; }
 
-        .btn-add {
-            background: var(--padlet-pink); color: white; border: none;
-            padding: 12px 24px; border-radius: 25px; font-weight: bold; cursor: pointer;
-        }
-
-        .btn-admin {
-            background: rgba(255,255,255,0.1); color: white; border: 1px solid white;
-            padding: 8px 15px; border-radius: 15px; cursor: pointer; margin-right: 10px;
-        }
-
-        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-
-        .card {
-            background: white; border-radius: 20px; padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column;
-        }
-
-        .card textarea {
-            width: 100%; border: none; resize: none; font-size: 16px;
-            outline: none; min-height: 120px; background: transparent;
-        }
-
-        /* По умолчанию скрываем админ-панель карточки */
-        .admin-controls {
-            display: none; /* Скрыто для всех */
-            justify-content: space-between; align-items: center;
-            margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;
-        }
-
-        /* Класс, который мы добавим через JS для админа */
-        .is-admin .admin-controls { display: flex; }
-
-        .btn-del { background: #ff7675; color: white; border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; }
+        input[type="email"], input[type="password"] { padding: 8px; border-radius: 5px; border: 1px solid #ddd; }
+        button { cursor: pointer; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; }
+        .btn-main { background: var(--padlet-pink); color: white; }
+        .btn-del { background: #ff7675; color: white; margin-top: 10px; display: none; }
+        
+        /* Показываем кнопку удаления только для админа */
+        .admin-mode .btn-del { display: block; }
     </style>
 </head>
-<body id="mainBody">
+<body id="app">
 
 <header>
-    <div>
-        <h2 style="margin:0">✨ My Board</h2>
-        <span id="adminStatus" style="font-size: 12px; opacity: 0.7;">View Mode</span>
+    <h2 style="margin:0">🚀 My Board</h2>
+    
+    <div id="guestUI" class="auth-box">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Пароль">
+        <button onclick="window.handleAuth('login')">Войти</button>
+        <button class="btn-main" onclick="window.handleAuth('register')">Регистрация</button>
     </div>
-    <div>
-        <button class="btn-admin" id="loginBtn">Admin Login</button>
-        <button class="btn-add" id="addBtn">+ New Post</button>
+
+    <div id="userUI" class="auth-box hidden">
+        <span id="userEmail"></span>
+        <button class="btn-main" id="addBtn">+ Пост</button>
+        <button onclick="window.handleAuth('logout')">Выйти</button>
     </div>
 </header>
 
@@ -75,10 +53,10 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getDatabase, ref, push, onValue, update, remove, onChildAdded, onChildChanged, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  // !!! ВСТАВЬТЕ ВАШ CONFIG ТУТ !!!
-  const firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
   authDomain: "whitecivic-21e7f.firebaseapp.com",
   databaseURL: "https://whitecivic-21e7f-default-rtdb.europe-west1.firebasedatabase.app",
@@ -90,30 +68,41 @@
 };
 
   const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
   const db = getDatabase(app);
   const cardsRef = ref(db, 'cards');
 
-  let isAdmin = false;
-  const ADMIN_PASSWORD = "1234"; // ПОМЕНЯЙТЕ ПАРОЛЬ ТУТ!
+  const ADMIN_EMAIL = "admin@test.com"; // УКАЖИТЕ СВОЙ EMAIL ЗДЕСЬ
+  let currentUser = null;
 
-  // Функция входа
-  document.getElementById('loginBtn').onclick = () => {
-    const pass = prompt("Введите пароль админа:");
-    if (pass === ADMIN_PASSWORD) {
-        isAdmin = true;
-        document.getElementById('mainBody').classList.add('is-admin');
-        document.getElementById('adminStatus').innerText = "Admin Mode Active";
-        document.getElementById('loginBtn').style.display = "none";
-        alert("Вы вошли как админ! Теперь вам доступны удаление и цвета.");
-    } else {
-        alert("Неверный пароль!");
-    }
+  // --- ЛОГИКА АВТОРИЗАЦИИ ---
+  window.handleAuth = async (type) => {
+    const email = document.getElementById('email').value;
+    const pass = document.getElementById('password').value;
+    try {
+        if (type === 'register') await createUserWithEmailAndPassword(auth, email, pass);
+        if (type === 'login') await signInWithEmailAndPassword(auth, email, pass);
+        if (type === 'logout') await signOut(auth);
+    } catch (e) { alert(e.message); }
   };
 
-  const board = document.getElementById('board');
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    const isGuest = !user;
+    document.getElementById('guestUI').classList.toggle('hidden', !isGuest);
+    document.getElementById('userUI').classList.toggle('hidden', isGuest);
+    
+    if (user) {
+        document.getElementById('userEmail').innerText = user.email;
+        if (user.email === ADMIN_EMAIL) document.body.classList.add('admin-mode');
+        else document.body.classList.remove('admin-mode');
+    }
+  });
 
+  // --- ЛОГИКА ДОСКИ ---
   document.getElementById('addBtn').onclick = () => {
-    push(cardsRef, { text: "", color: "#ffffff" });
+    if (!currentUser) return alert("Войдите, чтобы писать");
+    push(cardsRef, { text: "", color: "#ffffff", author: currentUser.email });
   };
 
   function renderCard(id, data) {
@@ -123,39 +112,24 @@
         cardEl.id = id;
         cardEl.className = 'card';
         cardEl.innerHTML = `
-            <textarea placeholder="Write something..."></textarea>
-            <div class="admin-controls">
-                <input type="color" class="color-dot">
-                <button class="btn-del">Delete</button>
-            </div>
+            <div class="author-tag">Автор: ${data.author || 'Аноним'}</div>
+            <textarea placeholder="Текст..."></textarea>
+            <button class="btn-del">Удалить (Админ)</button>
         `;
-        board.prepend(cardEl);
+        document.getElementById('board').prepend(cardEl);
         
-        cardEl.querySelector('.btn-del').onclick = () => {
-            if(isAdmin) remove(ref(db, 'cards/' + id));
+        cardEl.querySelector('textarea').oninput = (e) => {
+            if (currentUser) update(ref(db, 'cards/' + id), { text: e.target.value });
         };
-        
-        const area = cardEl.querySelector('textarea');
-        area.oninput = (e) => update(ref(db, 'cards/' + id), { text: e.target.value });
-        
-        const colorInp = cardEl.querySelector('input');
-        colorInp.onchange = (e) => update(ref(db, 'cards/' + id), { color: e.target.value });
+        cardEl.querySelector('.btn-del').onclick = () => remove(ref(db, 'cards/' + id));
     }
-
-    const textarea = cardEl.querySelector('textarea');
-    if (document.activeElement !== textarea) {
-        textarea.value = data.text || "";
-    }
-    cardEl.style.backgroundColor = data.color || "#ffffff";
-    cardEl.querySelector('input').value = data.color || "#ffffff";
+    const area = cardEl.querySelector('textarea');
+    if (document.activeElement !== area) area.value = data.text || "";
   }
 
-  onChildAdded(cardsRef, (snapshot) => renderCard(snapshot.key, snapshot.val()));
-  onChildChanged(cardsRef, (snapshot) => renderCard(snapshot.key, snapshot.val()));
-  onChildRemoved(cardsRef, (snapshot) => {
-    document.getElementById(snapshot.key)?.remove();
-  });
-
+  onChildAdded(cardsRef, (snap) => renderCard(snap.key, snap.val()));
+  onChildChanged(cardsRef, (snap) => renderCard(snap.key, snap.val()));
+  onChildRemoved(snap => document.getElementById(snap.key)?.remove());
 </script>
 </body>
 </html>
