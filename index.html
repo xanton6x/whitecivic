@@ -3,47 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CAR MEET | Admin & Rating</title>
+    <title>CAR MEET | Full Social</title>
     <style>
-        :root { 
-            --cm-blue: #007aff; --cm-bg: #0b0b0c; --cm-card: #1c1c1e; 
-            --cm-text: #f2f2f7; --cm-gray: #8e8e93; --cm-border: #2c2c2e; --cm-gold: #ffcc00;
-        }
+        :root { --cm-blue: #007aff; --cm-bg: #0b0b0c; --cm-card: #1c1c1e; --cm-text: #f2f2f7; --cm-gray: #8e8e93; --cm-border: #2c2c2e; --cm-gold: #ffcc00; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--cm-bg); margin: 0; direction: rtl; color: var(--cm-text); }
         header { background: rgba(28, 28, 30, 0.9); backdrop-filter: blur(10px); height: 60px; display: flex; justify-content: center; border-bottom: 1px solid var(--cm-border); position: sticky; top: 0; z-index: 100; }
         .header-content { width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
         .logo { font-weight: 900; font-size: 22px; cursor: pointer; color: white; text-decoration: none; }
         .logo span { color: var(--cm-blue); }
-        
         .container { max-width: 600px; margin: 0 auto; padding: 15px; }
-
-        /* Profile Section */
-        .profile-card { background: var(--cm-card); border-radius: 20px; overflow: hidden; border: 1px solid var(--cm-border); margin-bottom: 20px; text-align: center; }
+        
+        /* Profile */
+        .profile-card { background: var(--cm-card); border-radius: 20px; overflow: hidden; border: 1px solid var(--cm-border); margin-bottom: 20px; text-align: center; padding-bottom: 20px; }
         .profile-cover { height: 80px; background: linear-gradient(45deg, #1c1c1e, #007aff); }
         .profile-avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--cm-card); margin-top: -45px; object-fit: cover; background: #333; }
-        .profile-name { font-size: 22px; font-weight: 800; margin: 10px 0 0 0; }
-        .profile-rating { color: var(--cm-gold); font-size: 18px; margin-bottom: 15px; font-weight: bold; }
-        .rating-btn { background: none; border: 1px solid var(--cm-gold); color: var(--cm-gold); padding: 5px 12px; border-radius: 20px; font-size: 12px; margin: 5px; }
-
-        /* Post Card */
+        .star-rating { font-size: 24px; color: var(--cm-gold); cursor: pointer; margin: 10px 0; }
+        
+        /* Posts */
         .card { background: var(--cm-card); border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--cm-border); position: relative; }
         .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
         .avatar-sm { width: 40px; height: 40px; border-radius: 50%; }
         .card-image { width: 100%; border-radius: 12px; margin-top: 10px; }
+        .card-actions { display: flex; gap: 20px; margin-top: 15px; border-top: 1px solid var(--cm-border); padding-top: 10px; }
+        .action-btn { cursor: pointer; color: var(--cm-gray); font-size: 14px; display: flex; align-items: center; gap: 5px; background: none; border: none; }
+        .action-btn.liked { color: #ff3b30; }
         
-        .card-actions { display: flex; gap: 15px; margin-top: 15px; border-top: 1px solid var(--cm-border); padding-top: 10px; font-size: 14px; }
-        .action-item { cursor: pointer; color: var(--cm-gray); display: flex; align-items: center; gap: 5px; }
-        .action-item.active { color: var(--cm-blue); }
-        
-        .admin-badge { background: #ff3b30; color: white; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-right: 5px; vertical-align: middle; }
-        .delete-btn { position: absolute; left: 15px; top: 15px; color: #ff3b30; cursor: pointer; font-size: 12px; font-weight: bold; }
+        /* Comments */
+        .comments-section { margin-top: 10px; background: #252528; border-radius: 8px; padding: 10px; font-size: 13px; }
+        .comment { margin-bottom: 5px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .comment b { color: var(--cm-blue); }
+        .comment-input { width: 100%; background: #1c1c1e; border: 1px solid #444; color: white; padding: 5px; border-radius: 5px; margin-top: 8px; }
 
-        /* General UI */
+        .admin-del { position: absolute; left: 15px; top: 15px; color: #ff3b30; cursor: pointer; font-size: 12px; }
         button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; padding: 8px 16px; }
         .btn-primary { background: var(--cm-blue); color: white; }
         .btn-outline { background: #2c2c2e; color: white; border: 1px solid var(--cm-border); }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: var(--cm-card); padding: 25px; border-radius: 20px; width: 300px; text-align: center; }
+        .modal { background: var(--cm-card); padding: 25px; border-radius: 20px; width: 300px; text-align: center; border: 1px solid var(--cm-border); }
         .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid var(--cm-border); background: #2c2c2e; color: white; box-sizing: border-box; }
         .hidden { display: none; }
     </style>
@@ -54,11 +50,14 @@
     <div class="header-content">
         <div class="logo" onclick="location.href='?user=public'">CAR<span>MEET</span></div>
         <div id="authNav">
-            <button class="btn-primary" id="loginBtn" onclick="openModal()">כניסה</button>
-            <div id="userNav" class="hidden">
+            <span id="guestNav">
+                <button class="btn-outline" onclick="openModal('login')">כניסה</button>
+                <button class="btn-primary" onclick="openModal('register')">צור פרופיל</button>
+            </span>
+            <span id="userNav" class="hidden">
                 <button class="btn-outline" onclick="goMyProfile()">פרופיל</button>
                 <button class="btn-outline" id="logoutBtn">יציאה</button>
-            </div>
+            </span>
         </div>
     </div>
 </header>
@@ -68,21 +67,21 @@
         <div class="profile-card">
             <div class="profile-cover"></div>
             <img id="pAvatar" class="profile-avatar" src="">
-            <div class="profile-name"><span id="pName"></span> <span id="pBadge"></span></div>
-            <div id="pRating" class="profile-rating">⭐ 0.0</div>
-            <div id="ratingActions">
-                <button class="rating-btn" onclick="rateUser(5)">דרג 5 ⭐</button>
-                <button class="btn-outline hidden" id="editAvBtn" onclick="document.getElementById('fileInp').click()">ערוך תמונה</button>
+            <div style="font-size:22px; font-weight:800; margin-top:10px;"><span id="pName"></span> <span id="pBadge"></span></div>
+            <div id="pRating" style="color:var(--cm-gold); margin:5px 0;">⭐ 0.0</div>
+            <div id="ratingStars" class="star-rating">
+                <span onclick="rateUser(1)">☆</span><span onclick="rateUser(2)">☆</span><span onclick="rateUser(3)">☆</span><span onclick="rateUser(4)">☆</span><span onclick="rateUser(5)">☆</span>
             </div>
+            <button class="btn-outline hidden" id="editAvBtn" onclick="document.getElementById('fileInp').click()">שנה תמונה</button>
+            <input type="file" id="fileInp" class="hidden" accept="image/*">
         </div>
-        <input type="file" id="fileInp" class="hidden" accept="image/*">
     </div>
 
     <div class="card" id="creator">
-        <textarea id="postInp" style="width:100%; background:none; border:none; color:white; outline:none; resize:none;" placeholder="שתף משהו עם הקהילה..."></textarea>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-            <label for="postImgInp" style="cursor:pointer; color:var(--cm-blue);">🖼️ תמונה</label>
+        <textarea id="postInp" style="width:100%; background:none; border:none; color:white; outline:none; resize:none;" placeholder="מה קורה עם הרכב שלך?"></textarea>
+        <div style="display:flex; justify-content:space-between; margin-top:10px;">
             <input type="file" id="postImgInp" class="hidden" accept="image/*">
+            <label for="postImgInp" style="cursor:pointer; color:var(--cm-blue);">🖼️ הוסף תמונה</label>
             <button class="btn-primary" id="sendPost">פרסום</button>
         </div>
     </div>
@@ -92,10 +91,10 @@
 
 <div class="modal-overlay" id="authModal">
     <div class="modal">
-        <h3>CAR MEET</h3>
+        <h3 id="modalTitle">כניסה</h3>
         <input type="text" id="uName" placeholder="שם משתמש">
-        <input type="password" id="uPass" placeholder="סיסמה">
-        <button class="btn-primary" id="authDo" style="width:100%">כניסה / הרשמה</button>
+        <input type="password" id="uPass" placeholder="סיסמה (6+ תווים)">
+        <button class="btn-primary" id="authDo" style="width:100%">בצע</button>
         <button class="btn-outline" onclick="closeModal()" style="width:100%; margin-top:10px;">ביטול</button>
     </div>
 </div>
@@ -119,105 +118,130 @@
     const q = new URLSearchParams(window.location.search);
     const wallId = q.get('user') || 'public';
     const SUPER_ADMIN = "anton";
-    let currentUserData = null;
+    let currentUser = null;
+    let mode = 'login';
 
-    const toEmail = (n) => `${n.toLowerCase().replace(/\s/g, '')}@carmeet.com`;
-    const cleanName = (e) => e.split('@')[0];
+    const toEmail = (n) => `${n.toLowerCase().trim()}@carmeet.com`;
+    const clean = (e) => e.split('@')[0];
 
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            document.getElementById('loginBtn').classList.add('hidden');
+    onAuthStateChanged(auth, async (u) => {
+        if (u) {
+            currentUser = u;
+            document.getElementById('guestNav').classList.add('hidden');
             document.getElementById('userNav').classList.remove('hidden');
-            const snap = await get(ref(db, 'users/' + btoa(cleanName(user.email).toLowerCase())));
-            currentUserData = snap.val();
+            if(wallId === btoa(clean(u.email))) document.getElementById('editAvBtn').classList.remove('hidden');
         }
         if (wallId !== 'public') loadProfile();
     });
 
+    // Auth Logic
+    window.openModal = (m) => { mode = m; document.getElementById('modalTitle').innerText = m === 'login' ? 'כניסה' : 'יצירת פרופיל'; document.getElementById('authModal').style.display='flex'; };
+    window.closeModal = () => document.getElementById('authModal').style.display='none';
+
+    document.getElementById('authDo').onclick = async () => {
+        const u = document.getElementById('uName').value.trim(), p = document.getElementById('uPass').value;
+        try {
+            if(mode === 'login') await signInWithEmailAndPassword(auth, toEmail(u), p);
+            else {
+                await createUserWithEmailAndPassword(auth, toEmail(u), p);
+                await set(ref(db, 'users/' + btoa(u.toLowerCase())), { username: u, role: (u.toLowerCase() === SUPER_ADMIN ? 'admin' : 'user') });
+            }
+            location.reload();
+        } catch(e) { alert("שגיאה: " + e.message); }
+    };
+
+    // Rating Logic
     async function loadProfile() {
         document.getElementById('profileHeader').classList.remove('hidden');
         onValue(ref(db, 'users/' + wallId), (s) => {
-            if (s.exists()) {
-                const u = s.val();
-                document.getElementById('pName').innerText = u.username;
-                document.getElementById('pAvatar').src = u.avatar || `https://ui-avatars.com/api/?name=${u.username}&background=random`;
-                document.getElementById('pBadge').innerHTML = u.role === 'admin' ? '<span class="admin-badge">ADMIN</span>' : '';
-                
-                // חישוב דירוג
-                if(u.ratings) {
-                    const vals = Object.values(u.ratings);
-                    const avg = (vals.reduce((a,b)=>a+b, 0) / vals.length).toFixed(1);
-                    document.getElementById('pRating').innerText = `⭐ ${avg} (${vals.length})`;
-                }
-
-                if (auth.currentUser && btoa(cleanName(auth.currentUser.email).toLowerCase()) === wallId) {
-                    document.getElementById('editAvBtn').classList.remove('hidden');
-                    document.getElementById('ratingActions').classList.add('hidden');
+            if(s.exists()) {
+                const data = s.val();
+                document.getElementById('pName').innerText = data.username;
+                document.getElementById('pAvatar').src = data.avatar || `https://ui-avatars.com/api/?name=${data.username}&background=random`;
+                if(data.role === 'admin') document.getElementById('pBadge').innerHTML = '<small style="background:red;padding:2px 5px;border-radius:4px;font-size:10px;">ADMIN</small>';
+                if(data.ratings) {
+                    const r = Object.values(data.ratings);
+                    document.getElementById('pRating').innerText = `⭐ ${(r.reduce((a,b)=>a+b,0)/r.length).toFixed(1)} (${r.length})`;
                 }
             }
         });
     }
 
-    window.rateUser = (stars) => {
-        if(!auth.currentUser) return openModal();
-        const myId = btoa(cleanName(auth.currentUser.email).toLowerCase());
-        set(ref(db, `users/${wallId}/ratings/${myId}`), stars);
-        alert("תודה על הדירוג!");
+    window.rateUser = (val) => {
+        if(!currentUser) return openModal('login');
+        set(ref(db, `users/${wallId}/ratings/${btoa(clean(currentUser.email))}`), val);
     };
 
-    document.getElementById('authDo').onclick = async () => {
-        const u = document.getElementById('uName').value.trim(), p = document.getElementById('uPass').value;
-        try {
-            await signInWithEmailAndPassword(auth, toEmail(u), p);
-        } catch {
-            await createUserWithEmailAndPassword(auth, toEmail(u), p);
-            await update(ref(db, 'users/' + btoa(u.toLowerCase())), { 
-                username: u, role: (u.toLowerCase() === SUPER_ADMIN ? 'admin' : 'user') 
-            });
-        }
-        location.reload();
-    };
-
+    // Posts Logic
     document.getElementById('sendPost').onclick = async () => {
-        const txt = document.getElementById('postInp').value.trim();
-        if(!auth.currentUser) return openModal();
+        const txt = document.getElementById('postInp').value;
+        if(!currentUser) return openModal('login');
         const file = document.getElementById('postImgInp').files[0];
-        let imgBase64 = null;
+        let img = null;
         if(file) {
             const reader = new FileReader();
-            imgBase64 = await new Promise(r => { reader.onload=e=>r(e.target.result); reader.readAsDataURL(file); });
+            img = await new Promise(r => { reader.onload=e=>r(e.target.result); reader.readAsDataURL(file); });
         }
-        push(ref(db, 'walls/' + wallId), {
-            text: txt, author: cleanName(auth.currentUser.email),
-            image: imgBase64, time: Date.now(), likes: 0
-        }).then(() => location.reload());
+        push(ref(db, 'walls/' + wallId), { author: clean(currentUser.email), text: txt, image: img, time: Date.now(), likes: {} });
+        document.getElementById('postInp').value = "";
     };
 
     onChildAdded(ref(db, 'walls/' + wallId), (snap) => {
         const d = snap.val(), id = snap.key;
-        const isAdmin = currentUserData?.role === 'admin';
         const card = document.createElement('div');
         card.className = 'card';
-        card.innerHTML = `
-            ${isAdmin ? `<span class="delete-btn" onclick="if(confirm('למחוק?')) remove(ref(db,'walls/${wallId}/${id}'))">מחק פוסט</span>` : ''}
-            <div class="card-header">
-                <img class="avatar-sm" src="https://ui-avatars.com/api/?name=${d.author}">
-                <div><b onclick="location.href='?user=${btoa(d.author.toLowerCase())}'" style="cursor:pointer">${d.author}</b><br><small style="color:gray">${new Date(d.time).toLocaleString()}</small></div>
-            </div>
-            <div style="white-space:pre-wrap;">${d.text}</div>
-            ${d.image ? `<img src="${d.image}" class="card-image">` : ''}
-            <div class="card-actions">
-                <div class="action-item" onclick="alert('לייק נוסף!')">❤️ לייק</div>
-                <div class="action-item" onclick="alert('תגובות בקרוב...')">💬 תגובה</div>
-            </div>
-        `;
+        card.id = `post-${id}`;
+        renderPost(card, d, id);
         document.getElementById('board').prepend(card);
     });
 
-    window.goMyProfile = () => location.href = '?user=' + btoa(cleanName(auth.currentUser.email).toLowerCase());
-    document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=> location.href='?');
-    window.openModal = () => document.getElementById('authModal').style.display = 'flex';
-    window.closeModal = () => document.getElementById('authModal').style.display = 'none';
+    function renderPost(card, d, id) {
+        const likeCount = d.likes ? Object.keys(d.likes).length : 0;
+        const isAdmin = clean(currentUser?.email || "") === SUPER_ADMIN;
+        card.innerHTML = `
+            ${isAdmin ? `<b class="admin-del" onclick="remove(ref(db,'walls/${wallId}/${id}'))">מחק 🗑️</b>` : ''}
+            <div class="card-header">
+                <img class="avatar-sm" src="https://ui-avatars.com/api/?name=${d.author}&background=random">
+                <b>${d.author}</b>
+            </div>
+            <div>${d.text}</div>
+            ${d.image ? `<img src="${d.image}" class="card-image">` : ''}
+            <div class="card-actions">
+                <button class="action-btn" onclick="toggleLike('${id}')">❤️ <span>${likeCount}</span> לייקים</button>
+                <button class="action-btn" onclick="document.getElementById('comm-${id}').classList.toggle('hidden')">💬 תגובות</button>
+            </div>
+            <div id="comm-${id}" class="comments-section hidden">
+                <div id="list-${id}"></div>
+                <input class="comment-input" placeholder="כתוב תגובה..." onkeypress="if(event.key==='Enter') addComment('${id}', this.value)">
+            </div>
+        `;
+        // Load comments
+        onValue(ref(db, `walls/${wallId}/${id}/comments`), s => {
+            const list = document.getElementById(`list-${id}`);
+            if(!list) return; list.innerHTML = "";
+            if(s.exists()) Object.values(s.val()).forEach(c => {
+                list.innerHTML += `<div class="comment"><b>${c.user}:</b> ${c.text}</div>`;
+            });
+        });
+    }
+
+    window.toggleLike = (postId) => {
+        if(!currentUser) return openModal('login');
+        const myId = btoa(clean(currentUser.email));
+        const likeRef = ref(db, `walls/${wallId}/${postId}/likes/${myId}`);
+        get(likeRef).then(s => {
+            if(s.exists()) remove(likeRef);
+            else set(likeRef, true);
+        });
+    };
+
+    window.addComment = (postId, txt) => {
+        if(!currentUser) return openModal('login');
+        push(ref(db, `walls/${wallId}/${postId}/comments`), { user: clean(currentUser.email), text: txt });
+    };
+
+    window.goMyProfile = () => location.href = '?user=' + btoa(clean(currentUser.email));
+    document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=>location.href='?');
 </script>
 </body>
 </html>
