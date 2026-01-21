@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>תן תגובה | פרופילים</title>
+    <title>תן תגובה | ניהול פרופיל</title>
     <style>
-        :root { --pink: #e91e63; --violet: #667eea; --admin-gold: #ffc107; }
+        :root { --pink: #e91e63; --violet: #667eea; --admin-gold: #ffc107; --danger: #ff4757; }
         body { font-family: 'Inter', system-ui, sans-serif; background: #667eea; margin: 0; padding: 10px; direction: rtl; }
         
         header { 
@@ -22,20 +22,19 @@
 
         .btn-outline { background: #f1f1f1; color: #333; }
         .btn-primary { background: var(--violet); color: white; }
+        .btn-delete { background: var(--danger); color: white; padding: 5px 10px; font-size: 12px; }
         
         .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #eee; border: 2px solid white; }
 
         .board { display: grid; grid-template-columns: 1fr; gap: 15px; }
         @media (min-width: 768px) { .board { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); } }
 
-        .card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: right; }
+        .card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: right; position: relative; }
         .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .card textarea { width: 100%; border: none; outline: none; min-height: 80px; resize: none; font-size: 16px; direction: ltr; }
 
-        /* Настройки профиля */
         #profileSettings { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: center; }
-        .file-input-wrapper { margin: 15px 0; }
-        #avatarPreview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 3px solid var(--violet); display: inline-block; }
+        #avatarPreview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 3px solid var(--violet); }
 
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal { background: white; padding: 25px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; max-height: 80vh; overflow-y: auto; }
@@ -66,7 +65,7 @@
 <div id="profileSettings" class="hidden">
     <h3>הגדרות פרופיל</h3>
     <img id="avatarPreview" src="https://ui-avatars.com/api/?name=User" alt="Preview">
-    <div class="file-input-wrapper">
+    <div style="margin: 15px 0;">
         <label for="filePicker" class="btn-outline" style="padding: 10px; display: inline-block; cursor: pointer;">העלה תמונה מהמכשיר 📸</label>
         <input type="file" id="filePicker" accept="image/*" style="display: none;">
     </div>
@@ -134,39 +133,32 @@
     }
   });
 
-  // Логика загрузки файла и конвертации в Base64
+  // Удаление поста
+  window.deletePost = (id) => {
+    if (confirm("האם אתה בטוח שברצונך למחוק את התגובה?")) {
+        remove(ref(db, `walls/${wallId}/${id}`));
+    }
+  };
+
+  // Загрузка фото
   document.getElementById('filePicker').onchange = function(e) {
     const file = e.target.files[0];
     if (!file) return;
-
-    // Ограничение размера (Base64 увеличивает размер на 33%, лучше держать до 1-2мб)
-    if (file.size > 1048576) { 
-        alert("הקובץ גדול מדי! בחר תמונה קטנה מ-1MB");
-        return;
-    }
+    if (file.size > 1048576) return alert("הקובץ גדול מדי! (מקסימום 1MB)");
 
     const reader = new FileReader();
     reader.onload = function(event) {
         const base64String = event.target.result;
-        
-        // Показываем превью
-        document.getElementById('avatarPreview').src = base64String;
-        
-        // Сохраняем в базу данных
         update(ref(db, 'users/' + btoa(auth.currentUser.email)), { avatar: base64String })
-            .then(() => {
-                document.getElementById('uploadStatus').innerText = "תמונה עודכנה בהצלחה! ✨";
-                setTimeout(() => location.reload(), 1000);
-            });
+            .then(() => location.reload());
     };
     reader.readAsDataURL(file);
   };
 
+  // Список пользователей
   window.showUserList = () => {
     document.getElementById('userListOverlay').style.display = 'flex';
     const cont = document.getElementById('usersContainer');
-    cont.innerHTML = 'טוען...';
-    
     onValue(ref(db, 'users'), (snap) => {
         cont.innerHTML = '';
         snap.forEach(child => {
@@ -174,27 +166,29 @@
             const div = document.createElement('div');
             div.className = 'user-list-item';
             div.onclick = () => window.location.href = '?user=' + child.key;
-            div.innerHTML = `
-                <img src="${getAv(u.email, u.avatar)}" class="avatar">
-                <span>${u.email}</span>
-            `;
+            div.innerHTML = `<img src="${getAv(u.email, u.avatar)}" class="avatar"><span>${u.email}</span>`;
             cont.appendChild(div);
         });
     }, { onlyOnce: true });
   };
   window.closeUserList = () => document.getElementById('userListOverlay').style.display = 'none';
 
+  // Ренדר карточек
   onChildAdded(ref(db, 'walls/' + wallId), async (snap) => {
     const data = snap.val();
     const id = snap.key;
     const authorId = btoa(data.author);
+    const isOwner = auth.currentUser && (btoa(auth.currentUser.email) === wallId || auth.currentUser.email === SUPER_ADMIN);
     
     const div = document.createElement('div');
     div.id = id; div.className = 'card';
     div.innerHTML = `
-        <div class="card-header">
-            <img id="av-${id}" src="${getAv(data.author)}" class="avatar">
-            <b onclick="window.location.href='?user=${authorId}'" style="cursor:pointer">${data.author.split('@')[0]}</b>
+        <div class="card-header" style="justify-content: space-between;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img id="av-${id}" src="${getAv(data.author)}" class="avatar">
+                <b onclick="window.location.href='?user=${authorId}'" style="cursor:pointer">${data.author.split('@')[0]}</b>
+            </div>
+            ${isOwner ? `<button class="btn-delete" onclick="deletePost('${id}')">מחק 🗑️</button>` : ''}
         </div>
         <textarea>${data.text || ''}</textarea>
     `;
@@ -213,7 +207,7 @@
   });
 
   document.getElementById('addBtn').onclick = () => {
-    if (!auth.currentUser) return alert("התחבר כדי לפרסם!");
+    if (!auth.currentUser) return openModal('login');
     push(ref(db, 'walls/' + wallId), { text: "", author: auth.currentUser.email });
   };
 
@@ -227,9 +221,10 @@
             update(ref(db, 'users/' + btoa(e)), { email: e, role: (e === SUPER_ADMIN ? 'admin' : 'user') });
         } else await signInWithEmailAndPassword(auth, e, p);
         closeModal();
-    } catch(err) { alert(err.message); }
+    } catch(err) { alert("שגיאה: " + err.message); }
   };
   window.logout = () => signOut(auth);
+  onChildRemoved(ref(db, 'walls/' + wallId), s => document.getElementById(s.key)?.remove());
 </script>
 </body>
 </html>
