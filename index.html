@@ -3,49 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Padlet with Auth</title>
+    <title>Padlet: Hybrid Mode</title>
     <style>
-        :root { --padlet-pink: #e91e63; --bg: #f4f7f6; }
-        body { font-family: 'Inter', sans-serif; background: #667eea; margin: 0; padding: 20px; }
+        :root { --pink: #e91e63; --violet: #667eea; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-attachment: fixed; margin: 0; padding: 20px; color: #333; }
         
         header { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px; background: rgba(255,255,255,0.9); border-radius: 15px; margin-bottom: 20px;
+            padding: 15px 25px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
+            border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
-        .auth-box { display: flex; gap: 10px; align-items: center; }
+        .auth-group { display: flex; gap: 8px; }
         .hidden { display: none !important; }
+        
+        input { padding: 8px 12px; border-radius: 10px; border: 1px solid #ddd; outline: none; }
+        button { cursor: pointer; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 600; transition: 0.2s; }
+        .btn-add { background: var(--pink); color: white; font-size: 16px; }
+        .btn-add:hover { transform: scale(1.05); }
+        .btn-login { background: #eee; }
 
         .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .card textarea { width: 100%; border: none; outline: none; min-height: 80px; font-size: 16px; }
-        .author-tag { font-size: 10px; color: #888; margin-bottom: 5px; }
-
-        input[type="email"], input[type="password"] { padding: 8px; border-radius: 5px; border: 1px solid #ddd; }
-        button { cursor: pointer; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; }
-        .btn-main { background: var(--padlet-pink); color: white; }
-        .btn-del { background: #ff7675; color: white; margin-top: 10px; display: none; }
+        .card { background: white; border-radius: 18px; padding: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); position: relative; }
+        .card textarea { width: 100%; border: none; outline: none; min-height: 100px; font-size: 16px; resize: none; background: transparent; }
+        .author-info { font-size: 11px; color: #999; margin-bottom: 8px; font-style: italic; }
         
-        /* Показываем кнопку удаления только для админа */
+        .btn-del { 
+            background: #fff0f0; color: #ff4757; font-size: 11px; margin-top: 15px; 
+            display: none; width: 100%; 
+        }
         .admin-mode .btn-del { display: block; }
     </style>
 </head>
-<body id="app">
+<body id="appBody">
 
 <header>
-    <h2 style="margin:0">🚀 My Board</h2>
-    
-    <div id="guestUI" class="auth-box">
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Пароль">
-        <button onclick="window.handleAuth('login')">Войти</button>
-        <button class="btn-main" onclick="window.handleAuth('register')">Регистрация</button>
+    <div>
+        <h2 style="margin:0; color: var(--violet);">✨ SimpleBoard</h2>
+        <small id="status">Анонимный режим</small>
     </div>
 
-    <div id="userUI" class="auth-box hidden">
-        <span id="userEmail"></span>
-        <button class="btn-main" id="addBtn">+ Пост</button>
-        <button onclick="window.handleAuth('logout')">Выйти</button>
+    <div class="auth-group">
+        <div id="guestUI" class="auth-group">
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Пароль">
+            <button class="btn-login" onclick="window.handleAuth('login')">Войти</button>
+            <button style="background: var(--violet); color: white;" onclick="window.handleAuth('register')">Регистрация</button>
+        </div>
+        <div id="userUI" class="auth-group hidden">
+            <span id="userDisplay" style="align-self: center; margin-right: 10px; font-weight: bold;"></span>
+            <button onclick="window.handleAuth('logout')">Выйти</button>
+        </div>
+        <button class="btn-add" id="addBtn">+ Создать пост</button>
     </div>
 </header>
 
@@ -72,10 +81,10 @@ const firebaseConfig = {
   const db = getDatabase(app);
   const cardsRef = ref(db, 'cards');
 
-  const ADMIN_EMAIL = "admin@test.com"; // УКАЖИТЕ СВОЙ EMAIL ЗДЕСЬ
+  const ADMIN_EMAIL = "admin@test.com"; // ЗАМЕНИТЕ НА ВАШ
   let currentUser = null;
 
-  // --- ЛОГИКА АВТОРИЗАЦИИ ---
+  // Аутентификация
   window.handleAuth = async (type) => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
@@ -83,7 +92,7 @@ const firebaseConfig = {
         if (type === 'register') await createUserWithEmailAndPassword(auth, email, pass);
         if (type === 'login') await signInWithEmailAndPassword(auth, email, pass);
         if (type === 'logout') await signOut(auth);
-    } catch (e) { alert(e.message); }
+    } catch (e) { alert("Ошибка: " + e.message); }
   };
 
   onAuthStateChanged(auth, (user) => {
@@ -93,18 +102,34 @@ const firebaseConfig = {
     document.getElementById('userUI').classList.toggle('hidden', isGuest);
     
     if (user) {
-        document.getElementById('userEmail').innerText = user.email;
+        document.getElementById('userDisplay').innerText = user.email;
+        document.getElementById('status').innerText = "Вы вошли в систему";
         if (user.email === ADMIN_EMAIL) document.body.classList.add('admin-mode');
-        else document.body.classList.remove('admin-mode');
+    } else {
+        document.body.classList.remove('admin-mode');
+        document.getElementById('status').innerText = "Анонимный режим (лимит: 1 пост)";
     }
   });
 
-  // --- ЛОГИКА ДОСКИ ---
+  // Логика добавления поста
   document.getElementById('addBtn').onclick = () => {
-    if (!currentUser) return alert("Войдите, чтобы писать");
-    push(cardsRef, { text: "", color: "#ffffff", author: currentUser.email });
+    if (!currentUser) {
+        // Проверка лимита для анонима
+        const hasPosted = localStorage.getItem('anon_posted');
+        if (hasPosted) {
+            alert("Вы уже создали один анонимный пост. Пожалуйста, зарегистрируйтесь, чтобы создавать больше!");
+            return;
+        }
+        // Если лимит не исчерпан, создаем анонимно
+        push(cardsRef, { text: "", author: "Аноним", timestamp: Date.now() });
+        localStorage.setItem('anon_posted', 'true');
+    } else {
+        // Для залогиненных лимита нет
+        push(cardsRef, { text: "", author: currentUser.email, timestamp: Date.now() });
+    }
   };
 
+  // Отрисовка
   function renderCard(id, data) {
     let cardEl = document.getElementById(id);
     if (!cardEl) {
@@ -112,14 +137,14 @@ const firebaseConfig = {
         cardEl.id = id;
         cardEl.className = 'card';
         cardEl.innerHTML = `
-            <div class="author-tag">Автор: ${data.author || 'Аноним'}</div>
-            <textarea placeholder="Текст..."></textarea>
-            <button class="btn-del">Удалить (Админ)</button>
+            <div class="author-info">От: ${data.author}</div>
+            <textarea placeholder="Напишите здесь..."></textarea>
+            <button class="btn-del">Удалить (только Админ)</button>
         `;
         document.getElementById('board').prepend(cardEl);
         
         cardEl.querySelector('textarea').oninput = (e) => {
-            if (currentUser) update(ref(db, 'cards/' + id), { text: e.target.value });
+            update(ref(db, 'cards/' + id), { text: e.target.value });
         };
         cardEl.querySelector('.btn-del').onclick = () => remove(ref(db, 'cards/' + id));
     }
@@ -129,7 +154,8 @@ const firebaseConfig = {
 
   onChildAdded(cardsRef, (snap) => renderCard(snap.key, snap.val()));
   onChildChanged(cardsRef, (snap) => renderCard(snap.key, snap.val()));
-  onChildRemoved(snap => document.getElementById(snap.key)?.remove());
+  onChildRemoved(cardsRef, (snap) => document.getElementById(snap.key)?.remove());
+
 </script>
 </body>
 </html>
