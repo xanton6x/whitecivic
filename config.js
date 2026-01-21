@@ -14,3 +14,4 @@ export const auth = getAuth(app);
 export const db = getDatabase(app);
 export const SUPER_ADMIN = "anton";
 export const clean = (e) => e ? e.split('@')[0] : "";
+ 
