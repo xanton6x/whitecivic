@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Modern Board</title>
+    <title>Admin Padlet Clone</title>
     <style>
         :root {
             --padlet-pink: #e91e63;
@@ -11,105 +11,64 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--bg-gradient);
             background-attachment: fixed;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
+            margin: 0; padding: 20px; min-height: 100vh;
         }
 
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            margin-bottom: 30px;
-            color: white;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 25px; background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px); border-radius: 20px; margin-bottom: 30px; color: white;
         }
 
         .btn-add {
-            background: var(--padlet-pink);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
-            transition: 0.3s;
+            background: var(--padlet-pink); color: white; border: none;
+            padding: 12px 24px; border-radius: 25px; font-weight: bold; cursor: pointer;
         }
 
-        .btn-add:hover { transform: scale(1.05); }
-
-        .board {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
+        .btn-admin {
+            background: rgba(255,255,255,0.1); color: white; border: 1px solid white;
+            padding: 8px 15px; border-radius: 15px; cursor: pointer; margin-right: 10px;
         }
+
+        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
 
         .card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            display: flex;
-            flex-direction: column;
-            transition: 0.3s;
+            background: white; border-radius: 20px; padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15); display: flex; flex-direction: column;
         }
 
         .card textarea {
-            width: 100%;
-            border: none;
-            resize: none;
-            font-size: 16px;
-            color: #333;
-            outline: none;
-            min-height: 120px;
-            line-height: 1.5;
-            background: transparent;
+            width: 100%; border: none; resize: none; font-size: 16px;
+            outline: none; min-height: 120px; background: transparent;
         }
 
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #f0f0f0;
+        /* По умолчанию скрываем админ-панель карточки */
+        .admin-controls {
+            display: none; /* Скрыто для всех */
+            justify-content: space-between; align-items: center;
+            margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;
         }
 
-        .color-dot {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 2px solid #eee;
-            cursor: pointer;
-            padding: 0;
-            overflow: hidden;
-        }
+        /* Класс, который мы добавим через JS для админа */
+        .is-admin .admin-controls { display: flex; }
 
-        .btn-del {
-            background: #fff0f0;
-            color: #ff4757;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-
-        .btn-del:hover { background: #ff4757; color: white; }
+        .btn-del { background: #ff7675; color: white; border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; }
     </style>
 </head>
-<body>
+<body id="mainBody">
 
 <header>
-    <h2 style="margin:0">✨ Моя Доска</h2>
-    <button class="btn-add" id="addBtn">+ Создать пост</button>
+    <div>
+        <h2 style="margin:0">✨ My Board</h2>
+        <span id="adminStatus" style="font-size: 12px; opacity: 0.7;">View Mode</span>
+    </div>
+    <div>
+        <button class="btn-admin" id="loginBtn">Admin Login</button>
+        <button class="btn-add" id="addBtn">+ New Post</button>
+    </div>
 </header>
 
 <div class="board" id="board"></div>
@@ -118,59 +77,70 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getDatabase, ref, push, onValue, update, remove, onChildAdded, onChildChanged, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  // ВСТАВЬТЕ СВОЙ КОНФИГ ТУТ
-const firebaseConfig = {
-  apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
-  authDomain: "whitecivic-21e7f.firebaseapp.com",
-  databaseURL: "https://whitecivic-21e7f-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "whitecivic-21e7f",
-  storageBucket: "whitecivic-21e7f.firebasestorage.app",
-  messagingSenderId: "315183180745",
-  appId: "1:315183180745:web:6e71aa50d0b975d63c9618",
-  measurementId: "G-Z7ZPZ5LNPV"
-};
+  // !!! ВСТАВЬТЕ ВАШ CONFIG ТУТ !!!
+  const firebaseConfig = {
+    apiKey: "ВАШ_API_KEY",
+    authDomain: "ВАШ_PROJECT.firebaseapp.com",
+    databaseURL: "https://ВАШ_PROJECT.firebaseio.com",
+    projectId: "ВАШ_PROJECT_ID",
+    storageBucket: "ВАШ_PROJECT.appspot.com",
+    messagingSenderId: "ВАШ_ID",
+    appId: "ВАШ_APP_ID"
+  };
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const cardsRef = ref(db, 'cards');
 
+  let isAdmin = false;
+  const ADMIN_PASSWORD = "1234"; // ПОМЕНЯЙТЕ ПАРОЛЬ ТУТ!
+
+  // Функция входа
+  document.getElementById('loginBtn').onclick = () => {
+    const pass = prompt("Введите пароль админа:");
+    if (pass === ADMIN_PASSWORD) {
+        isAdmin = true;
+        document.getElementById('mainBody').classList.add('is-admin');
+        document.getElementById('adminStatus').innerText = "Admin Mode Active";
+        document.getElementById('loginBtn').style.display = "none";
+        alert("Вы вошли как админ! Теперь вам доступны удаление и цвета.");
+    } else {
+        alert("Неверный пароль!");
+    }
+  };
+
   const board = document.getElementById('board');
 
-  // Добавление
   document.getElementById('addBtn').onclick = () => {
     push(cardsRef, { text: "", color: "#ffffff" });
   };
 
-  // Отрисовка одной карточки (чтобы не перерисовывать всё)
   function renderCard(id, data) {
     let cardEl = document.getElementById(id);
-    
     if (!cardEl) {
         cardEl = document.createElement('div');
         cardEl.id = id;
         cardEl.className = 'card';
         cardEl.innerHTML = `
-            <textarea placeholder="Напишите что-нибудь..."></textarea>
-            <div class="card-footer">
-                <input type="color" class="color-dot" title="Цвет карточки">
-                <button class="btn-del">Удалить</button>
+            <textarea placeholder="Write something..."></textarea>
+            <div class="admin-controls">
+                <input type="color" class="color-dot">
+                <button class="btn-del">Delete</button>
             </div>
         `;
         board.prepend(cardEl);
         
-        // События удаления
-        cardEl.querySelector('.btn-del').onclick = () => remove(ref(db, 'cards/' + id));
+        cardEl.querySelector('.btn-del').onclick = () => {
+            if(isAdmin) remove(ref(db, 'cards/' + id));
+        };
         
-        // События ввода (сохраняем в базу)
         const area = cardEl.querySelector('textarea');
         area.oninput = (e) => update(ref(db, 'cards/' + id), { text: e.target.value });
         
-        // События цвета
         const colorInp = cardEl.querySelector('input');
         colorInp.onchange = (e) => update(ref(db, 'cards/' + id), { color: e.target.value });
     }
 
-    // Обновляем данные только если они изменились и мы НЕ печатаем в данный момент
     const textarea = cardEl.querySelector('textarea');
     if (document.activeElement !== textarea) {
         textarea.value = data.text || "";
@@ -179,7 +149,6 @@ const firebaseConfig = {
     cardEl.querySelector('input').value = data.color || "#ffffff";
   }
 
-  // Слушатели Firebase для плавной работы
   onChildAdded(cardsRef, (snapshot) => renderCard(snapshot.key, snapshot.val()));
   onChildChanged(cardsRef, (snapshot) => renderCard(snapshot.key, snapshot.val()));
   onChildRemoved(cardsRef, (snapshot) => {
