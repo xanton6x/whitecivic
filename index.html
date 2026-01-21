@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CAR MEET | Pro Social</title>
+    <title>CAR MEET | Pro Social & Editor</title>
     <style>
         :root { --cm-blue: #007aff; --cm-bg: #0b0b0c; --cm-card: #1c1c1e; --cm-text: #f2f2f7; --cm-gray: #8e8e93; --cm-border: #2c2c2e; --cm-gold: #ffcc00; }
         body { font-family: -apple-system, system-ui, sans-serif; background: var(--cm-bg); margin: 0; direction: rtl; color: var(--cm-text); }
@@ -33,7 +33,12 @@
         .comment b { color: var(--cm-blue); }
         .comment-input { width: 100%; background: #1c1c1e; border: 1px solid #444; color: white; padding: 8px; border-radius: 5px; margin-top: 8px; box-sizing: border-box; }
 
-        .admin-del { position: absolute; left: 15px; top: 15px; color: #ff3b30; cursor: pointer; font-size: 12px; background: rgba(255,59,48,0.1); padding: 4px 8px; border-radius: 5px; }
+        /* Admin/Edit Controls */
+        .post-controls { position: absolute; left: 15px; top: 15px; display: flex; gap: 8px; }
+        .control-btn { font-size: 11px; cursor: pointer; padding: 3px 7px; border-radius: 4px; font-weight: bold; }
+        .del-style { color: #ff3b30; background: rgba(255,59,48,0.1); }
+        .edit-style { color: var(--cm-blue); background: rgba(0,122,255,0.1); }
+
         button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; padding: 8px 16px; transition: 0.2s; }
         .btn-primary { background: var(--cm-blue); color: white; }
         .btn-outline { background: #2c2c2e; color: white; border: 1px solid var(--cm-border); }
@@ -41,8 +46,9 @@
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal { background: var(--cm-card); padding: 25px; border-radius: 20px; width: 300px; text-align: center; border: 1px solid var(--cm-border); }
         .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid var(--cm-border); background: #2c2c2e; color: white; box-sizing: border-box; }
-        .error-msg { color: #ff3b30; font-size: 12px; margin-bottom: 10px; display: none; }
+        .error-msg { color: #ff3b30; font-size: 13px; margin-bottom: 10px; display: none; font-weight: 600; }
         .hidden { display: none; }
+        .edit-area { width: 100%; background: #2c2c2e; color: white; border: 1px solid var(--cm-blue); border-radius: 8px; padding: 10px; margin: 10px 0; font-family: inherit; }
     </style>
 </head>
 <body>
@@ -136,7 +142,7 @@
         if (wallId !== 'public') loadProfile();
     });
 
-    // Auth & Errors
+    // --- AUTH LOGIC ---
     window.openModal = (m) => { 
         mode = m; 
         document.getElementById('modalErr').style.display = 'none';
@@ -151,63 +157,25 @@
         errBox.style.display = 'none';
 
         if(!u) { errBox.innerText = "נא להזין שם משתמש"; errBox.style.display = 'block'; return; }
-        if(p.length < 6) { errBox.innerText = "הסיסמה חייבת להכיל לפחות 6 תווים"; errBox.style.display = 'block'; return; }
+        if(p.length < 6) { errBox.innerText = "הסיסמה חייבת להיות לפחות 6 תווים"; errBox.style.display = 'block'; return; }
 
         try {
             if(mode === 'login') {
                 await signInWithEmailAndPassword(auth, toEmail(u), p);
             } else {
-                // בדיקה אם המשתמש כבר קיים בדאטהבייס לפני הרשמה
                 const userCheck = await get(ref(db, 'users/' + btoa(u.toLowerCase())));
-                if(userCheck.exists()) {
-                    errBox.innerText = "שם המשתמש כבר קיים במערכת, בחר שם אחר";
-                    errBox.style.display = 'block';
-                    return;
-                }
+                if(userCheck.exists()) { errBox.innerText = "שם המשתמש כבר קיים במערכת"; errBox.style.display = 'block'; return; }
                 await createUserWithEmailAndPassword(auth, toEmail(u), p);
-                await set(ref(db, 'users/' + btoa(u.toLowerCase())), { 
-                    username: u, 
-                    role: (u.toLowerCase() === SUPER_ADMIN ? 'admin' : 'user'),
-                    avatar: "" 
-                });
+                await set(ref(db, 'users/' + btoa(u.toLowerCase())), { username: u, role: (u.toLowerCase() === SUPER_ADMIN ? 'admin' : 'user'), avatar: "" });
             }
             location.reload();
         } catch(e) {
-            console.error(e.code);
-            if(e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') {
-                errBox.innerText = "שם משתמש או סיסמה לא נכונים";
-            } else if(e.code === 'auth/email-already-in-use') {
-                errBox.innerText = "המשתמש כבר קיים במערכת";
-            } else {
-                errBox.innerText = "שגיאה: " + e.message;
-            }
+            errBox.innerText = "שם משתמש או סיסמה לא נכונים";
             errBox.style.display = 'block';
         }
     };
 
-    // Rating & Profile
-    async function loadProfile() {
-        document.getElementById('profileHeader').classList.remove('hidden');
-        onValue(ref(db, 'users/' + wallId), (s) => {
-            if(s.exists()) {
-                const data = s.val();
-                document.getElementById('pName').innerText = data.username;
-                document.getElementById('pAvatar').src = data.avatar || `https://ui-avatars.com/api/?name=${data.username}&background=random`;
-                document.getElementById('pBadge').innerHTML = data.role === 'admin' ? '<small style="background:#ff3b30;padding:2px 6px;border-radius:4px;font-size:10px;color:white;margin-right:5px;">ADMIN</small>' : '';
-                if(data.ratings) {
-                    const r = Object.values(data.ratings);
-                    document.getElementById('pRating').innerText = `⭐ ${(r.reduce((a,b)=>a+b,0)/r.length).toFixed(1)} (${r.length})`;
-                }
-            }
-        });
-    }
-
-    window.rateUser = (val) => {
-        if(!currentUser) return openModal('login');
-        set(ref(db, `users/${wallId}/ratings/${btoa(clean(currentUser.email))}`), val);
-    };
-
-    // Posts Logic
+    // --- POSTS & EDITING ---
     document.getElementById('sendPost').onclick = async () => {
         const txt = document.getElementById('postInp').value;
         if(!currentUser) return openModal('login');
@@ -227,16 +195,21 @@
         card.className = 'card';
         card.id = `post-${id}`;
         
-        // בדיקת אדמין בזמן אמת להצגת כפתור מחיקה
-        const checkAdminAndRender = () => {
-            const isAdmin = (currentUser && clean(currentUser.email) === SUPER_ADMIN);
+        const render = () => {
+            const isOwner = currentUser && clean(currentUser.email) === d.author;
+            const isAdmin = currentUser && clean(currentUser.email) === SUPER_ADMIN;
+            
             card.innerHTML = `
-                ${isAdmin ? `<span class="admin-del" onclick="if(confirm('למחוק פוסט זה?')) remove(ref(db,'walls/${wallId}/${id}'))">מחק 🗑️</span>` : ''}
+                ${(isOwner || isAdmin) ? `
+                <div class="post-controls">
+                    <span class="control-btn edit-style" onclick="editPost('${id}')">עריכה</span>
+                    <span class="control-btn del-style" onclick="deletePost('${id}')">מחק</span>
+                </div>` : ''}
                 <div class="card-header">
                     <img class="avatar-sm" src="https://ui-avatars.com/api/?name=${d.author}&background=random">
                     <b style="cursor:pointer" onclick="location.href='?user=${btoa(d.author.toLowerCase())}'">${d.author}</b>
                 </div>
-                <div style="margin:10px 0; white-space:pre-wrap;">${d.text}</div>
+                <div id="text-${id}" style="margin:10px 0; white-space:pre-wrap;">${d.text}</div>
                 ${d.image ? `<img src="${d.image}" class="card-image">` : ''}
                 <div class="card-actions">
                     <button class="action-btn" onclick="toggleLike('${id}')">❤️ <span>${d.likes ? Object.keys(d.likes).length : 0}</span></button>
@@ -244,22 +217,38 @@
                 </div>
                 <div id="comm-${id}" class="comments-section hidden">
                     <div id="list-${id}"></div>
-                    <input class="comment-input" placeholder="כתוב תגובה וחלץ Enter..." onkeypress="if(event.key==='Enter') addComment('${id}', this)">
+                    <input class="comment-input" placeholder="כתוב תגובה..." onkeypress="if(event.key==='Enter') addComment('${id}', this)">
                 </div>
             `;
         };
 
-        checkAdminAndRender();
+        render();
         document.getElementById('board').prepend(card);
-
-        // עדכון לייקים ותגובות בלייב
-        onValue(ref(db, `walls/${wallId}/${id}`), s => { if(s.exists()) renderUpdates(id, s.val()); });
+        onValue(ref(db, `walls/${wallId}/${id}`), s => { if(s.exists()) updateCounters(id, s.val()); });
     });
 
-    function renderUpdates(id, data) {
-        const btn = document.querySelector(`#post-${id} .action-btn span`);
-        if(btn) btn.innerText = data.likes ? Object.keys(data.likes).length : 0;
-        
+    window.editPost = (id) => {
+        const textDiv = document.getElementById(`text-${id}`);
+        const currentText = textDiv.innerText;
+        textDiv.innerHTML = `
+            <textarea id="edit-input-${id}" class="edit-area">${currentText}</textarea>
+            <button class="btn-primary" onclick="saveEdit('${id}')">שמור</button>
+            <button class="btn-outline" onclick="location.reload()">ביטול</button>
+        `;
+    };
+
+    window.saveEdit = (id) => {
+        const newText = document.getElementById(`edit-input-${id}`).value;
+        update(ref(db, `walls/${wallId}/${id}`), { text: newText }).then(() => location.reload());
+    };
+
+    window.deletePost = (id) => {
+        if(confirm('למחוק את הפוסט לצמיתות?')) remove(ref(db, `walls/${wallId}/${id}`));
+    };
+
+    function updateCounters(id, data) {
+        const l = document.querySelector(`#post-${id} .action-btn span`);
+        if(l) l.innerText = data.likes ? Object.keys(data.likes).length : 0;
         const list = document.getElementById(`list-${id}`);
         if(list && data.comments) {
             list.innerHTML = Object.values(data.comments).map(c => `<div class="comment"><b>${c.user}:</b> ${c.text}</div>`).join('');
@@ -280,10 +269,31 @@
         el.value = "";
     };
 
+    // --- PROFILE & RATING ---
+    async function loadProfile() {
+        document.getElementById('profileHeader').classList.remove('hidden');
+        onValue(ref(db, 'users/' + wallId), (s) => {
+            if(s.exists()) {
+                const data = s.val();
+                document.getElementById('pName').innerText = data.username;
+                document.getElementById('pAvatar').src = data.avatar || `https://ui-avatars.com/api/?name=${data.username}&background=random`;
+                document.getElementById('pBadge').innerHTML = data.role === 'admin' ? '<small style="background:#ff3b30;padding:2px 6px;border-radius:4px;font-size:10px;color:white;margin-right:15px;">ADMIN</small>' : '';
+                if(data.ratings) {
+                    const r = Object.values(data.ratings);
+                    document.getElementById('pRating').innerText = `⭐ ${(r.reduce((a,b)=>a+b,0)/r.length).toFixed(1)} (${r.length} מדרגים)`;
+                }
+            }
+        });
+    }
+
+    window.rateUser = (val) => {
+        if(!currentUser) return openModal('login');
+        set(ref(db, `users/${wallId}/ratings/${btoa(clean(currentUser.email))}`), val);
+    };
+
     window.goMyProfile = () => location.href = '?user=' + btoa(clean(currentUser.email));
     document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=>location.href='?');
     
-    // תמונת פרופיל
     document.getElementById('fileInp').onchange = (e) => {
         const reader = new FileReader();
         reader.onload = (ev) => update(ref(db, 'users/' + wallId), { avatar: ev.target.result }).then(() => location.reload());
