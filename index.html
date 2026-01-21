@@ -1,159 +1,98 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="RU">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Моя Доска (Padlet Clone)</title>
+    <title>Общая Доска</title>
     <style>
-        :root {
-            --bg-color: #f0f2f5;
-            --primary-color: #ff4757;
-        }
-
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 20px;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .board {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            align-items: start;
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-            position: relative;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card textarea {
-            width: 100%;
-            border: none;
-            resize: none;
-            font-size: 16px;
-            outline: none;
-            background: transparent;
-        }
-
-        .card-controls {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-        }
-
-        button {
-            cursor: pointer;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 20px;
-            transition: 0.3s;
-        }
-
-        .btn-add {
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: bold;
-        }
-
-        .btn-delete {
-            background: none;
-            color: #ff4757;
-            font-size: 12px;
-        }
-
-        .color-picker {
-            display: flex;
-            gap: 5px;
-        }
-
-        .dot {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            border: 1px solid #ddd;
-        }
+        :root { --bg: #eef2f3; --primary: #6c5ce7; }
+        body { font-family: sans-serif; background: var(--bg); padding: 20px; margin: 0; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); position: relative; }
+        .card textarea { width: 100%; border: none; font-size: 16px; outline: none; background: transparent; min-height: 100px; }
+        .controls { display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
+        button { cursor: pointer; border: none; padding: 10px 15px; border-radius: 8px; }
+        .btn-add { background: var(--primary); color: white; font-weight: bold; }
+        .btn-del { background: #ff7675; color: white; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Моя Доска</h1>
-    <button class="btn-add" onclick="addCard()">+ Добавить карточку</button>
+    <h1>Общая Доска</h1>
+    <button class="btn-add" id="addBtn">+ Добавить</button>
 </header>
 
-<div class="board" id="board">
-    </div>
+<div class="board" id="board"></div>
 
-<script>
-    let cards = JSON.parse(localStorage.getItem('myBoardCards')) || [];
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-    function render() {
-        const board = document.getElementById('board');
-        board.innerHTML = '';
-        cards.forEach((card, index) => {
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'card';
-            cardDiv.style.backgroundColor = card.color || '#fff';
-            cardDiv.innerHTML = `
-                <textarea onchange="updateText(${index}, this.value)" placeholder="Напишите что-нибудь...">${card.text}</textarea>
-                <div class="card-controls">
-                    <div class="color-picker">
-                        <div class="dot" style="background:#fff" onclick="updateColor(${index}, '#fff')"></div>
-                        <div class="dot" style="background:#fff475" onclick="updateColor(${index}, '#fff475')"></div>
-                        <div class="dot" style="background:#ccff90" onclick="updateColor(${index}, '#ccff90')"></div>
-                    </div>
-                    <button class="btn-delete" onclick="deleteCard(${index})">Удалить</button>
-                </div>
-            `;
-            board.appendChild(cardDiv);
-        });
-        save();
+  // !!! ЗАМЕНИТЕ ЭТИ ДАННЫЕ НА СВОИ ИЗ FIREBASE CONSOLE !!!
+  const firebaseConfig = {
+    apiKey: "ВАШ_API_KEY",
+    authDomain: "ВАШ_PROJECT.firebaseapp.com",
+    databaseURL: "https://ВАШ_PROJECT.firebaseio.com",
+    projectId: "ВАШ_PROJECT_ID",
+    storageBucket: "ВАШ_PROJECT.appspot.com",
+    messagingSenderId: "ВАШ_ID",
+    appId: "ВАШ_APP_ID"
+  };
+
+  // Инициализация
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const cardsRef = ref(db, 'cards');
+
+  const board = document.getElementById('board');
+  const addBtn = document.getElementById('addBtn');
+
+  // Добавление новой карточки
+  addBtn.onclick = () => {
+    push(cardsRef, { text: "", color: "#ffffff", timestamp: Date.now() });
+  };
+
+  // Слушаем изменения в базе (Realtime!)
+  onValue(cardsRef, (snapshot) => {
+    board.innerHTML = "";
+    const data = snapshot.val();
+    if (data) {
+      Object.keys(data).forEach(id => {
+        const card = data[id];
+        createCardUI(id, card);
+      });
     }
+  });
 
-    function addCard() {
-        cards.push({ text: '', color: '#fff' });
-        render();
-    }
+  function createCardUI(id, card) {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.style.backgroundColor = card.color;
+    div.innerHTML = `
+      <textarea placeholder="Начните писать...">${card.text}</textarea>
+      <div class="controls">
+        <input type="color" value="${card.color}" onchange="this.parentElement.dataset.color=this.value">
+        <button class="btn-del">Удалить</button>
+      </div>
+    `;
 
-    function updateText(index, text) {
-        cards[index].text = text;
-        save();
-    }
+    const area = div.querySelector('textarea');
+    const colorInput = div.querySelector('input');
+    const delBtn = div.querySelector('.btn-del');
 
-    function updateColor(index, color) {
-        cards[index].color = color;
-        render();
-    }
+    // Сохранение при вводе текста
+    area.oninput = () => update(ref(db, 'cards/' + id), { text: area.value });
+    
+    // Смена цвета
+    colorInput.onchange = () => update(ref(db, 'cards/' + id), { color: colorInput.value });
 
-    function deleteCard(index) {
-        cards.splice(index, 1);
-        render();
-    }
+    // Удаление
+    delBtn.onclick = () => remove(ref(db, 'cards/' + id));
 
-    function save() {
-        localStorage.setItem('myBoardCards', JSON.stringify(cards));
-    }
-
-    // Инициализация
-    render();
+    board.appendChild(div);
+  }
 </script>
 
 </body>
