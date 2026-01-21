@@ -3,61 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>CAR MEET | Telegram Style</title>
+    <title>CAR MEET | Full Version</title>
     <style>
-        :root { --tg-blue: #248bcf; --tg-bg: #18222d; --tg-card: #212d3b; --tg-text: #ffffff; --tg-gray: #7d8b99; --tg-border: #131b24; --tg-online: #4fce60; }
-        
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--tg-bg); margin: 0; direction: rtl; color: var(--tg-text); -webkit-tap-highlight-color: transparent; }
-        
-        /* Telegram Header Style */
-        header { background: var(--tg-card); height: 60px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--tg-border); box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        :root { --tg-blue: #248bcf; --tg-bg: #18222d; --tg-card: #212d3b; --tg-text: #ffffff; --tg-gray: #7d8b99; --tg-border: #131b24; --tg-gold: #ffcc00; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--tg-bg); margin: 0; direction: rtl; color: var(--tg-text); }
+        header { background: var(--tg-card); height: 60px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--tg-border); }
         .header-content { width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center; padding: 0 16px; }
-        .logo { font-weight: bold; font-size: 20px; color: white; }
+        .logo { font-weight: bold; font-size: 20px; cursor: pointer; }
         .logo span { color: var(--tg-blue); }
-
         .container { max-width: 600px; margin: 0 auto; padding: 12px; }
-
-        /* Telegram Card Style */
         .card { background: var(--tg-card); border-radius: 12px; padding: 12px; margin-bottom: 12px; border: 1px solid var(--tg-border); position: relative; }
-        .feed-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-        .feed-meta b { font-size: 14px; color: var(--tg-blue); cursor: pointer; }
-        .post-time { font-size: 11px; color: var(--tg-gray); }
-        
-        /* Fixed Image Aspect */
-        .card-image { width: 100%; max-height: 300px; border-radius: 10px; object-fit: cover; margin-top: 8px; cursor: pointer; border: 1px solid var(--tg-border); }
-        #imgPreview { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; display: none; margin: 10px 0; border: 2px solid var(--tg-blue); }
-
-        /* Actions Bar */
+        .feed-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 14px; }
+        .feed-meta b { color: var(--tg-blue); cursor: pointer; }
+        .card-image { width: 100%; max-height: 350px; border-radius: 10px; object-fit: cover; margin-top: 10px; cursor: pointer; }
         .actions-bar { display: flex; gap: 15px; margin-top: 12px; border-top: 1px solid var(--tg-border); padding-top: 10px; }
-        .action-item { display: flex; align-items: center; gap: 5px; color: var(--tg-gray); font-size: 13px; cursor: pointer; background: none; border: none; padding: 5px 10px; border-radius: 20px; transition: 0.2s; }
-        .action-item:active { background: rgba(36, 139, 207, 0.1); }
-
-        /* Comments Modal (Full Screen on Mobile) */
+        .action-item { cursor: pointer; color: var(--tg-gray); font-size: 13px; }
+        
+        /* Stars Rating */
+        .star-rating { color: var(--tg-gold); font-size: 22px; margin: 10px 0; cursor: pointer; }
+        
+        /* Modals & Popups */
         .comments-modal { position: fixed; inset: 0; background: var(--tg-bg); z-index: 2000; display: none; flex-direction: column; }
-        .modal-header { height: 50px; background: var(--tg-card); display: flex; align-items: center; padding: 0 16px; gap: 15px; border-bottom: 1px solid var(--tg-border); }
-        .comments-list { flex-grow: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
-        .comment-bubble { background: var(--tg-card); padding: 8px 12px; border-radius: 12px; border-bottom-right-radius: 2px; align-self: flex-start; max-width: 85%; border: 1px solid var(--tg-border); }
+        .modal-header { height: 50px; background: var(--tg-card); display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--tg-border); gap: 15px; }
+        .comments-list { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
+        .comment-bubble { background: var(--tg-card); padding: 8px 12px; border-radius: 10px; border: 1px solid var(--tg-border); align-self: flex-start; max-width: 80%; }
         .comment-bubble b { color: var(--tg-blue); font-size: 12px; display: block; }
-        .comment-bubble p { margin: 3px 0; font-size: 14px; }
 
-        .comment-input-area { background: var(--tg-card); padding: 10px 16px; display: flex; gap: 10px; border-top: 1px solid var(--tg-border); padding-bottom: calc(10px + env(safe-area-inset-bottom)); }
-        .comment-input-area input { flex-grow: 1; background: #131b24; border: none; color: white; padding: 10px 15px; border-radius: 20px; outline: none; }
-
-        /* Telegram-like Error Notifications */
-        .error-bubble { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #e53935; color: white; padding: 10px 20px; border-radius: 25px; font-size: 14px; z-index: 3000; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-
-        /* Profile Style */
-        .profile-card { background: var(--tg-card); border-radius: 15px; padding-bottom: 20px; text-align: center; margin-bottom: 15px; overflow: hidden; }
-        .avatar-container { position: relative; width: 100px; height: 100px; margin: 20px auto; }
-        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--tg-blue); }
-        .edit-badge { position: absolute; bottom: 0; right: 0; background: var(--tg-blue); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; }
-
-        button { cursor: pointer; border-radius: 8px; font-weight: 600; border: none; transition: 0.2s; }
-        .btn-primary { background: var(--tg-blue); color: white; padding: 10px 20px; }
+        .error-bubble { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #e53935; color: white; padding: 10px 20px; border-radius: 25px; z-index: 3000; display: none; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 2500; }
+        .modal { background: var(--tg-card); padding: 25px; border-radius: 15px; width: 280px; text-align: center; }
+        .modal input { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 8px; border: none; background: #131b24; color: white; box-sizing: border-box; }
+        
+        .floating-btn { position: fixed; bottom: 25px; left: 20px; background: var(--tg-blue); width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 24px; z-index: 500; cursor: pointer; }
+        .users-popup { position: fixed; bottom: 90px; left: 20px; width: 240px; background: var(--tg-card); border-radius: 15px; border: 1px solid var(--tg-border); display: none; flex-direction: column; max-height: 300px; z-index: 1000; }
+        .user-item { padding: 12px; border-bottom: 1px solid var(--tg-border); cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        
+        .btn-primary { background: var(--tg-blue); color: white; padding: 10px 20px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .hidden { display: none !important; }
-
-        /* Floating Users */
-        .floating-btn { position: fixed; bottom: 25px; left: 20px; background: var(--tg-blue); width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 500; }
+        .delete-btn { color: #ff3b30; font-size: 11px; cursor: pointer; margin-right: auto; }
     </style>
 </head>
 <body>
@@ -68,11 +51,11 @@
         <div id="authNav">
             <span id="guestNav">
                 <button class="btn-primary" onclick="openModal('register')">הרשמה</button>
-                <button style="background:none; color:white;" onclick="openModal('login')">כניסה</button>
+                <button style="background:none; color:white; cursor:pointer;" onclick="openModal('login')">כניסה</button>
             </span>
             <span id="userNav" class="hidden">
                 <button class="btn-primary" onclick="goMyProfile()">פרופיל</button>
-                <button style="background:none; color:var(--tg-gray);" id="logoutBtn">יציאה</button>
+                <button style="background:none; color:var(--tg-gray); cursor:pointer;" id="logoutBtn">יציאה</button>
             </span>
         </div>
     </div>
@@ -80,28 +63,33 @@
 
 <div class="container">
     <div id="profileHeader" class="hidden">
-        <div class="profile-card">
-            <div class="avatar-container">
-                <img id="pAvatar" class="profile-avatar" src="">
-                <div id="editAvBtn" class="edit-badge hidden" onclick="document.getElementById('fileInp').click()">+</div>
+        <div class="card" style="text-align: center;">
+            <div style="position:relative; width:90px; height:90px; margin:10px auto;">
+                <img id="pAvatar" style="width:90px; height:90px; border-radius:50%; border:3px solid var(--tg-blue); object-fit:cover;">
+                <div id="editAvBtn" class="hidden" style="position:absolute; bottom:0; right:0; background:var(--tg-blue); width:28px; height:28px; border-radius:50%; cursor:pointer;" onclick="document.getElementById('fileInp').click()">+</div>
             </div>
             <input type="file" id="fileInp" class="hidden" accept="image/*">
             <div style="font-size:20px; font-weight:bold;"><span id="pName"></span> <span id="pBadge"></span></div>
-            <div id="ratingDisplay" style="color:var(--tg-gold); margin:10px 0; font-size:22px;"></div>
+            <div id="ratingDisplay" class="star-rating"></div>
+            <div id="ratingValue" style="font-size:12px; color:var(--tg-gray);">טוען דירוג...</div>
         </div>
     </div>
 
     <div class="card" id="postCreator">
         <textarea id="postInp" style="width:100%; background:none; border:none; color:white; outline:none; resize:none; min-height:40px; font-size:16px;" placeholder="מה חדש?"></textarea>
-        <img id="imgPreview">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+        <img id="imgPreview" style="width:80px; height:80px; border-radius:8px; display:none; margin:10px 0; object-fit:cover; border:2px solid var(--tg-blue);">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
             <label for="postImgInp" style="cursor:pointer; color:var(--tg-blue); font-size:14px;">🖼️ תמונה</label>
             <input type="file" id="postImgInp" class="hidden" accept="image/*">
             <button class="btn-primary" id="sendPost">שלח</button>
         </div>
     </div>
-
     <div id="board"></div>
+</div>
+
+<div id="usersPopup" class="users-popup">
+    <div style="padding:12px; font-weight:bold; border-bottom:1px solid var(--tg-border);">חברי קהילה</div>
+    <div id="usersList" style="overflow-y:auto;"></div>
 </div>
 
 <div id="errorBubble" class="error-bubble"></div>
@@ -111,10 +99,10 @@
         <span style="font-size:24px; cursor:pointer;" onclick="closeComments()">✕</span>
         <span style="font-weight:bold;">תגובות</span>
     </div>
-    <div id="activePostView" style="padding:16px; border-bottom:1px solid var(--tg-border);"></div>
+    <div id="activePostView" style="padding:15px; border-bottom:1px solid var(--tg-border);"></div>
     <div id="commentsList" class="comments-list"></div>
-    <div class="comment-input-area">
-        <input type="text" id="comInput" placeholder="כתוב תגובה...">
+    <div style="padding:10px; display:flex; gap:10px; background:var(--tg-card);">
+        <input type="text" id="comInput" style="flex:1; background:#131b24; border:none; color:white; padding:10px; border-radius:20px; outline:none;" placeholder="כתוב תגובה...">
         <button class="btn-primary" id="comSendBtn">➤</button>
     </div>
 </div>
@@ -122,19 +110,19 @@
 <div class="floating-btn hidden" id="usersToggleBtn" onclick="toggleUsers()">👥</div>
 
 <div class="modal-overlay" id="authModal">
-    <div class="modal" style="background:var(--tg-card); border-radius:15px; padding:25px; width:280px; text-align:center;">
-        <h3 id="modalTitle" style="margin-top:0;">כניסה</h3>
-        <input type="text" id="uName" placeholder="שם משתמש" style="width:100%; padding:10px; margin-bottom:10px; background:#131b24; border:none; color:white; border-radius:8px;">
-        <input type="password" id="uPass" placeholder="סיסמה" style="width:100%; padding:10px; margin-bottom:15px; background:#131b24; border:none; color:white; border-radius:8px;">
+    <div class="modal">
+        <h3 id="modalTitle" style="color:white; margin-top:0;">כניסה</h3>
+        <input type="text" id="uName" placeholder="שם משתמש">
+        <input type="password" id="uPass" placeholder="סיסמה">
         <button class="btn-primary" id="authDo" style="width:100%;">המשך</button>
-        <button style="background:none; color:var(--tg-gray); margin-top:10px;" onclick="closeModal()">ביטול</button>
+        <button style="background:none; color:var(--tg-gray); margin-top:10px; cursor:pointer;" onclick="closeModal()">ביטול</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getDatabase, ref, push, onChildAdded, update, get, remove, onValue, set, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, update, get, remove, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = { apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ", authDomain: "whitecivic-21e7f.firebaseapp.com", databaseURL: "https://whitecivic-21e7f-default-rtdb.europe-west1.firebasedatabase.app", projectId: "whitecivic-21e7f" };
     const app = initializeApp(firebaseConfig);
@@ -143,8 +131,8 @@
 
     const q = new URLSearchParams(window.location.search);
     const profileId = q.get('user');
+    const SUPER_ADMIN = "anton";
     let currentUser = null;
-    let currentOpenPostId = null;
 
     onAuthStateChanged(auth, (u) => {
         if (u) {
@@ -156,15 +144,28 @@
         if (profileId) loadProfileInfo();
     });
 
-    // --- TELEGRAM NOTIFICATIONS ---
-    function showError(msg) {
-        const b = document.getElementById('errorBubble');
-        b.innerText = msg;
-        b.style.display = 'block';
-        setTimeout(() => b.style.display = 'none', 3000);
-    }
+    // --- AUTH ---
+    window.openModal = (m) => { window.authMode = m; document.getElementById('modalTitle').innerText = m==='login'?'כניסה':'הרשמה'; document.getElementById('authModal').style.display='flex'; };
+    window.closeModal = () => document.getElementById('authModal').style.display='none';
+    
+    document.getElementById('authDo').onclick = async () => {
+        const u = document.getElementById('uName').value.trim(), p = document.getElementById('uPass').value;
+        if(!u || p.length < 6) return showError("פרטים חסרים או סיסמה קצרה מדי");
+        try {
+            if(window.authMode === 'login') {
+                await signInWithEmailAndPassword(auth, u+"@carmeet.com", p);
+            } else {
+                const check = await get(ref(db, 'users/' + btoa(u.toLowerCase())));
+                if(check.exists()) return showError("שם המשתמש תפוס");
+                const role = (u.toLowerCase() === SUPER_ADMIN) ? 'admin' : 'user';
+                await set(ref(db, 'users/' + btoa(u.toLowerCase())), { username: u, role: role, avatar: "", ratingTotal: 0, ratingCount: 0 });
+                await createUserWithEmailAndPassword(auth, u+"@carmeet.com", p);
+            }
+            location.reload();
+        } catch(e) { showError("שם משתמש או סיסמה לא נכונים"); }
+    };
 
-    // --- FEED RENDER ---
+    // --- FEED & LIKES ---
     onChildAdded(ref(db, 'feed'), (snap) => {
         const d = snap.val(), id = snap.key;
         if (profileId && d.toId !== profileId && btoa(d.from.toLowerCase()) !== profileId) return;
@@ -174,13 +175,17 @@
         onValue(ref(db, `feed/${id}`), s => {
             if(!s.exists()) { card.remove(); return; }
             const u = s.val();
+            const isAdmin = currentUser && clean(currentUser.email).toLowerCase() === SUPER_ADMIN;
+            const isOwner = currentUser && clean(currentUser.email) === u.from;
+
             card.innerHTML = `
                 <div class="feed-meta">
                     <b onclick="location.href='?user=${btoa(u.from.toLowerCase())}'">${u.from}</b>
                     ${u.toId !== 'public' && u.from !== u.to ? ` ➔ <b>${u.to}</b>` : ''}
-                    <span class="post-time">${new Date(u.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                    <span style="font-size:11px; color:var(--tg-gray); margin-right:5px;">${new Date(u.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+                    ${(isAdmin || isOwner) ? `<span class="delete-btn" onclick="deletePost('${id}')">מחיקה</span>` : ''}
                 </div>
-                <div style="font-size:15px; white-space:pre-wrap;">${u.text}</div>
+                <div style="white-space:pre-wrap;">${u.text}</div>
                 ${u.image ? `<img src="${u.image}" class="card-image" onclick="openComments('${id}')">` : ''}
                 <div class="actions-bar">
                     <div class="action-item" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</div>
@@ -191,111 +196,108 @@
         document.getElementById('board').prepend(card);
     });
 
-    // --- COMMENTS SYSTEM (MODAL) ---
-    window.openComments = async (postId) => {
-        currentOpenPostId = postId;
-        const snap = await get(ref(db, `feed/${postId}`));
-        const post = snap.val();
-        
-        document.getElementById('activePostView').innerHTML = `
-            <div style="font-weight:bold; color:var(--tg-blue);">${post.from}</div>
-            <div style="margin-top:5px;">${post.text}</div>
-            ${post.image ? `<img src="${post.image}" style="width:100%; border-radius:10px; margin-top:10px;">` : ''}
-        `;
-        
-        document.getElementById('commentsModal').style.display = 'flex';
-        loadComments(postId);
-    };
-
-    window.closeComments = () => {
-        document.getElementById('commentsModal').style.display = 'none';
-        currentOpenPostId = null;
-    };
-
-    function loadComments(postId) {
-        onValue(ref(db, `feed/${postId}/comments`), snap => {
-            const list = document.getElementById('commentsList');
-            list.innerHTML = "";
-            snap.forEach(c => {
-                const m = c.val();
-                list.innerHTML += `<div class="comment-bubble"><b>${m.from}</b><p>${m.text}</p></div>`;
-            });
-            list.scrollTop = list.scrollHeight;
-        });
-    }
-
-    document.getElementById('comSendBtn').onclick = () => {
-        const txt = document.getElementById('comInput').value;
-        if(!currentUser || !txt.trim()) return;
-        push(ref(db, `feed/${currentOpenPostId}/comments`), { from: clean(currentUser.email), text: txt });
-        document.getElementById('comInput').value = "";
-    };
-
-    // --- AUTH WITH TELEGRAM ERRORS ---
-    window.openModal = (m) => { window.authMode = m; document.getElementById('authModal').style.display='flex'; };
-    window.closeModal = () => document.getElementById('authModal').style.display='none';
-    
-    document.getElementById('authDo').onclick = async () => {
-        const u = document.getElementById('uName').value.trim(), p = document.getElementById('uPass').value;
-        if(p.length < 6) return showError("סיסמה חייבת להיות 6 תווים לפחות");
-        
-        try {
-            if(window.authMode === 'login') {
-                await signInWithEmailAndPassword(auth, u+"@carmeet.com", p);
-                location.reload();
-            } else {
-                const check = await get(ref(db, 'users/' + btoa(u.toLowerCase())));
-                if(check.exists()) return showError("שם המשתמש כבר תפוס");
-                await createUserWithEmailAndPassword(auth, u+"@carmeet.com", p);
-                await set(ref(db, 'users/' + btoa(u.toLowerCase())), { username: u, role: 'user', avatar: "" });
-                location.reload();
-            }
-        } catch(e) { showError("פרטים שגויים, נסה שוב"); }
-    };
-
-    // --- OTHER HELPERS ---
-    const clean = (e) => e.split('@')[0];
-    window.toggleLike = (id) => {
+    window.toggleLike = async (id) => {
         if(!currentUser) return openModal('login');
-        const r = ref(db, `feed/${id}/likes/${btoa(clean(currentUser.email))}`);
-        get(r).then(s => s.exists() ? remove(r) : set(r, true));
+        const myId = btoa(clean(currentUser.email).toLowerCase());
+        const r = ref(db, `feed/${id}/likes/${myId}`);
+        const s = await get(r);
+        s.exists() ? remove(r) : set(r, true);
     };
 
-    document.getElementById('postImgInp').onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const p = document.getElementById('imgPreview');
-            p.src = ev.target.result; p.style.display = 'block';
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    };
+    window.deletePost = (id) => confirm("למחוק פוסט?") && remove(ref(db, `feed/${id}`));
 
-    document.getElementById('sendPost').onclick = async () => {
-        const txt = document.getElementById('postInp').value, img = document.getElementById('imgPreview').src;
-        if(!currentUser) return openModal('login');
-        if(!txt && !img) return;
-        push(ref(db, 'feed'), { from: clean(currentUser.email), to: (profileId?document.getElementById('pName').innerText:'הפיד הראשי'), toId: profileId||'public', text: txt, image: img.startsWith('data')?img:null, time: Date.now() });
-        document.getElementById('postInp').value = ""; document.getElementById('imgPreview').style.display = 'none';
-    };
-
+    // --- RATING SYSTEM ---
     async function loadProfileInfo() {
         document.getElementById('profileHeader').classList.remove('hidden');
         onValue(ref(db, 'users/' + profileId), (s) => {
             if(!s.exists()) return;
             const d = s.val();
             document.getElementById('pName').innerText = d.username;
-            document.getElementById('pAvatar').src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}&background=random&color=fff`;
+            document.getElementById('pAvatar').src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
+            document.getElementById('pBadge').innerHTML = d.role === 'admin' ? '⭐' : '';
+            
+            const avg = d.ratingCount ? (d.ratingTotal / d.ratingCount).toFixed(1) : "0.0";
+            document.getElementById('ratingValue').innerText = `דירוג: ${avg} (${d.ratingCount || 0} הצבעות)`;
+            renderStars(avg);
             document.getElementById('editAvBtn').classList.toggle('hidden', !(currentUser && btoa(clean(currentUser.email).toLowerCase()) === profileId));
         });
     }
 
-    document.getElementById('fileInp').onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => update(ref(db, 'users/' + profileId), { avatar: ev.target.result });
-        reader.readAsDataURL(e.target.files[0]);
+    function renderStars(avg) {
+        const box = document.getElementById('ratingDisplay'); box.innerHTML = "";
+        for(let i=1; i<=5; i++) {
+            const s = document.createElement('span');
+            s.innerHTML = i <= Math.round(avg) ? "★" : "☆";
+            s.onclick = () => rateUser(i);
+            box.appendChild(s);
+        }
+    }
+
+    async function rateUser(score) {
+        if(!currentUser) return openModal('login');
+        const myId = btoa(clean(currentUser.email).toLowerCase());
+        if(myId === profileId) return showError("לא ניתן לדרג את עצמך");
+        
+        const rRef = ref(db, `users/${profileId}/ratings/${myId}`);
+        const snap = await get(rRef);
+        if(snap.exists()) return showError("כבר דירגת משתמש זה");
+
+        const userSnap = await get(ref(db, `users/${profileId}`));
+        const d = userSnap.val();
+        await update(ref(db, `users/${profileId}`), { ratingTotal: (d.ratingTotal || 0) + score, ratingCount: (d.ratingCount || 0) + 1 });
+        await set(rRef, score);
+    }
+
+    // --- UI HELPERS ---
+    const clean = (e) => e.split('@')[0];
+    function showError(msg) { const b = document.getElementById('errorBubble'); b.innerText = msg; b.style.display = 'block'; setTimeout(() => b.style.display = 'none', 3000); }
+    
+    window.toggleUsers = () => {
+        const p = document.getElementById('usersPopup');
+        p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
+        if(p.style.display === 'flex') {
+            onValue(ref(db, 'users'), snap => {
+                const l = document.getElementById('usersList'); l.innerHTML = "";
+                snap.forEach(u => { l.innerHTML += `<div class="user-item" onclick="location.href='?user=${u.key}'">${u.val().username}</div>`; });
+            });
+        }
     };
 
-    window.goMyProfile = () => location.href = '?user=' + btoa(clean(currentUser.email).toLowerCase());
+    window.openComments = async (id) => {
+        const s = await get(ref(db, `feed/${id}`)); const p = s.val();
+        document.getElementById('activePostView').innerHTML = `<b>${p.from}</b><p>${p.text}</p>${p.image?`<img src="${p.image}" style="width:100%; border-radius:10px;">`:''}`;
+        document.getElementById('commentsModal').style.display = 'flex';
+        onValue(ref(db, `feed/${id}/comments`), snap => {
+            const l = document.getElementById('commentsList'); l.innerHTML = "";
+            snap.forEach(c => { l.innerHTML += `<div class="comment-bubble"><b>${c.val().from}</b><p>${c.val().text}</p></div>`; });
+        });
+        document.getElementById('comSendBtn').onclick = () => {
+            const t = document.getElementById('comInput').value;
+            if(t && currentUser) push(ref(db, `feed/${id}/comments`), { from: clean(currentUser.email), text: t });
+            document.getElementById('comInput').value = "";
+        };
+    };
+    window.closeComments = () => document.getElementById('commentsModal').style.display = 'none';
+
+    document.getElementById('postImgInp').onchange = (e) => {
+        const r = new FileReader(); r.onload = (ev) => { const i = document.getElementById('imgPreview'); i.src = ev.target.result; i.style.display='block'; };
+        r.readAsDataURL(e.target.files[0]);
+    };
+
+    document.getElementById('sendPost').onclick = async () => {
+        const t = document.getElementById('postInp').value, i = document.getElementById('imgPreview').src;
+        if(!currentUser) return openModal('login'); if(!t && !i) return;
+        const target = profileId ? document.getElementById('pName').innerText : "הפיד הראשי";
+        push(ref(db, 'feed'), { from: clean(currentUser.email), to: target, toId: profileId||'public', text: t, image: i.startsWith('data')?i:null, time: Date.now() });
+        document.getElementById('postInp').value = ""; document.getElementById('imgPreview').style.display = 'none';
+    };
+
+    document.getElementById('fileInp').onchange = (e) => {
+        const r = new FileReader(); r.onload = (ev) => update(ref(db, 'users/' + profileId), { avatar: ev.target.result });
+        r.readAsDataURL(e.target.files[0]);
+    };
+
+    window.goMyProfile = () => location.href = '?user=' + btoa(clean(auth.currentUser.email).toLowerCase());
     document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=>location.href='index.html');
 </script>
 </body>
