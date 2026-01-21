@@ -38,9 +38,10 @@
         /* Popups & Modals */
         .floating-btn { position: fixed; bottom: 20px; left: 20px; background: var(--cm-blue); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 400; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .users-popup { position: fixed; bottom: 80px; left: 20px; width: 260px; background: var(--cm-card); border-radius: 15px; display: none; flex-direction: column; max-height: 400px; border: 1px solid var(--cm-border); z-index: 500; }
-        .user-item { display: flex; align-items: center; gap: 10px; padding: 10px; cursor: pointer; position: relative; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #555; position: absolute; right: 35px; bottom: 10px; border: 2px solid var(--cm-card); }
-        .status-dot.online { background: var(--cm-online); }
+        .user-item { display: flex; align-items: center; gap: 10px; padding: 12px; cursor: pointer; position: relative; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .user-item:hover { background: rgba(255,255,255,0.05); }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #555; position: absolute; right: 38px; bottom: 12px; border: 2px solid var(--cm-card); z-index: 2; }
+        .status-dot.online { background: var(--cm-online); box-shadow: 0 0 5px var(--cm-online); }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal { background: var(--cm-card); padding: 25px; border-radius: 20px; width: 300px; text-align: center; border: 1px solid var(--cm-border); }
@@ -80,7 +81,6 @@
             </div>
             <input type="file" id="fileInp" class="hidden" accept="image/*">
             <div style="font-size:22px; font-weight:800; margin-top:10px;"><span id="pName"></span> <span id="pBadge"></span></div>
-            
             <div id="ratingDisplay" class="star-rating"></div>
             <div id="ratingValue" style="font-size:12px; color:var(--cm-gray);">דירוג: 0.0</div>
         </div>
@@ -145,7 +145,7 @@
         if (profileId) loadProfileInfo();
     });
 
-    // --- AUTH WITH INTERNAL ALERTS ---
+    // --- AUTH ---
     window.openModal = (m) => { 
         window.authMode = m; 
         document.getElementById('modalTitle').innerText = (m === 'login' ? 'כניסה' : 'הרשמה');
@@ -158,42 +158,24 @@
         const u = document.getElementById('uName').value.trim();
         const p = document.getElementById('uPass').value;
         const err = document.getElementById('modalError');
-        err.style.display = 'none';
-
         if (!u || !p) { err.innerText = "נא למלא את כל השדות"; err.style.display='block'; return; }
-        if (p.length < 6) { err.innerText = "הסיסמה חייבת להכיל 6 תווים לפחות"; err.style.display='block'; return; }
-
+        
         try {
             if(window.authMode === 'login') {
                 await signInWithEmailAndPassword(auth, toEmail(u), p);
                 location.reload();
             } else {
                 const check = await get(ref(db, 'users/' + btoa(u.toLowerCase())));
-                if (check.exists()) { err.innerText = "שם המשתמש כבר קיים במערכת"; err.style.display='block'; return; }
-                
+                if (check.exists()) { err.innerText = "שם המשתמש תפוס"; err.style.display='block'; return; }
                 await createUserWithEmailAndPassword(auth, toEmail(u), p);
                 const role = (u.toLowerCase() === SUPER_ADMIN) ? 'admin' : 'user';
                 await set(ref(db, 'users/' + btoa(u.toLowerCase())), { username: u, role: role, avatar: "", ratingTotal: 0, ratingCount: 0 });
                 location.reload();
             }
-        } catch(e) {
-            err.innerText = "שם משתמש או סיסמה לא נכונים"; err.style.display='block';
-        }
+        } catch(e) { err.innerText = "שגיאה בחיבור למערכת"; err.style.display='block'; }
     };
 
-    // --- FEED & POSTS ---
-    document.getElementById('postImgInp').onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                document.getElementById('imgPreview').src = ev.target.result;
-                document.getElementById('imgPreview').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
+    // --- FEED ---
     document.getElementById('sendPost').onclick = async () => {
         if(!currentUser) return openModal('login');
         const txt = document.getElementById('postInp').value;
@@ -202,7 +184,6 @@
 
         push(ref(db, 'feed'), {
             from: clean(currentUser.email),
-            to: targetName,
             toId: profileId || 'public',
             text: txt,
             image: img.startsWith('data') ? img : null,
@@ -210,7 +191,6 @@
         });
         document.getElementById('postInp').value = "";
         document.getElementById('imgPreview').style.display = 'none';
-        document.getElementById('imgPreview').src = "";
     };
 
     onChildAdded(ref(db, 'feed'), (snap) => {
@@ -228,7 +208,6 @@
             card.innerHTML = `
                 <div class="feed-meta">
                     <b onclick="location.href='?user=${btoa(u.from.toLowerCase())}'">${u.from}</b>
-                    ${u.toId !== 'public' && u.from !== u.to ? ` ➔ <b onclick="location.href='?user=${u.toId}'">${u.to}</b>` : ''}
                     <span class="post-time">${new Date(u.time).toLocaleString('he-IL')}</span>
                 </div>
                 ${(isAdmin || isOwner) ? `<span style="position:absolute; left:15px; top:15px; cursor:pointer; color:#ff3b30; font-size:11px;" onclick="deletePost('${id}')">מחיקה</span>` : ''}
@@ -245,16 +224,36 @@
         document.getElementById('board').prepend(card);
     });
 
-    // --- COMMENTS & RATING LOGIC ---
+    // --- GLOBAL FUNCTIONS (WINDOW) ---
+    window.deletePost = (id) => confirm('למחוק?') && remove(ref(db, `feed/${id}`));
+    
+    window.toggleLike = async (id) => {
+        if(!currentUser) return openModal('login');
+        const myId = btoa(clean(currentUser.email).toLowerCase());
+        const r = ref(db, `feed/${id}/likes/${myId}`);
+        const s = await get(r);
+        s.exists() ? remove(r) : set(r, true);
+    };
+
     window.addComment = (pid, inp) => {
         if(!currentUser || !inp.value.trim()) return;
-        push(ref(db, `feed/${pid}/comments`), { from: clean(currentUser.email), text: inp.value });
+        push(ref(db, `feed/${pid}/comments`), { from: clean(currentUser.email), text: inp.value.trim() });
         inp.value = "";
     };
 
+    window.toggleUsers = () => { 
+        const p = document.getElementById('usersPopup'); 
+        p.style.display = p.style.display==='flex'?'none':'flex'; 
+    };
+
+    window.goMyProfile = () => {
+        if(currentUser) location.href = '?user=' + btoa(clean(currentUser.email).toLowerCase());
+    };
+
+    // --- LOAD DATA ---
     function loadComments(pid) {
         onValue(ref(db, `feed/${pid}/comments`), snap => {
-            const box = document.getElementById(`coms-${pid}`); box.innerHTML = "";
+            const box = document.getElementById(`coms-${pid}`); if(!box) return; box.innerHTML = "";
             snap.forEach(c => { const m = c.val(); box.innerHTML += `<div class="comment"><b>${m.from}:</b> ${m.text}</div>`; });
         });
     }
@@ -264,17 +263,12 @@
         onValue(ref(db, 'users/' + profileId), (s) => {
             if(!s.exists()) return;
             const d = s.val();
-            targetName = d.username;
             document.getElementById('pName').innerText = d.username;
             document.getElementById('pAvatar').src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}&background=random&color=fff`;
             document.getElementById('pBadge').innerHTML = d.role === 'admin' ? '⭐' : '';
-            
             const avg = d.ratingCount ? (d.ratingTotal / d.ratingCount).toFixed(1) : "0.0";
-            document.getElementById('ratingValue').innerText = `דירוג: ${avg} (${d.ratingCount || 0} הצבעות)`;
+            document.getElementById('ratingValue').innerText = `דירוג: ${avg} (${d.ratingCount || 0})`;
             renderStars(avg);
-
-            const isMe = currentUser && btoa(clean(currentUser.email).toLowerCase()) === profileId;
-            document.getElementById('editAvBtn').classList.toggle('hidden', !isMe);
         });
     }
 
@@ -291,53 +285,42 @@
     async function rateUser(score) {
         if(!currentUser) return openModal('login');
         const myId = btoa(clean(currentUser.email).toLowerCase());
-        if(myId === profileId) return; // אי אפשר לדרג את עצמך
-
+        if(myId === profileId) return;
         const rRef = ref(db, `users/${profileId}/ratings/${myId}`);
         const snap = await get(rRef);
-        if(snap.exists()) return; // כבר דירג
-
-        const userSnap = await get(ref(db, `users/${profileId}`));
-        const d = userSnap.val();
-        await update(ref(db, `users/${profileId}`), {
-            ratingTotal: (d.ratingTotal || 0) + score,
-            ratingCount: (d.ratingCount || 0) + 1
-        });
+        if(snap.exists()) return;
+        const uSnap = await get(ref(db, `users/${profileId}`));
+        const d = uSnap.val();
+        await update(ref(db, `users/${profileId}`), { ratingTotal: (d.ratingTotal || 0) + score, ratingCount: (d.ratingCount || 0) + 1 });
         await set(rRef, score);
     }
 
-    // --- UTILS ---
-    const clean = (e) => e.split('@')[0];
-    const toEmail = (n) => `${n.toLowerCase().trim()}@carmeet.com`;
-    window.deletePost = (id) => confirm('למחוק?') && remove(ref(db, `feed/${id}`));
-    window.toggleLike = (id) => {
-        if(!currentUser) return;
-        const r = ref(db, `feed/${id}/likes/${btoa(clean(currentUser.email))}`);
-        get(r).then(s => s.exists() ? remove(r) : set(r, true));
-    };
-    window.toggleUsers = () => { const p = document.getElementById('usersPopup'); p.style.display = p.style.display==='flex'?'none':'flex'; };
-    window.goMyProfile = () => location.href = '?user=' + btoa(clean(currentUser.email).toLowerCase());
-    document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=>location.href='index.html');
-    
-    document.getElementById('fileInp').onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => update(ref(db, 'users/' + profileId), { avatar: ev.target.result });
-        reader.readAsDataURL(e.target.files[0]);
-    };
-
+    // --- USERS LIST & STATUS ---
     onValue(ref(db, 'users'), snap => {
-        const list = document.getElementById('globalUsersList'); list.innerHTML = "";
+        const list = document.getElementById('globalUsersList');
+        list.innerHTML = "";
         snap.forEach(c => {
             const u = c.val(), id = c.key;
-            list.innerHTML += `<div class="user-item" onclick="location.href='?user=${id}'">
-                <img src="${u.avatar || 'https://ui-avatars.com/api/?name='+u.username}" style="width:35px;height:35px;border-radius:50%;">
-                <div id="dot-${id}" class="status-dot"></div><span>${u.username}</span></div>`;
+            const div = document.createElement('div');
+            div.className = 'user-item';
+            div.onclick = () => location.href = `?user=${id}`;
+            div.innerHTML = `
+                <img src="${u.avatar || 'https://ui-avatars.com/api/?name='+u.username}" style="width:35px;height:35px;border-radius:50%;object-fit:cover;">
+                <div id="dot-${id}" class="status-dot"></div>
+                <span>${u.username}</span>
+            `;
+            list.appendChild(div);
+            
             onValue(ref(db, 'status/'+id), s => {
-                const d = document.getElementById('dot-'+id);
-                if(d) s.exists() && s.val().state==='online' ? d.classList.add('online') : d.classList.remove('online');
+                const dot = document.getElementById('dot-'+id);
+                if(dot) dot.className = (s.exists() && s.val().state==='online') ? 'status-dot online' : 'status-dot';
             });
         });
     });
+
+    const clean = (e) => e ? e.split('@')[0] : "";
+    const toEmail = (n) => `${n.toLowerCase().trim()}@carmeet.com`;
+    document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=>location.href='index.html');
 </script>
 </body>
 </html>
