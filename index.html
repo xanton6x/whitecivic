@@ -3,137 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Padlet Fix</title>
+    <title>Social Board: Likes & Comments</title>
     <style>
-        :root { --pink: #e91e63; --violet: #667eea; }
-        body { font-family: 'Inter', sans-serif; background: #667eea; margin: 0; padding: 20px; }
-        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: white; border-radius: 20px; margin-bottom: 30px; }
-        .auth-buttons button { margin-left: 10px; }
-        button { cursor: pointer; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; }
-        .btn-add { background: var(--pink); color: white; }
-        .btn-outline { background: #eee; }
-        .btn-primary { background: var(--violet); color: white; }
+        :root { --pink: #e91e63; --violet: #667eea; --bg: #f0f2f5; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 20px; transition: background 0.5s; }
+        
+        header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px 25px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
+            border-radius: 20px; margin-bottom: 30px; position: sticky; top: 10px; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .search-box { flex-grow: 1; margin: 0 20px; }
+        .search-box input { width: 100%; padding: 10px 15px; border-radius: 25px; border: 1px solid #ddd; outline: none; }
+
+        button { cursor: pointer; border: none; font-weight: 600; transition: 0.2s; }
+        .btn-add { background: var(--pink); color: white; padding: 10px 20px; border-radius: 12px; }
+        .btn-outline { background: #f1f3f5; padding: 10px 15px; border-radius: 12px; }
+
+        .profile-header { text-align: center; margin-bottom: 30px; color: white; background: var(--violet); padding: 40px; border-radius: 25px; }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; border: 4px solid white; object-fit: cover; background: #eee; }
+        
+        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
+        .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .mini-avatar { width: 35px; height: 35px; border-radius: 50%; object-fit: cover; }
+        
+        .card textarea { width: 100%; border: none; outline: none; min-height: 80px; resize: none; font-size: 16px; background: transparent; }
+        
+        /* Likes & Comments UI */
+        .card-footer { display: flex; gap: 15px; margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee; }
+        .action-btn { background: none; color: #666; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+        .action-btn:hover { color: var(--pink); }
+
+        .comments-section { background: #f8f9fa; border-radius: 12px; padding: 10px; margin-top: 10px; font-size: 13px; }
+        .comment-item { margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px; }
+        .comment-input { width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 5px 10px; margin-top: 5px; box-sizing: border-box; }
+
         .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: white; padding: 30px; border-radius: 20px; width: 300px; }
-        .modal input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .card textarea { width: 100%; border: none; outline: none; min-height: 100px; resize: none; font-size: 16px; }
-        .admin-only { display: none; background: #fff0f0; color: #ff4757; width: 100%; margin-top: 10px; }
-        .admin-mode .admin-only { display: block; }
+        .modal { background: white; padding: 25px; border-radius: 20px; width: 320px; }
         .hidden { display: none; }
     </style>
 </head>
 <body id="mainBody">
 
 <header>
-    <div>
-        <h2 style="margin:0">🚀 MyBoard</h2>
-        <small id="userStatus">Загрузка...</small>
-    </div>
-    <div class="auth-buttons">
+    <div onclick="goToHome()" style="cursor:pointer; color: var(--violet); font-weight: bold;">🚀 Board</div>
+    <div class="search-box"><input type="text" id="searchInput" placeholder="Поиск по Email..."></div>
+    <div style="display: flex; gap: 10px;">
         <button class="btn-add" id="addBtn">+ Пост</button>
-        <span id="guestSection">
-            <button class="btn-outline" onclick="openModal('login')">Войти</button>
-            <button class="btn-primary" onclick="openModal('register')">Регистрация</button>
-        </span>
-        <span id="userSection" class="hidden">
-            <button class="btn-outline" onclick="window.logout()">Выйти</button>
-        </span>
+        <div id="guestSection"><button class="btn-outline" onclick="openModal('login')">Вход</button></div>
+        <div id="userSection" class="hidden">
+            <button class="btn-outline" id="myProfileBtn">Профиль</button>
+            <button class="btn-outline" onclick="window.logout()">Выход</button>
+        </div>
     </div>
 </header>
+
+<div id="profileInfo" class="profile-header hidden">
+    <img id="headerAvatar" class="profile-avatar" src="">
+    <h1 id="profileName" style="margin: 0;">Профиль</h1>
+    <div id="ownerControls" class="hidden" style="margin-top: 15px;">
+        <input type="text" id="avatarUrlInput" placeholder="URL Аватарки" style="padding: 8px; border-radius: 8px;">
+        <input type="color" id="wallColorPicker">
+        <button class="btn-add" id="saveProfileBtn">ОК</button>
+    </div>
+</div>
 
 <div class="board" id="board"></div>
 
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
         <h3 id="modalTitle">Вход</h3>
-        <input type="email" id="authEmail" placeholder="Email">
-        <input type="password" id="authPass" placeholder="Пароль">
-        <button class="btn-primary" style="width:100%" id="authSubmit">Готово</button>
-        <button class="btn-outline" style="width:100%; margin-top:5px;" onclick="closeModal()">Отмена</button>
+        <input type="email" id="authEmail" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="Email">
+        <input type="password" id="authPass" style="width:100%; padding:10px; margin-bottom:10px;" placeholder="Пароль">
+        <button class="btn-add" style="width:100%" id="authSubmit">Продолжить</button>
+        <button style="width:100%; margin-top:5px;" onclick="closeModal()">Отмена</button>
     </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, remove, update, onValue, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  // !!! ЗАМЕНИТЕ ЭТО НА ВАШИ ДАННЫЕ !!!
   const firebaseConfig = {
-  apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
-  authDomain: "whitecivic-21e7f.firebaseapp.com",
-  databaseURL: "https://whitecivic-21e7f-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "whitecivic-21e7f",
-  storageBucket: "whitecivic-21e7f.firebasestorage.app",
-  messagingSenderId: "315183180745",
-  appId: "1:315183180745:web:6e71aa50d0b975d63c9618",
-  measurementId: "G-Z7ZPZ5LNPV"
-};
+    apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
+    authDomain: "whitecivic-21e7f.firebaseapp.com",
+    databaseURL: "https://whitecivic-21e7f-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "whitecivic-21e7f",
+    storageBucket: "whitecivic-21e7f.firebasestorage.app",
+    messagingSenderId: "315183180745",
+    appId: "1:315183180745:web:6e71aa50d0b975d63c9618"
+  };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
-  const cardsRef = ref(db, 'cards');
 
-  const ADMIN_EMAIL = "admin@test.com"; // ВАШ EMAIL
-  let currentAction = 'login';
+  const urlParams = new URLSearchParams(window.location.search);
+  const wallOwnerId = urlParams.get('user') || 'public';
 
-  window.openModal = (type) => {
-    currentAction = type;
-    document.getElementById('modalTitle').innerText = type === 'login' ? 'С возвращением' : 'Создать аккаунт';
-    document.getElementById('modalOverlay').style.display = 'flex';
-  };
-  window.closeModal = () => document.getElementById('modalOverlay').style.display = 'none';
+  window.goToHome = () => window.location.href = window.location.pathname;
+  window.goToProfile = (email) => { if(email && email !== 'Anonymous') window.location.href = `?user=${btoa(email)}`; };
 
-  document.getElementById('authSubmit').onclick = async () => {
-    const email = document.getElementById('authEmail').value;
-    const pass = document.getElementById('authPass').value;
-    try {
-        if (currentAction === 'register') await createUserWithEmailAndPassword(auth, email, pass);
-        else await signInWithEmailAndPassword(auth, email, pass);
-        closeModal();
-    } catch (e) { alert(e.message); }
-  };
+  // --- ЛОГИКА ПОСТОВ ---
+  onChildAdded(ref(db, 'walls/' + wallOwnerId), (snap) => {
+    const data = snap.val();
+    const id = snap.key;
+    const card = document.createElement('div');
+    card.id = id; card.className = 'card';
+    card.innerHTML = `
+        <div class="card-header">
+            <img class="mini-avatar" id="av-${id}" src="https://ui-avatars.com/api/?name=${data.author}">
+            <b style="cursor:pointer" onclick="goToProfile('${data.author}')">${data.author.split('@')[0]}</b>
+        </div>
+        <textarea id="text-${id}">${data.text || ''}</textarea>
+        <div class="card-footer">
+            <button class="action-btn" id="like-${id}">❤️ <span id="count-${id}">${data.likes || 0}</span></button>
+            <button class="action-btn" onclick="document.getElementById('comm-box-${id}').classList.toggle('hidden')">💬 Комменты</button>
+        </div>
+        <div id="comm-box-${id}" class="comments-section hidden">
+            <div id="list-${id}"></div>
+            <input type="text" class="comment-input" placeholder="Ваш коммент..." id="inp-${id}">
+        </div>
+    `;
+    document.getElementById('board').prepend(card);
 
-  window.logout = () => signOut(auth);
+    // Лайки
+    document.getElementById(`like-${id}`).onclick = () => {
+        update(ref(db, `walls/${wallOwnerId}/${id}`), { likes: increment(1) });
+    };
 
+    // Комменты
+    document.getElementById(`inp-${id}`).onkeypress = (e) => {
+        if (e.key === 'Enter' && auth.currentUser) {
+            const commRef = ref(db, `walls/${wallOwnerId}/${id}/comments`);
+            push(commRef, { text: e.target.value, user: auth.currentUser.email });
+            e.target.value = '';
+        } else if (e.key === 'Enter') alert("Войдите, чтобы комментить!");
+    };
+
+    // Слушатель комментов
+    onValue(ref(db, `walls/${wallOwnerId}/${id}/comments`), (cSnap) => {
+        const list = document.getElementById(`list-${id}`);
+        list.innerHTML = '';
+        cSnap.forEach(child => {
+            list.innerHTML += `<div class="comment-item"><b>${child.val().user.split('@')[0]}:</b> ${child.val().text}</div>`;
+        });
+    });
+
+    // Редактирование
+    const area = document.getElementById(`text-${id}`);
+    if (auth.currentUser?.email !== data.author) area.readOnly = true;
+    area.oninput = (e) => update(ref(db, `walls/${wallOwnerId}/${id}`), {text: e.target.value});
+  });
+
+  // --- ОБЩИЕ ФУНКЦИИ ---
   onAuthStateChanged(auth, (user) => {
     document.getElementById('guestSection').classList.toggle('hidden', !!user);
     document.getElementById('userSection').classList.toggle('hidden', !user);
-    document.getElementById('userStatus').innerText = user ? `В сети: ${user.email}` : "Анонимный режим";
-    if (user && user.email === ADMIN_EMAIL) document.body.classList.add('admin-mode');
-    else document.body.classList.remove('admin-mode');
+    if (user) document.getElementById('myProfileBtn').onclick = () => goToProfile(user.email);
+    if (user && btoa(user.email) === wallOwnerId) document.getElementById('ownerControls').classList.remove('hidden');
   });
 
   document.getElementById('addBtn').onclick = () => {
-    if (!auth.currentUser) {
-        if (localStorage.getItem('did_post_anon')) return alert("Лимит! Войдите для новых постов.");
-        push(cardsRef, { text: "", author: "Anonymous" });
-        localStorage.setItem('did_post_anon', 'true');
-    } else {
-        push(cardsRef, { text: "", author: auth.currentUser.email });
-    }
+    const author = auth.currentUser ? auth.currentUser.email : "Anonymous";
+    push(ref(db, 'walls/' + wallOwnerId), { text: "", author, likes: 0, ts: Date.now() });
   };
 
-  onChildAdded(cardsRef, snap => {
+  document.getElementById('saveProfileBtn').onclick = () => {
+    update(ref(db, 'profiles/' + wallOwnerId), { 
+        color: document.getElementById('wallColorPicker').value,
+        avatar: document.getElementById('avatarUrlInput').value 
+    });
+    location.reload();
+  };
+
+  // Поиск
+  document.getElementById('searchInput').onkeypress = (e) => {
+    if(e.key === 'Enter') goToProfile(e.target.value);
+  };
+
+  // Слушатель изменений (лайки и текст)
+  onChildChanged(ref(db, 'walls/' + wallOwnerId), snap => {
     const data = snap.val();
-    const id = snap.key;
-    const div = document.createElement('div');
-    div.id = id; div.className = 'card';
-    div.innerHTML = `<small>От: ${data.author}</small><textarea>${data.text || ''}</textarea><button class="admin-only">Удалить</button>`;
-    document.getElementById('board').prepend(div);
-    div.querySelector('textarea').oninput = (e) => update(ref(db, 'cards/'+id), {text: e.target.value});
-    div.querySelector('button').onclick = () => remove(ref(db, 'cards/'+id));
+    document.getElementById(`count-${snap.key}`).innerText = data.likes || 0;
+    const area = document.getElementById(`text-${snap.key}`);
+    if (document.activeElement !== area) area.value = data.text || '';
   });
 
-  onChildChanged(cardsRef, snap => {
-    const area = document.getElementById(snap.key)?.querySelector('textarea');
-    if (area && document.activeElement !== area) area.value = snap.val().text;
-  });
-
-  onChildRemoved(cardsRef, snap => document.getElementById(snap.key)?.remove());
+  // Auth Modals
+  window.openModal = (t) => { window.authT = t; document.getElementById('modalOverlay').style.display='flex'; };
+  window.closeModal = () => document.getElementById('modalOverlay').style.display='none';
+  document.getElementById('authSubmit').onclick = async () => {
+    const e = document.getElementById('authEmail').value;
+    const p = document.getElementById('authPass').value;
+    try {
+        if(window.authT === 'register') await createUserWithEmailAndPassword(auth, e, p);
+        else await signInWithEmailAndPassword(auth, e, p);
+        closeModal();
+    } catch(err) { alert(err.message); }
+  };
+  window.logout = () => signOut(auth);
 </script>
 </body>
 </html>
