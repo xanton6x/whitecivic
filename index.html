@@ -35,6 +35,12 @@
         .card-actions { display: flex; gap: 20px; margin-top: 15px; border-top: 1px solid var(--cm-border); padding-top: 10px; }
         .action-btn { cursor: pointer; color: var(--cm-gray); font-size: 14px; background: none; border: none; }
         
+        /* Modal & Errors */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: var(--cm-card); padding: 25px; border-radius: 20px; width: 300px; text-align: center; }
+        .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid var(--cm-border); background: #2c2c2e; color: white; box-sizing: border-box; outline: none; }
+        .error-msg { color: #ff3b30; font-size: 13px; margin-bottom: 10px; font-weight: bold; display: none; }
+        
         /* Profile */
         .profile-card { background: var(--cm-card); border-radius: 20px; overflow: hidden; border: 1px solid var(--cm-border); margin-bottom: 20px; text-align: center; padding-bottom: 20px; }
         .profile-avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--cm-card); margin-top: -45px; object-fit: cover; background: #333; }
@@ -42,10 +48,7 @@
         button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; padding: 8px 16px; }
         .btn-primary { background: var(--cm-blue); color: white; }
         .btn-outline { background: #2c2c2e; color: white; border: 1px solid var(--cm-border); }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: var(--cm-card); padding: 25px; border-radius: 20px; width: 300px; text-align: center; }
-        .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 10px; border: 1px solid var(--cm-border); background: #2c2c2e; color: white; box-sizing: border-box; }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         .floating-btn { position: fixed; bottom: 20px; left: 20px; background: var(--cm-blue); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 5px 15px rgba(0,122,255,0.4); z-index: 400; font-size: 22px; cursor: pointer; }
     </style>
 </head>
@@ -90,7 +93,7 @@
     <div id="board"></div>
 </div>
 
-<div class="floating-btn" onclick="toggleUsers()">👥</div>
+<div class="floating-btn hidden" id="usersToggleBtn" onclick="toggleUsers()">👥</div>
 <div class="users-popup" id="usersPopup">
     <div class="users-header"><span>חברי הקהילה</span><span style="cursor:pointer" onclick="toggleUsers()">✕</span></div>
     <div class="users-list" id="globalUsersList"></div>
@@ -99,8 +102,9 @@
 <div class="modal-overlay" id="authModal">
     <div class="modal">
         <h3 id="modalTitle">כניסה</h3>
+        <div id="modalError" class="error-msg"></div>
         <input type="text" id="uName" placeholder="שם משתמש">
-        <input type="password" id="uPass" placeholder="סיסמה">
+        <input type="password" id="uPass" placeholder="סיסמה (6 תווים ומעלה)">
         <button class="btn-primary" id="authDo" style="width:100%">המשך</button>
         <button class="btn-outline" onclick="closeModal()" style="width:100%; margin-top:10px;">ביטול</button>
     </div>
@@ -109,7 +113,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getDatabase, ref, push, onChildAdded, update, get, remove, onValue, set, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, push, onChildAdded, update, get, remove, onValue, set, onDisconnect } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
@@ -135,6 +139,9 @@
             onDisconnect(ref(db, 'status/' + myId)).set({ state: 'offline' });
             document.getElementById('guestNav').classList.add('hidden');
             document.getElementById('userNav').classList.remove('hidden');
+            document.getElementById('usersToggleBtn').classList.remove('hidden'); // הצגת רשימת אנשים רק לרשומים
+        } else {
+            document.getElementById('usersToggleBtn').classList.add('hidden'); // הסתרה לאורחים
         }
         if (wallId !== 'public') loadProfile();
     });
@@ -245,22 +252,58 @@
         reader.readAsDataURL(file);
     };
 
+    // --- AUTH WITH ERROR HANDLING ---
     const clean = (e) => e.split('@')[0];
     const toEmail = (n) => `${n.toLowerCase().trim()}@carmeet.com`;
     let authMode = 'login';
-    window.openModal = (m) => { authMode = m; document.getElementById('authModal').style.display='flex'; };
+
+    window.openModal = (m) => { 
+        authMode = m; 
+        document.getElementById('modalTitle').innerText = m === 'login' ? 'כניסה' : 'הרשמה'; 
+        document.getElementById('modalError').style.display = 'none';
+        document.getElementById('authModal').style.display='flex'; 
+    };
+    
     window.closeModal = () => document.getElementById('authModal').style.display='none';
+
     document.getElementById('authDo').onclick = async () => {
-        const u = document.getElementById('uName').value.trim(), p = document.getElementById('uPass').value;
+        const u = document.getElementById('uName').value.trim();
+        const p = document.getElementById('uPass').value;
+        const errDiv = document.getElementById('modalError');
+
+        if (!u || !p) {
+            errDiv.innerText = "יש למלא את כל השדות";
+            errDiv.style.display = 'block';
+            return;
+        }
+
+        if (p.length < 6) {
+            errDiv.innerText = "הסיסמה חייבת להיות לפחות 6 תווים";
+            errDiv.style.display = 'block';
+            return;
+        }
+
         try {
-            if(authMode === 'login') await signInWithEmailAndPassword(auth, toEmail(u), p);
-            else {
+            if (authMode === 'login') {
+                await signInWithEmailAndPassword(auth, toEmail(u), p);
+            } else {
+                // בדיקה אם המשתמש קיים לפני הרשמה
+                const check = await get(ref(db, 'users/' + btoa(u.toLowerCase())));
+                if (check.exists()) {
+                    errDiv.innerText = "שם המשתמש כבר תפוס";
+                    errDiv.style.display = 'block';
+                    return;
+                }
                 await createUserWithEmailAndPassword(auth, toEmail(u), p);
                 await set(ref(db, 'users/' + btoa(u.toLowerCase())), { username: u, role: (u.toLowerCase() === SUPER_ADMIN ? 'admin' : 'user'), avatar: "" });
             }
             location.reload();
-        } catch(e) { alert("שגיאה"); }
+        } catch (e) {
+            errDiv.innerText = authMode === 'login' ? "שם משתמש או סיסמה שגויים" : "שגיאה בתהליך ההרשמה";
+            errDiv.style.display = 'block';
+        }
     };
+
     window.goMyProfile = () => location.href = '?user=' + btoa(clean(currentUser.email).toLowerCase());
     document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=>location.href='?');
 </script>
