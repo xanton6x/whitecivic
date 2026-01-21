@@ -3,178 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VK Style | Google Login</title>
+    <title>CAR MEET | קהילת הרכב שלך</title>
     <style>
         :root { 
-            --vk-blue: #71aaeb; --vk-bg: #19191a; --vk-card: #222222; --vk-header: #222222;
-            --vk-text: #e1e3e6; --vk-gray: #76787a; --vk-border: #424242; --vk-input: #333333;
-            --vk-button-blue: #5181b8;
+            --cm-blue: #71aaeb; 
+            --cm-bg: #0f0f10; 
+            --cm-card: #1c1c1e; 
+            --cm-header: #1c1c1e;
+            --cm-text: #f2f2f7; 
+            --cm-gray: #8e8e93; 
+            --cm-border: #38383a;
+            --cm-input: #2c2c2e;
+            --cm-button-blue: #007aff;
         }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--vk-bg); margin: 0; padding: 0; direction: rtl; color: var(--vk-text); }
+        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--cm-bg); margin: 0; padding: 0; direction: rtl; color: var(--cm-text); }
         
-        header { background: var(--vk-header); height: 48px; display: flex; justify-content: center; border-bottom: 1px solid var(--vk-border); position: sticky; top: 0; z-index: 100; }
+        header { background: var(--cm-header); height: 55px; display: flex; justify-content: center; border-bottom: 1px solid var(--cm-border); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         .header-content { width: 100%; max-width: 960px; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
-        .logo { color: var(--vk-blue); font-weight: bold; font-size: 22px; cursor: pointer; text-decoration: none; }
+        .logo { color: var(--cm-text); font-weight: 900; font-size: 20px; letter-spacing: 1px; cursor: pointer; text-decoration: none; }
+        .logo span { color: var(--cm-button-blue); }
 
-        .container { max-width: 600px; margin: 15px auto; padding: 0 10px; }
+        .container { max-width: 650px; margin: 20px auto; padding: 0 15px; }
 
-        button { cursor: pointer; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; padding: 8px 16px; transition: 0.2s; }
-        .btn-primary { background: var(--vk-button-blue); color: white; width: 100%; }
-        .btn-google { background: #ffffff; color: #000; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
-        .btn-outline { background: var(--vk-input); color: var(--vk-text); }
+        /* Profile Section */
+        .profile-box { background: var(--cm-card); border-radius: 12px; padding: 30px 20px; border: 1px solid var(--cm-border); text-align: center; margin-bottom: 20px; }
+        .profile-avatar { width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--cm-button-blue); object-fit: cover; background: #333; margin-bottom: 15px; }
+        .profile-name { font-size: 26px; font-weight: bold; margin-bottom: 15px; color: #fff; }
 
-        .post-creator { background: var(--vk-card); border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--vk-border); }
-        .post-creator textarea { width: 100%; border: none; outline: none; min-height: 80px; resize: none; background: transparent; color: var(--vk-text); font-size: 16px; }
+        button { cursor: pointer; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; padding: 10px 20px; transition: 0.3s; }
+        .btn-primary { background: var(--cm-button-blue); color: white; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-outline { background: var(--cm-input); color: var(--cm-text); border: 1px solid var(--cm-border); }
+        .btn-outline:hover { background: var(--cm-border); }
 
-        .card { background: var(--vk-card); border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--vk-border); position: relative; }
-        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-        .avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #333; }
-        .author-name { color: var(--vk-blue); font-weight: 700; cursor: pointer; }
-        .post-date { color: var(--vk-gray); font-size: 12px; }
-        .delete-btn { position: absolute; left: 10px; top: 10px; color: var(--vk-gray); cursor: pointer; }
+        /* Create Post */
+        .post-creator { background: var(--cm-card); border-radius: 12px; padding: 15px; margin-bottom: 20px; border: 1px solid var(--cm-border); }
+        .post-creator textarea { width: 100%; border: none; outline: none; min-height: 70px; resize: none; background: transparent; color: var(--cm-text); font-size: 16px; padding: 10px 0; }
+        .post-creator-footer { border-top: 1px solid var(--cm-border); padding-top: 12px; display: flex; justify-content: flex-end; }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 200; }
-        .modal { background: var(--vk-card); padding: 25px; border-radius: 12px; width: 90%; max-width: 320px; text-align: center; border: 1px solid var(--vk-border); }
-        .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid var(--vk-border); border-radius: 8px; background: var(--vk-input); color: var(--vk-text); box-sizing: border-box; }
+        /* Post Cards */
+        .card { background: var(--cm-card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--cm-border); position: relative; }
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 15px; }
+        .avatar-sm { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; background: #333; }
+        .author-info { display: flex; flex-direction: column; }
+        .author-name { color: var(--cm-text); font-weight: 700; cursor: pointer; font-size: 15px; }
+        .author-name:hover { color: var(--cm-button-blue); }
+        .post-date { color: var(--cm-gray); font-size: 11px; margin-top: 2px; }
+        .post-content { font-size: 16px; line-height: 1.6; white-space: pre-wrap; }
+
+        .delete-btn { position: absolute; left: 15px; top: 15px; color: var(--cm-gray); cursor: pointer; font-size: 18px; opacity: 0.6; }
+        .delete-btn:hover { color: #ff3b30; opacity: 1; }
+
+        /* Modals */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 200; backdrop-filter: blur(5px); }
+        .modal { background: var(--cm-card); padding: 30px; border-radius: 16px; width: 90%; max-width: 350px; text-align: center; border: 1px solid var(--cm-border); }
+        .modal input { width: 100%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--cm-border); border-radius: 10px; background: var(--cm-input); color: var(--cm-text); box-sizing: border-box; font-size: 16px; }
         
         .hidden { display: none; }
+        .nav-group { display: flex; gap: 10px; }
+
+        @media (max-width: 600px) {
+            .container { margin-top: 10px; }
+            .profile-avatar { width: 100px; height: 100px; }
+        }
     </style>
 </head>
 <body>
 
 <header>
     <div class="header-content">
-        <div class="logo" onclick="window.location.href=window.location.pathname">VK</div>
-        <div id="authArea">
-            <span id="guestSection">
-                <button class="btn-outline" onclick="openModal()">כניסה / הרשמה</button>
-            </span>
+        <div class="logo" onclick="location.href='?user=public'">CAR<span>MEET</span></div>
+        <div class="nav-group">
             <span id="userSection" class="hidden">
-                <button class="btn-outline" id="myProfileBtn">פרופיל</button>
-                <button class="btn-outline" onclick="auth.signOut()">יציאה</button>
+                <button class="btn-outline" onclick="goMyProfile()">הפרופיל שלי</button>
+                <button class="btn-outline" onclick="auth.signOut().then(()=>location.href='?')">יציאה</button>
+            </span>
+            <span id="guestSection">
+                <button class="btn-primary" onclick="openModal()">כניסה</button>
             </span>
         </div>
     </div>
 </header>
 
 <div class="container">
-    <div class="post-creator">
-        <textarea id="newPostText" placeholder="מה חדש אצלך?"></textarea>
-        <button class="btn-primary" id="publishBtn">פרסום</button>
+    <div id="profileHeader" class="hidden">
+        <div class="profile-box">
+            <img id="viewAvatar" class="profile-avatar" src="">
+            <div id="viewName" class="profile-name"></div>
+            <div id="actionButtons">
+                <button class="btn-primary" id="addFriendBtn">שלח בקשת חברות</button>
+                <button class="btn-outline hidden" id="editAvatarBtn" onclick="document.getElementById('fileInput').click()">עדכן תמונת פרופיל 📸</button>
+                <input type="file" id="fileInput" class="hidden" accept="image/*">
+            </div>
+        </div>
     </div>
+
+    <div class="post-creator">
+        <textarea id="postText" placeholder="שתף משהו עם הקהילה..."></textarea>
+        <div class="post-creator-footer">
+            <button class="btn-primary" id="btnPublish">פרסום פוסט</button>
+        </div>
+    </div>
+
     <div id="board"></div>
 </div>
 
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-        <h3 style="margin-top:0">התחברות</h3>
-        
-        <button class="btn-google" id="googleBtn">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> התחבר עם Google
-        </button>
-
-        <div style="margin: 15px 0; color: var(--vk-gray);">— או עם שם משתמש —</div>
-        
-        <input type="text" id="usernameInput" placeholder="בחר שם משתמש">
-        <button class="btn-primary" id="fastLoginBtn">כניסה מהירה</button>
-        
-        <button class="btn-outline" style="width:100%; margin-top:10px;" onclick="closeModal()">ביטול</button>
+        <h2 style="margin-top:0">ברוכים הבאים</h2>
+        <p style="color:var(--cm-gray); margin-bottom:20px;">הצטרפו לקהילת CAR MEET</p>
+        <input type="text" id="mUser" placeholder="שם משתמש">
+        <input type="password" id="mPass" placeholder="סיסמה">
+        <button class="btn-primary" id="mSubmit" style="width:100%; margin-top:10px;">כניסה / הרשמה מהירה</button>
+        <div style="margin-top:15px;">
+            <a href="#" onclick="alert('שחזור סיסמה יתבצע מול האדמין בשלב זה')" style="color:var(--cm-button-blue); text-decoration:none; font-size:13px;">שכחתי סיסמה</a>
+        </div>
+        <button class="btn-outline" style="width:100%; margin-top:20px; border:none;" onclick="closeModal()">סגור</button>
     </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getDatabase, ref, push, onChildAdded, onChildRemoved, remove, update, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getDatabase, ref, push, onChildAdded, update, get, onValue, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
     authDomain: "whitecivic-21e7f.firebaseapp.com",
     databaseURL: "https://whitecivic-21e7f-default-rtdb.europe-west1.firebasedatabase.app",
     projectId: "whitecivic-21e7f",
-    storageBucket: "whitecivic-21e7f.firebasestorage.app",
-    messagingSenderId: "315183180745",
-    appId: "1:315183180745:web:6e71aa50d0b975d63c9618"
+    storageBucket: "whitecivic-21e7f.firebasestorage.app"
   };
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
-  const provider = new GoogleAuthProvider();
 
-  const urlParams = new URLSearchParams(window.location.search);
-  const wallId = urlParams.get('user') || 'public';
+  const params = new URLSearchParams(window.location.search);
+  const wallOwner = params.get('user') || 'public'; 
+  const SUPER_ADMIN = "anton";
 
-  const getUserName = (user) => user.displayName || user.email.split('@')[0];
+  const toEmail = (u) => `${u.toLowerCase().trim()}@carmeet.com`;
+  const fromEmail = (e) => e.split('@')[0];
 
-  onAuthStateChanged(auth, (user) => {
+  onAuthStateChanged(auth, async (user) => {
     document.getElementById('guestSection').classList.toggle('hidden', !!user);
     document.getElementById('userSection').classList.toggle('hidden', !user);
-    if (user) {
-        const name = getUserName(user);
-        document.getElementById('myProfileBtn').onclick = () => window.location.href = '?user=' + btoa(name);
-        // שמירת המשתמש בדאטהבייס אם הוא חדש
-        update(ref(db, 'users/' + btoa(name)), { username: name, avatar: user.photoURL || "" });
-    }
+    loadProfile();
   });
 
-  // כניסה עם גוגל
-  document.getElementById('googleBtn').onclick = () => {
-    signInWithPopup(auth, provider).then(() => closeModal()).catch(err => alert(err.message));
+  async function loadProfile() {
+    if (wallOwner !== 'public') {
+        document.getElementById('profileHeader').classList.remove('hidden');
+        const snap = await get(ref(db, 'users/' + wallOwner));
+        if (snap.exists()) {
+            const u = snap.val();
+            document.getElementById('viewName').innerText = u.username;
+            document.getElementById('viewAvatar').src = u.avatar || `https://ui-avatars.com/api/?name=${u.username}&background=333&color=fff&size=128`;
+            
+            if (auth.currentUser && btoa(fromEmail(auth.currentUser.email).toLowerCase()) === wallOwner) {
+                document.getElementById('editAvatarBtn').classList.remove('hidden');
+                document.getElementById('addFriendBtn').classList.add('hidden');
+            }
+        }
+    }
+  }
+
+  window.goMyProfile = () => {
+    if (auth.currentUser) location.href = '?user=' + btoa(fromEmail(auth.currentUser.email).toLowerCase());
   };
 
-  // הרשמה/כניסה מהירה עם שם בלבד
-  document.getElementById('fastLoginBtn').onclick = async () => {
-    const user = document.getElementById('usernameInput').value.trim().toLowerCase();
-    if (user.length < 3) return alert("שם קצר מדי");
+  document.getElementById('mSubmit').onclick = async () => {
+    const u = document.getElementById('mUser').value.trim(), p = document.getElementById('mPass').value;
+    if(!u || p.length < 6) return alert("שם משתמש וסיסמה (לפחות 6 תווים) חובה");
     
-    const email = `${user}@fast.vk`;
-    const pass = "vk_fast_pass_123"; // סיסמה גנרית למערכת השמות
-
     try {
-        await signInWithEmailAndPassword(auth, email, pass);
-    } catch (e) {
-        await createUserWithEmailAndPassword(auth, email, pass);
+        await signInWithEmailAndPassword(auth, toEmail(u), p);
+    } catch {
+        await createUserWithEmailAndPassword(auth, toEmail(u), p);
+        const userId = btoa(u.toLowerCase());
+        await update(ref(db, 'users/' + userId), { username: u, avatar: "" });
     }
     closeModal();
   };
 
-  // פרסום פוסט
-  document.getElementById('publishBtn').onclick = () => {
-    const text = document.getElementById('newPostText').value.trim();
+  document.getElementById('btnPublish').onclick = () => {
+    const text = document.getElementById('postText').value.trim();
     if (!auth.currentUser) return openModal();
     if (!text) return;
-    push(ref(db, 'walls/' + wallId), { 
-        text: text, 
-        author: getUserName(auth.currentUser),
-        timestamp: Date.now() 
-    }).then(() => document.getElementById('newPostText').value = '');
+
+    push(ref(db, 'walls/' + wallOwner), {
+        text: text,
+        author: fromEmail(auth.currentUser.email),
+        timestamp: Date.now()
+    }).then(() => document.getElementById('postText').value = "");
   };
 
-  // תצוגת פוסטים
-  onChildAdded(ref(db, 'walls/' + wallId), (snap) => {
-    const data = snap.val(), id = snap.key;
-    const isOwner = auth.currentUser && (btoa(getUserName(auth.currentUser)) === wallId || getUserName(auth.currentUser) === "anton");
+  onChildAdded(ref(db, 'walls/' + wallOwner), (snap) => {
+    const d = snap.val();
+    const id = snap.key;
+    const authorId = btoa(d.author.toLowerCase());
+    const isOwner = auth.currentUser && (btoa(fromEmail(auth.currentUser.email).toLowerCase()) === wallOwner || fromEmail(auth.currentUser.email) === SUPER_ADMIN);
     
     const div = document.createElement('div');
-    div.id = id; div.className = 'card';
+    div.className = 'card';
+    div.id = id;
     div.innerHTML = `
         <div class="card-header">
-            <img class="avatar" src="https://ui-avatars.com/api/?name=${data.author}&background=random&color=fff">
-            <div>
-                <div class="author-name" onclick="window.location.href='?user=${btoa(data.author)}'">${data.author}</div>
-                <div class="post-date">${new Date(data.timestamp).toLocaleString('he-IL')}</div>
+            <img class="avatar-sm" id="av-${id}" src="https://ui-avatars.com/api/?name=${d.author}&background=random&color=fff">
+            <div class="author-info">
+                <span class="author-name" onclick="location.href='?user=${authorId}'">${d.author}</span>
+                <span class="post-date">${new Date(d.timestamp).toLocaleString('he-IL')}</span>
             </div>
-            ${isOwner ? `<span class="delete-btn" onclick="remove(ref(db, 'walls/${wallId}/${id}'))">✕</span>` : ''}
+            ${isOwner ? `<span class="delete-btn" onclick="if(confirm('למחוק?')) remove(ref(db, 'walls/${wallOwner}/${id}'))">✕</span>` : ''}
         </div>
-        <div style="white-space: pre-wrap;">${data.text}</div>
+        <div class="post-content">${d.text}</div>
     `;
     document.getElementById('board').prepend(div);
+    
+    // טעינת תמונת הכותב מהדאטהבייס
+    get(ref(db, 'users/' + authorId)).then(s => {
+        if(s.val()?.avatar) document.getElementById(`av-${id}`).src = s.val().avatar;
+    });
   });
-
-  window.openModal = () => document.getElementById('modalOverlay').style.display='flex';
-  window.closeModal = () => document.getElementById('modalOverlay').style.display='none';
-  onChildRemoved(ref(db, 'walls/' + wallId), s => document.getElementById(s.key)?.remove());
-</script>
-</body>
-</html>
