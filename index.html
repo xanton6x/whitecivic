@@ -1,37 +1,125 @@
 <!DOCTYPE html>
-<html lang="RU">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Общая Доска</title>
+    <title>My Modern Board</title>
     <style>
-        :root { --bg: #eef2f3; --primary: #6c5ce7; }
-        body { font-family: sans-serif; background: var(--bg); padding: 20px; margin: 0; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); position: relative; }
-        .card textarea { width: 100%; border: none; font-size: 16px; outline: none; background: transparent; min-height: 100px; }
-        .controls { display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; }
-        button { cursor: pointer; border: none; padding: 10px 15px; border-radius: 8px; }
-        .btn-add { background: var(--primary); color: white; font-weight: bold; }
-        .btn-del { background: #ff7675; color: white; font-size: 12px; }
+        :root {
+            --padlet-pink: #e91e63;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .btn-add {
+            background: var(--padlet-pink);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+            transition: 0.3s;
+        }
+
+        .btn-add:hover { transform: scale(1.05); }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            transition: 0.3s;
+        }
+
+        .card textarea {
+            width: 100%;
+            border: none;
+            resize: none;
+            font-size: 16px;
+            color: #333;
+            outline: none;
+            min-height: 120px;
+            line-height: 1.5;
+            background: transparent;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .color-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #eee;
+            cursor: pointer;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .btn-del {
+            background: #fff0f0;
+            color: #ff4757;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-del:hover { background: #ff4757; color: white; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>Общая Доска</h1>
-    <button class="btn-add" id="addBtn">+ Добавить</button>
+    <h2 style="margin:0">✨ Моя Доска</h2>
+    <button class="btn-add" id="addBtn">+ Создать пост</button>
 </header>
 
 <div class="board" id="board"></div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getDatabase, ref, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { getDatabase, ref, push, onValue, update, remove, onChildAdded, onChildChanged, onChildRemoved } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-  // !!! ЗАМЕНИТЕ ЭТИ ДАННЫЕ НА СВОИ ИЗ FIREBASE CONSOLE !!!
-  const firebaseConfig = {
+  // ВСТАВЬТЕ СВОЙ КОНФИГ ТУТ
+const firebaseConfig = {
   apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
   authDomain: "whitecivic-21e7f.firebaseapp.com",
   databaseURL: "https://whitecivic-21e7f-default-rtdb.europe-west1.firebasedatabase.app",
@@ -42,59 +130,62 @@
   measurementId: "G-Z7ZPZ5LNPV"
 };
 
-  // Инициализация
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const cardsRef = ref(db, 'cards');
 
   const board = document.getElementById('board');
-  const addBtn = document.getElementById('addBtn');
 
-  // Добавление новой карточки
-  addBtn.onclick = () => {
-    push(cardsRef, { text: "", color: "#ffffff", timestamp: Date.now() });
+  // Добавление
+  document.getElementById('addBtn').onclick = () => {
+    push(cardsRef, { text: "", color: "#ffffff" });
   };
 
-  // Слушаем изменения в базе (Realtime!)
-  onValue(cardsRef, (snapshot) => {
-    board.innerHTML = "";
-    const data = snapshot.val();
-    if (data) {
-      Object.keys(data).forEach(id => {
-        const card = data[id];
-        createCardUI(id, card);
-      });
+  // Отрисовка одной карточки (чтобы не перерисовывать всё)
+  function renderCard(id, data) {
+    let cardEl = document.getElementById(id);
+    
+    if (!cardEl) {
+        cardEl = document.createElement('div');
+        cardEl.id = id;
+        cardEl.className = 'card';
+        cardEl.innerHTML = `
+            <textarea placeholder="Напишите что-нибудь..."></textarea>
+            <div class="card-footer">
+                <input type="color" class="color-dot" title="Цвет карточки">
+                <button class="btn-del">Удалить</button>
+            </div>
+        `;
+        board.prepend(cardEl);
+        
+        // События удаления
+        cardEl.querySelector('.btn-del').onclick = () => remove(ref(db, 'cards/' + id));
+        
+        // События ввода (сохраняем в базу)
+        const area = cardEl.querySelector('textarea');
+        area.oninput = (e) => update(ref(db, 'cards/' + id), { text: e.target.value });
+        
+        // События цвета
+        const colorInp = cardEl.querySelector('input');
+        colorInp.onchange = (e) => update(ref(db, 'cards/' + id), { color: e.target.value });
     }
+
+    // Обновляем данные только если они изменились и мы НЕ печатаем в данный момент
+    const textarea = cardEl.querySelector('textarea');
+    if (document.activeElement !== textarea) {
+        textarea.value = data.text || "";
+    }
+    cardEl.style.backgroundColor = data.color || "#ffffff";
+    cardEl.querySelector('input').value = data.color || "#ffffff";
+  }
+
+  // Слушатели Firebase для плавной работы
+  onChildAdded(cardsRef, (snapshot) => renderCard(snapshot.key, snapshot.val()));
+  onChildChanged(cardsRef, (snapshot) => renderCard(snapshot.key, snapshot.val()));
+  onChildRemoved(cardsRef, (snapshot) => {
+    document.getElementById(snapshot.key)?.remove();
   });
 
-  function createCardUI(id, card) {
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.style.backgroundColor = card.color;
-    div.innerHTML = `
-      <textarea placeholder="Начните писать...">${card.text}</textarea>
-      <div class="controls">
-        <input type="color" value="${card.color}" onchange="this.parentElement.dataset.color=this.value">
-        <button class="btn-del">Удалить</button>
-      </div>
-    `;
-
-    const area = div.querySelector('textarea');
-    const colorInput = div.querySelector('input');
-    const delBtn = div.querySelector('.btn-del');
-
-    // Сохранение при вводе текста
-    area.oninput = () => update(ref(db, 'cards/' + id), { text: area.value });
-    
-    // Смена цвета
-    colorInput.onchange = () => update(ref(db, 'cards/' + id), { color: colorInput.value });
-
-    // Удаление
-    delBtn.onclick = () => remove(ref(db, 'cards/' + id));
-
-    board.appendChild(div);
-  }
 </script>
-
 </body>
 </html>
