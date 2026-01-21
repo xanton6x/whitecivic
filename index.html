@@ -107,4 +107,135 @@
         <h3 id="modalTitle" style="margin-top:0">כניסה ל-VK</h3>
         <input type="text" id="authUsername" placeholder="שם משתמש">
         <input type="password" id="authPass" placeholder="סיסמה">
-        <button class="btn-primary" style="width:100%" id="authSubmit">המשך</button
+        <button class="btn-primary" style="width:100%" id="authSubmit">המשך</button>
+        <button class="btn-outline" style="width:100%; margin-top:10px;" onclick="closeModal()">ביטול</button>
+    </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getDatabase, ref, push, onChildAdded, onChildRemoved, remove, update, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
+    authDomain: "whitecivic-21e7f.firebaseapp.com",
+    databaseURL: "https://whitecivic-21e7f-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "whitecivic-21e7f",
+    storageBucket: "whitecivic-21e7f.firebasestorage.app",
+    messagingSenderId: "315183180745",
+    appId: "1:315183180745:web:6e71aa50d0b975d63c9618"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const wallId = urlParams.get('user') || 'public';
+  const SUPER_ADMIN = "anton"; // שם משתמש של אדמין
+
+  const getAv = (name, url) => url || `https://ui-avatars.com/api/?name=${name}&background=random&color=fff`;
+  const formatTime = (ts) => ts ? new Date(ts).toLocaleString('he-IL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : "";
+  
+  // פונקציה להפיכת שם משתמש לאימייל פיקטיבי
+  const toEmail = (user) => user.includes('@') ? user : `${user.toLowerCase().trim()}@vk.com`;
+  const fromEmail = (email) => email.split('@')[0];
+
+  onAuthStateChanged(auth, async (user) => {
+    document.getElementById('guestSection').classList.toggle('hidden', !!user);
+    document.getElementById('userSection').classList.toggle('hidden', !user);
+    if (user) {
+        const uName = fromEmail(user.email);
+        document.getElementById('myProfileBtn').onclick = () => window.location.href = '?user=' + btoa(uName);
+        if (btoa(uName) === wallId) {
+            document.getElementById('profileSettings').classList.remove('hidden');
+            const uSnap = await get(ref(db, 'users/' + btoa(uName)));
+            if (uSnap.val()?.avatar) document.getElementById('avatarPreview').src = uSnap.val().avatar;
+        }
+    }
+  });
+
+  document.getElementById('filePicker').onchange = function(e) {
+    const file = e.target.files[0];
+    if (file && file.size < 1048576) {
+        const reader = new FileReader();
+        reader.onload = (ev) => update(ref(db, 'users/' + btoa(fromEmail(auth.currentUser.email))), { avatar: ev.target.result }).then(() => location.reload());
+        reader.readAsDataURL(file);
+    }
+  };
+
+  document.getElementById('publishBtn').onclick = () => {
+    const text = document.getElementById('newPostText').value.trim();
+    if (!auth.currentUser) return openModal('login');
+    if (!text) return;
+    push(ref(db, 'walls/' + wallId), { 
+        text: text, 
+        author: fromEmail(auth.currentUser.email),
+        timestamp: Date.now() 
+    }).then(() => document.getElementById('newPostText').value = '');
+  };
+
+  window.showUserList = () => {
+    document.getElementById('userListOverlay').style.display = 'flex';
+    onValue(ref(db, 'users'), (snap) => {
+        const cont = document.getElementById('usersContainer');
+        cont.innerHTML = '';
+        snap.forEach(child => {
+            const u = child.val();
+            const div = document.createElement('div');
+            div.className = 'user-list-item';
+            div.onclick = () => { window.location.href = '?user=' + child.key; closeUserList(); };
+            div.innerHTML = `<img src="${getAv(u.username, u.avatar)}" class="avatar"><div><b>${u.username}</b></div>`;
+            cont.appendChild(div);
+        });
+    }, { onlyOnce: true });
+  };
+  window.closeUserList = () => document.getElementById('userListOverlay').style.display = 'none';
+
+  onChildAdded(ref(db, 'walls/' + wallId), (snap) => {
+    const data = snap.val(), id = snap.key, authorId = btoa(data.author);
+    const currUser = auth.currentUser ? fromEmail(auth.currentUser.email) : null;
+    const isOwnerOrAdmin = currUser && (btoa(currUser) === wallId || currUser === SUPER_ADMIN);
+    
+    const div = document.createElement('div');
+    div.id = id; div.className = 'card';
+    div.innerHTML = `
+        <div class="card-header">
+            <img id="av-${id}" src="${getAv(data.author)}" class="avatar">
+            <div class="header-info">
+                <span class="author-name" onclick="window.location.href='?user=${authorId}'">${data.author}</span>
+                <span class="post-date">${formatTime(data.timestamp)}</span>
+            </div>
+            ${isOwnerOrAdmin ? `<span class="delete-btn" onclick="if(confirm('למחוק?')) remove(ref(db, 'walls/${wallId}/${id}'))">✕</span>` : ''}
+        </div>
+        <div class="post-text">${data.text}</div>
+    `;
+    document.getElementById('board').prepend(div);
+    onValue(ref(db, 'users/' + authorId), (uSnap) => { if (uSnap.val()?.avatar) document.getElementById(`av-${id}`).src = uSnap.val().avatar; });
+  });
+
+  window.openModal = (t) => { 
+    window.act = t; 
+    document.getElementById('modalTitle').innerText = t === 'login' ? 'כניסה' : 'הרשמה';
+    document.getElementById('modalOverlay').style.display='flex'; 
+  };
+  window.closeModal = () => document.getElementById('modalOverlay').style.display='none';
+  
+  document.getElementById('authSubmit').onclick = async () => {
+    const u = document.getElementById('authUsername').value, p = document.getElementById('authPass').value;
+    if(!u || !p) return alert("מלא את כל השדות");
+    const email = toEmail(u);
+    try {
+        if(window.act === 'register') {
+            await createUserWithEmailAndPassword(auth, email, p);
+            update(ref(db, 'users/' + btoa(u.toLowerCase())), { username: u, role: (u === SUPER_ADMIN ? 'admin' : 'user') });
+        } else await signInWithEmailAndPassword(auth, email, p);
+        closeModal();
+    } catch(err) { alert("שגיאה: " + err.message); }
+  };
+  window.logout = () => signOut(auth);
+  onChildRemoved(ref(db, 'walls/' + wallId), s => document.getElementById(s.key)?.remove());
+</script>
+</body>
+</html>
