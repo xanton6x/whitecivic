@@ -3,40 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Padlet Pro</title>
+    <title>Padlet Fix</title>
     <style>
-        :root { --pink: #e91e63; --violet: #667eea; --dark: #2d3436; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); background-attachment: fixed; margin: 0; padding: 20px; }
-
-        header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px 30px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);
-            border-radius: 20px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-        }
-
+        :root { --pink: #e91e63; --violet: #667eea; }
+        body { font-family: 'Inter', sans-serif; background: #667eea; margin: 0; padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: white; border-radius: 20px; margin-bottom: 30px; }
         .auth-buttons button { margin-left: 10px; }
-        button { cursor: pointer; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; transition: 0.2s; }
-        .btn-add { background: var(--pink); color: white; box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3); }
-        .btn-outline { background: transparent; border: 2px solid var(--violet); color: var(--violet); }
+        button { cursor: pointer; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; }
+        .btn-add { background: var(--pink); color: white; }
+        .btn-outline { background: #eee; }
         .btn-primary { background: var(--violet); color: white; }
-
-        /* MODAL STYLES */
-        .modal-overlay { 
-            position: fixed; top:0; left:0; width:100%; height:100%; 
-            background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; 
-        }
-        .modal { background: white; padding: 30px; border-radius: 20px; width: 320px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-        .modal h3 { margin-top: 0; color: var(--dark); }
-        .modal input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
-        .modal .btn-full { width: 100%; margin-top: 10px; }
-
-        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-        .card textarea { width: 100%; border: none; outline: none; min-height: 120px; font-size: 16px; resize: none; line-height: 1.5; }
-        .author { font-size: 11px; color: #aaa; margin-bottom: 10px; }
-        .btn-del { background: #fff0f0; color: #ff4757; width: 100%; margin-top: 15px; display: none; }
-        .admin-mode .btn-del { display: block; }
-        
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 30px; border-radius: 20px; width: 300px; }
+        .modal input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .card textarea { width: 100%; border: none; outline: none; min-height: 100px; resize: none; font-size: 16px; }
+        .admin-only { display: none; background: #fff0f0; color: #ff4757; width: 100%; margin-top: 10px; }
+        .admin-mode .admin-only { display: block; }
         .hidden { display: none; }
     </style>
 </head>
@@ -44,18 +28,17 @@
 
 <header>
     <div>
-        <h2 style="margin:0; color: var(--violet);">🚀 MyBoard</h2>
-        <small id="userStatus">Anonymous Mode</small>
+        <h2 style="margin:0">🚀 MyBoard</h2>
+        <small id="userStatus">Загрузка...</small>
     </div>
-    
     <div class="auth-buttons">
-        <button class="btn-add" id="addBtn">+ New Post</button>
+        <button class="btn-add" id="addBtn">+ Пост</button>
         <span id="guestSection">
-            <button class="btn-outline" onclick="openModal('login')">Login</button>
-            <button class="btn-primary" onclick="openModal('register')">Sign Up</button>
+            <button class="btn-outline" onclick="openModal('login')">Войти</button>
+            <button class="btn-primary" onclick="openModal('register')">Регистрация</button>
         </span>
         <span id="userSection" class="hidden">
-            <button class="btn-outline" onclick="window.logout()">Logout</button>
+            <button class="btn-outline" onclick="window.logout()">Выйти</button>
         </span>
     </div>
 </header>
@@ -64,11 +47,11 @@
 
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-        <h3 id="modalTitle">Login</h3>
+        <h3 id="modalTitle">Вход</h3>
         <input type="email" id="authEmail" placeholder="Email">
-        <input type="password" id="authPass" placeholder="Password">
-        <button class="btn-primary btn-full" id="authSubmit">Submit</button>
-        <button class="btn-outline btn-full" onclick="closeModal()">Cancel</button>
+        <input type="password" id="authPass" placeholder="Пароль">
+        <button class="btn-primary" style="width:100%" id="authSubmit">Готово</button>
+        <button class="btn-outline" style="width:100%; margin-top:5px;" onclick="closeModal()">Отмена</button>
     </div>
 </div>
 
@@ -77,7 +60,145 @@
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-const firebaseConfig = {
+  // !!! ЗАМЕНИТЕ ЭТО НА ВАШИ ДАННЫЕ !!!
+  const firebaseConfig = {
+    apiKey: "ВАШ_API_KEY",
+    authDomain: "ВАШ_PROJECT.firebaseapp.com",
+    databaseURL: "https://ВАШ_PROJECT.firebaseio.com",
+    projectId: "ВАШ_PROJECT_ID",
+    storageBucket: "ВАШ_PROJECT.appspot.com",
+    messagingSenderId: "ВАШ_ID",
+    appId: "ВАШ_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+  const cardsRef = ref(db, 'cards');
+
+  const ADMIN_EMAIL = "admin@test.com"; // ВАШ EMAIL
+  let currentAction = 'login';
+
+  window.openModal = (type) => {
+    currentAction = type;
+    document.getElementById('modalTitle').innerText = type === 'login' ? 'С возвращением' : 'Создать аккаунт';
+    document.getElementById('modalOverlay').style.display = 'flex';
+  };
+  window.closeModal = () => document.getElementById('modalOverlay').style.display = 'none';
+
+  document.getElementById('authSubmit').onclick = async () => {
+    const email = document.getElementById('authEmail').value;
+    const pass = document.getElementById('authPass').value;
+    try {
+        if (currentAction === 'register') await createUserWithEmailAndPassword(auth, email, pass);
+        else await signInWithEmailAndPassword(auth, email, pass);
+        closeModal();
+    } catch (e) { alert(e.message); }
+  };
+
+  window.logout = () => signOut(auth);
+
+  onAuthStateChanged(auth, (user) => {
+    document.getElementById('guestSection').classList.toggle('hidden', !!user);
+    document.getElementById('userSection').classList.toggle('hidden', !user);
+    document.getElementById('userStatus').innerText = user ? `В сети: ${user.email}` : "Анонимный режим";
+    if (user && user.email === ADMIN_EMAIL) document.body.classList.add('admin-mode');
+    else document.body.classList.remove('admin-mode');
+  });
+
+  document.getElementById('addBtn').onclick = () => {
+    if (!auth.currentUser) {
+        if (localStorage.getItem('did_post_anon')) return alert("Лимит! Войдите для новых постов.");
+        push(cardsRef, { text: "", author: "Anonymous" });
+        localStorage.setItem('did_post_anon', 'true');
+    } else {
+        push(cardsRef, { text: "", author: auth.currentUser.email });
+    }
+  };
+
+  onChildAdded(cardsRef, snap => {
+    const data = snap.val();
+    const id = snap.key;
+    const div = document.createElement('div');
+    div.id = id; div.className = 'card';
+    div.innerHTML = `<small>От: ${data.author}</small><textarea>${data.text || ''}</textarea><button class="admin-only">Удалить</button>`;
+    document.getElementById('board').prepend(div);
+    div.querySelector('textarea').oninput = (e) => update(ref(db, 'cards/'+id), {text: e.target.value});
+    div.querySelector('button').onclick = () => remove(ref(db, 'cards/'+id));
+  });
+
+  onChildChanged(cardsRef, snap => {
+    const area = document.getElementById(snap.key)?.querySelector('textarea');
+    if (area && document.activeElement !== area) area.value = snap.val().text;
+  });
+
+  onChildRemoved(cardsRef, snap => document.getElementById(snap.key)?.remove());
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Padlet Fix</title>
+    <style>
+        :root { --pink: #e91e63; --violet: #667eea; }
+        body { font-family: 'Inter', sans-serif; background: #667eea; margin: 0; padding: 20px; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: white; border-radius: 20px; margin-bottom: 30px; }
+        .auth-buttons button { margin-left: 10px; }
+        button { cursor: pointer; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; }
+        .btn-add { background: var(--pink); color: white; }
+        .btn-outline { background: #eee; }
+        .btn-primary { background: var(--violet); color: white; }
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; padding: 30px; border-radius: 20px; width: 300px; }
+        .modal input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .board { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 20px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .card textarea { width: 100%; border: none; outline: none; min-height: 100px; resize: none; font-size: 16px; }
+        .admin-only { display: none; background: #fff0f0; color: #ff4757; width: 100%; margin-top: 10px; }
+        .admin-mode .admin-only { display: block; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body id="mainBody">
+
+<header>
+    <div>
+        <h2 style="margin:0">🚀 MyBoard</h2>
+        <small id="userStatus">Загрузка...</small>
+    </div>
+    <div class="auth-buttons">
+        <button class="btn-add" id="addBtn">+ Пост</button>
+        <span id="guestSection">
+            <button class="btn-outline" onclick="openModal('login')">Войти</button>
+            <button class="btn-primary" onclick="openModal('register')">Регистрация</button>
+        </span>
+        <span id="userSection" class="hidden">
+            <button class="btn-outline" onclick="window.logout()">Выйти</button>
+        </span>
+    </div>
+</header>
+
+<div class="board" id="board"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <h3 id="modalTitle">Вход</h3>
+        <input type="email" id="authEmail" placeholder="Email">
+        <input type="password" id="authPass" placeholder="Пароль">
+        <button class="btn-primary" style="width:100%" id="authSubmit">Готово</button>
+        <button class="btn-outline" style="width:100%; margin-top:5px;" onclick="closeModal()">Отмена</button>
+    </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getDatabase, ref, push, onChildAdded, onChildChanged, onChildRemoved, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+  // !!! ЗАМЕНИТЕ ЭТО НА ВАШИ ДАННЫЕ !!!
+  const firebaseConfig = {
   apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ",
   authDomain: "whitecivic-21e7f.firebaseapp.com",
   databaseURL: "https://whitecivic-21e7f-default-rtdb.europe-west1.firebasedatabase.app",
@@ -93,19 +214,15 @@ const firebaseConfig = {
   const db = getDatabase(app);
   const cardsRef = ref(db, 'cards');
 
-  const ADMIN_EMAIL = "admin@test.com"; // Поменяйте на свой email
+  const ADMIN_EMAIL = "admin@test.com"; // ВАШ EMAIL
   let currentAction = 'login';
 
-  // --- MODAL LOGIC ---
   window.openModal = (type) => {
     currentAction = type;
-    document.getElementById('modalTitle').innerText = type === 'login' ? 'Welcome Back' : 'Create Account';
+    document.getElementById('modalTitle').innerText = type === 'login' ? 'С возвращением' : 'Создать аккаунт';
     document.getElementById('modalOverlay').style.display = 'flex';
   };
-
-  window.closeModal = () => {
-    document.getElementById('modalOverlay').style.display = 'none';
-  };
+  window.closeModal = () => document.getElementById('modalOverlay').style.display = 'none';
 
   document.getElementById('authSubmit').onclick = async () => {
     const email = document.getElementById('authEmail').value;
@@ -119,34 +236,41 @@ const firebaseConfig = {
 
   window.logout = () => signOut(auth);
 
-  // --- AUTH OBSERVER ---
   onAuthStateChanged(auth, (user) => {
-    const guestSec = document.getElementById('guestSection');
-    const userSec = document.getElementById('userSection');
-    const status = document.getElementById('userStatus');
-
-    if (user) {
-        guestSec.classList.add('hidden');
-        userSec.classList.remove('hidden');
-        status.innerText = `Logged in as: ${user.email}`;
-        if (user.email === ADMIN_EMAIL) document.body.classList.add('admin-mode');
-    } else {
-        guestSec.classList.remove('hidden');
-        userSec.classList.add('hidden');
-        status.innerText = "Anonymous Mode (Limit: 1 post)";
-        document.body.classList.remove('admin-mode');
-    }
+    document.getElementById('guestSection').classList.toggle('hidden', !!user);
+    document.getElementById('userSection').classList.toggle('hidden', !user);
+    document.getElementById('userStatus').innerText = user ? `В сети: ${user.email}` : "Анонимный режим";
+    if (user && user.email === ADMIN_EMAIL) document.body.classList.add('admin-mode');
+    else document.body.classList.remove('admin-mode');
   });
 
-  // --- BOARD LOGIC ---
   document.getElementById('addBtn').onclick = () => {
-    const user = auth.currentUser;
-    if (!user) {
-        if (localStorage.getItem('did_post_anon')) {
-            alert("Limit reached! Please Login to post more.");
-            return;
-        }
-        push(cardsRef, { text: "", author: "Anonymous", ts: Date.now() });
+    if (!auth.currentUser) {
+        if (localStorage.getItem('did_post_anon')) return alert("Лимит! Войдите для новых постов.");
+        push(cardsRef, { text: "", author: "Anonymous" });
         localStorage.setItem('did_post_anon', 'true');
     } else {
-        push(cardsRef, { text: "", author: user.email, ts:
+        push(cardsRef, { text: "", author: auth.currentUser.email });
+    }
+  };
+
+  onChildAdded(cardsRef, snap => {
+    const data = snap.val();
+    const id = snap.key;
+    const div = document.createElement('div');
+    div.id = id; div.className = 'card';
+    div.innerHTML = `<small>От: ${data.author}</small><textarea>${data.text || ''}</textarea><button class="admin-only">Удалить</button>`;
+    document.getElementById('board').prepend(div);
+    div.querySelector('textarea').oninput = (e) => update(ref(db, 'cards/'+id), {text: e.target.value});
+    div.querySelector('button').onclick = () => remove(ref(db, 'cards/'+id));
+  });
+
+  onChildChanged(cardsRef, snap => {
+    const area = document.getElementById(snap.key)?.querySelector('textarea');
+    if (area && document.activeElement !== area) area.value = snap.val().text;
+  });
+
+  onChildRemoved(cardsRef, snap => document.getElementById(snap.key)?.remove());
+</script>
+</body>
+</html>
