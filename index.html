@@ -3,57 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VK Style | תן תגובה</title>
+    <title>VK Style | Google Login</title>
     <style>
         :root { 
-            --vk-blue: #71aaeb; 
-            --vk-bg: #19191a; 
-            --vk-card: #222222; 
-            --vk-header: #222222;
-            --vk-text: #e1e3e6; 
-            --vk-gray: #76787a; 
-            --vk-border: #424242;
-            --vk-input: #333333;
+            --vk-blue: #71aaeb; --vk-bg: #19191a; --vk-card: #222222; --vk-header: #222222;
+            --vk-text: #e1e3e6; --vk-gray: #76787a; --vk-border: #424242; --vk-input: #333333;
             --vk-button-blue: #5181b8;
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif; background: var(--vk-bg); margin: 0; padding: 0; direction: rtl; color: var(--vk-text); }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--vk-bg); margin: 0; padding: 0; direction: rtl; color: var(--vk-text); }
         
-        header { background: var(--vk-header); height: 48px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid var(--vk-border); position: sticky; top: 0; z-index: 100; }
+        header { background: var(--vk-header); height: 48px; display: flex; justify-content: center; border-bottom: 1px solid var(--vk-border); position: sticky; top: 0; z-index: 100; }
         .header-content { width: 100%; max-width: 960px; display: flex; justify-content: space-between; align-items: center; padding: 0 15px; }
-        .logo { color: var(--vk-blue); font-weight: bold; font-size: 22px; text-decoration: none; cursor: pointer; }
+        .logo { color: var(--vk-blue); font-weight: bold; font-size: 22px; cursor: pointer; text-decoration: none; }
 
         .container { max-width: 600px; margin: 15px auto; padding: 0 10px; }
 
         button { cursor: pointer; border: none; border-radius: 8px; font-weight: 500; font-size: 14px; padding: 8px 16px; transition: 0.2s; }
-        .btn-primary { background: var(--vk-button-blue); color: white; }
+        .btn-primary { background: var(--vk-button-blue); color: white; width: 100%; }
+        .btn-google { background: #ffffff; color: #000; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
         .btn-outline { background: var(--vk-input); color: var(--vk-text); }
 
         .post-creator { background: var(--vk-card); border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--vk-border); }
-        .post-creator textarea { 
-            width: 100%; border: none; outline: none; min-height: 80px; 
-            resize: none; font-size: 16px; font-family: inherit; 
-            background: transparent; color: var(--vk-text); margin-bottom: 10px;
-        }
-        .post-creator-footer { display: flex; justify-content: flex-end; border-top: 1px solid var(--vk-border); padding-top: 10px; }
+        .post-creator textarea { width: 100%; border: none; outline: none; min-height: 80px; resize: none; background: transparent; color: var(--vk-text); font-size: 16px; }
 
         .card { background: var(--vk-card); border-radius: 8px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--vk-border); position: relative; }
         .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
         .avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: #333; }
-        .header-info { display: flex; flex-direction: column; }
-        .author-name { color: var(--vk-blue); font-weight: 700; font-size: 15px; text-decoration: none; cursor: pointer; }
-        .post-date { color: var(--vk-gray); font-size: 12px; margin-top: 2px; }
-        .post-text { font-size: 15px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; margin-top: 5px; }
-
-        .delete-btn { position: absolute; left: 10px; top: 10px; color: var(--vk-gray); background: none; font-size: 18px; opacity: 0.5; cursor: pointer; }
-
-        #profileSettings { background: var(--vk-card); border-radius: 8px; border: 1px solid var(--vk-border); padding: 20px; margin-bottom: 15px; text-align: center; }
-        #avatarPreview { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 2px solid var(--vk-border); }
+        .author-name { color: var(--vk-blue); font-weight: 700; cursor: pointer; }
+        .post-date { color: var(--vk-gray); font-size: 12px; }
+        .delete-btn { position: absolute; left: 10px; top: 10px; color: var(--vk-gray); cursor: pointer; }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 200; }
-        .modal { background: var(--vk-card); padding: 25px; border-radius: 12px; width: 90%; max-width: 350px; text-align: center; border: 1px solid var(--vk-border); }
-        .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid var(--vk-border); border-radius: 8px; box-sizing: border-box; background: var(--vk-input); color: var(--vk-text); }
+        .modal { background: var(--vk-card); padding: 25px; border-radius: 12px; width: 90%; max-width: 320px; text-align: center; border: 1px solid var(--vk-border); }
+        .modal input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid var(--vk-border); border-radius: 8px; background: var(--vk-input); color: var(--vk-text); box-sizing: border-box; }
         
-        .user-list-item { display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid var(--vk-border); cursor: pointer; }
         .hidden { display: none; }
     </style>
 </head>
@@ -62,59 +45,46 @@
 <header>
     <div class="header-content">
         <div class="logo" onclick="window.location.href=window.location.pathname">VK</div>
-        <div class="auth-buttons" style="display:flex; gap:8px;">
-            <button class="btn-outline" onclick="showUserList()">👥</button>
+        <div id="authArea">
             <span id="guestSection">
-                <button class="btn-outline" onclick="openModal('login')">כניסה</button>
-                <button class="btn-primary" onclick="openModal('register')">הרשמה</button>
+                <button class="btn-outline" onclick="openModal()">כניסה / הרשמה</button>
             </span>
             <span id="userSection" class="hidden">
                 <button class="btn-outline" id="myProfileBtn">פרופיל</button>
-                <button class="btn-outline" onclick="window.logout()">יציאה</button>
+                <button class="btn-outline" onclick="auth.signOut()">יציאה</button>
             </span>
         </div>
     </div>
 </header>
 
 <div class="container">
-    <div id="profileSettings" class="hidden">
-        <img id="avatarPreview" src="https://ui-avatars.com/api/?name=U" alt="Profile">
-        <br>
-        <label for="filePicker" class="btn-primary" style="display: inline-block; cursor: pointer;">החלף תמונה 📸</label>
-        <input type="file" id="filePicker" accept="image/*" style="display: none;">
-    </div>
-
-    <div class="post-creator" id="postCreatorSection">
+    <div class="post-creator">
         <textarea id="newPostText" placeholder="מה חדש אצלך?"></textarea>
-        <div class="post-creator-footer">
-            <button class="btn-primary" id="publishBtn">פרסום</button>
-        </div>
+        <button class="btn-primary" id="publishBtn">פרסום</button>
     </div>
-
     <div id="board"></div>
-</div>
-
-<div class="modal-overlay" id="userListOverlay">
-    <div class="modal" style="padding:0; max-width: 400px;">
-        <h3 style="padding:15px; margin:0; border-bottom:1px solid var(--vk-border);">אנשים</h3>
-        <div id="usersContainer" style="max-height: 400px; overflow-y: auto; text-align: right;"></div>
-        <button class="btn-outline" style="width:100%; border-radius:0; border:none;" onclick="closeUserList()">סגור</button>
-    </div>
 </div>
 
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-        <h3 id="modalTitle" style="margin-top:0">כניסה ל-VK</h3>
-        <input type="text" id="authUsername" placeholder="שם משתמש">
-        <input type="password" id="authPass" placeholder="סיסמה">
-        <button class="btn-primary" style="width:100%" id="authSubmit">המשך</button>
+        <h3 style="margin-top:0">התחברות</h3>
+        
+        <button class="btn-google" id="googleBtn">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> התחבר עם Google
+        </button>
+
+        <div style="margin: 15px 0; color: var(--vk-gray);">— או עם שם משתמש —</div>
+        
+        <input type="text" id="usernameInput" placeholder="בחר שם משתמש">
+        <button class="btn-primary" id="fastLoginBtn">כניסה מהירה</button>
+        
         <button class="btn-outline" style="width:100%; margin-top:10px;" onclick="closeModal()">ביטול</button>
     </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
   import { getDatabase, ref, push, onChildAdded, onChildRemoved, remove, update, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
   const firebaseConfig = {
@@ -130,111 +100,80 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getDatabase(app);
+  const provider = new GoogleAuthProvider();
 
   const urlParams = new URLSearchParams(window.location.search);
   const wallId = urlParams.get('user') || 'public';
-  const SUPER_ADMIN = "anton"; // שם משתמש של אדמין
 
-  const getAv = (name, url) => url || `https://ui-avatars.com/api/?name=${name}&background=random&color=fff`;
-  const formatTime = (ts) => ts ? new Date(ts).toLocaleString('he-IL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : "";
-  
-  // פונקציה להפיכת שם משתמש לאימייל פיקטיבי
-  const toEmail = (user) => user.includes('@') ? user : `${user.toLowerCase().trim()}@vk.com`;
-  const fromEmail = (email) => email.split('@')[0];
+  const getUserName = (user) => user.displayName || user.email.split('@')[0];
 
-  onAuthStateChanged(auth, async (user) => {
+  onAuthStateChanged(auth, (user) => {
     document.getElementById('guestSection').classList.toggle('hidden', !!user);
     document.getElementById('userSection').classList.toggle('hidden', !user);
     if (user) {
-        const uName = fromEmail(user.email);
-        document.getElementById('myProfileBtn').onclick = () => window.location.href = '?user=' + btoa(uName);
-        if (btoa(uName) === wallId) {
-            document.getElementById('profileSettings').classList.remove('hidden');
-            const uSnap = await get(ref(db, 'users/' + btoa(uName)));
-            if (uSnap.val()?.avatar) document.getElementById('avatarPreview').src = uSnap.val().avatar;
-        }
+        const name = getUserName(user);
+        document.getElementById('myProfileBtn').onclick = () => window.location.href = '?user=' + btoa(name);
+        // שמירת המשתמש בדאטהבייס אם הוא חדש
+        update(ref(db, 'users/' + btoa(name)), { username: name, avatar: user.photoURL || "" });
     }
   });
 
-  document.getElementById('filePicker').onchange = function(e) {
-    const file = e.target.files[0];
-    if (file && file.size < 1048576) {
-        const reader = new FileReader();
-        reader.onload = (ev) => update(ref(db, 'users/' + btoa(fromEmail(auth.currentUser.email))), { avatar: ev.target.result }).then(() => location.reload());
-        reader.readAsDataURL(file);
-    }
+  // כניסה עם גוגל
+  document.getElementById('googleBtn').onclick = () => {
+    signInWithPopup(auth, provider).then(() => closeModal()).catch(err => alert(err.message));
   };
 
+  // הרשמה/כניסה מהירה עם שם בלבד
+  document.getElementById('fastLoginBtn').onclick = async () => {
+    const user = document.getElementById('usernameInput').value.trim().toLowerCase();
+    if (user.length < 3) return alert("שם קצר מדי");
+    
+    const email = `${user}@fast.vk`;
+    const pass = "vk_fast_pass_123"; // סיסמה גנרית למערכת השמות
+
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+    } catch (e) {
+        await createUserWithEmailAndPassword(auth, email, pass);
+    }
+    closeModal();
+  };
+
+  // פרסום פוסט
   document.getElementById('publishBtn').onclick = () => {
     const text = document.getElementById('newPostText').value.trim();
-    if (!auth.currentUser) return openModal('login');
+    if (!auth.currentUser) return openModal();
     if (!text) return;
     push(ref(db, 'walls/' + wallId), { 
         text: text, 
-        author: fromEmail(auth.currentUser.email),
+        author: getUserName(auth.currentUser),
         timestamp: Date.now() 
     }).then(() => document.getElementById('newPostText').value = '');
   };
 
-  window.showUserList = () => {
-    document.getElementById('userListOverlay').style.display = 'flex';
-    onValue(ref(db, 'users'), (snap) => {
-        const cont = document.getElementById('usersContainer');
-        cont.innerHTML = '';
-        snap.forEach(child => {
-            const u = child.val();
-            const div = document.createElement('div');
-            div.className = 'user-list-item';
-            div.onclick = () => { window.location.href = '?user=' + child.key; closeUserList(); };
-            div.innerHTML = `<img src="${getAv(u.username, u.avatar)}" class="avatar"><div><b>${u.username}</b></div>`;
-            cont.appendChild(div);
-        });
-    }, { onlyOnce: true });
-  };
-  window.closeUserList = () => document.getElementById('userListOverlay').style.display = 'none';
-
+  // תצוגת פוסטים
   onChildAdded(ref(db, 'walls/' + wallId), (snap) => {
-    const data = snap.val(), id = snap.key, authorId = btoa(data.author);
-    const currUser = auth.currentUser ? fromEmail(auth.currentUser.email) : null;
-    const isOwnerOrAdmin = currUser && (btoa(currUser) === wallId || currUser === SUPER_ADMIN);
+    const data = snap.val(), id = snap.key;
+    const isOwner = auth.currentUser && (btoa(getUserName(auth.currentUser)) === wallId || getUserName(auth.currentUser) === "anton");
     
     const div = document.createElement('div');
     div.id = id; div.className = 'card';
     div.innerHTML = `
         <div class="card-header">
-            <img id="av-${id}" src="${getAv(data.author)}" class="avatar">
-            <div class="header-info">
-                <span class="author-name" onclick="window.location.href='?user=${authorId}'">${data.author}</span>
-                <span class="post-date">${formatTime(data.timestamp)}</span>
+            <img class="avatar" src="https://ui-avatars.com/api/?name=${data.author}&background=random&color=fff">
+            <div>
+                <div class="author-name" onclick="window.location.href='?user=${btoa(data.author)}'">${data.author}</div>
+                <div class="post-date">${new Date(data.timestamp).toLocaleString('he-IL')}</div>
             </div>
-            ${isOwnerOrAdmin ? `<span class="delete-btn" onclick="if(confirm('למחוק?')) remove(ref(db, 'walls/${wallId}/${id}'))">✕</span>` : ''}
+            ${isOwner ? `<span class="delete-btn" onclick="remove(ref(db, 'walls/${wallId}/${id}'))">✕</span>` : ''}
         </div>
-        <div class="post-text">${data.text}</div>
+        <div style="white-space: pre-wrap;">${data.text}</div>
     `;
     document.getElementById('board').prepend(div);
-    onValue(ref(db, 'users/' + authorId), (uSnap) => { if (uSnap.val()?.avatar) document.getElementById(`av-${id}`).src = uSnap.val().avatar; });
   });
 
-  window.openModal = (t) => { 
-    window.act = t; 
-    document.getElementById('modalTitle').innerText = t === 'login' ? 'כניסה' : 'הרשמה';
-    document.getElementById('modalOverlay').style.display='flex'; 
-  };
+  window.openModal = () => document.getElementById('modalOverlay').style.display='flex';
   window.closeModal = () => document.getElementById('modalOverlay').style.display='none';
-  
-  document.getElementById('authSubmit').onclick = async () => {
-    const u = document.getElementById('authUsername').value, p = document.getElementById('authPass').value;
-    if(!u || !p) return alert("מלא את כל השדות");
-    const email = toEmail(u);
-    try {
-        if(window.act === 'register') {
-            await createUserWithEmailAndPassword(auth, email, p);
-            update(ref(db, 'users/' + btoa(u.toLowerCase())), { username: u, role: (u === SUPER_ADMIN ? 'admin' : 'user') });
-        } else await signInWithEmailAndPassword(auth, email, p);
-        closeModal();
-    } catch(err) { alert("שגיאה: " + err.message); }
-  };
-  window.logout = () => signOut(auth);
   onChildRemoved(ref(db, 'walls/' + wallId), s => document.getElementById(s.key)?.remove());
 </script>
 </body>
