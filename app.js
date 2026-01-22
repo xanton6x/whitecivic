@@ -50,6 +50,15 @@ onAuthStateChanged(auth, (u) => {
         document.getElementById('usersToggleBtn')?.classList.remove('hidden');
     }
     if (profileId) loadProfileInfo();
+    const editBtn = document.getElementById('editAvBtn');
+if (editBtn && currentUser) {
+    const myId = btoa(clean(currentUser.email).toLowerCase());
+    if (myId === profileId) {
+        editBtn.style.setProperty('display', 'flex', 'important');
+    } else {
+        editBtn.style.setProperty('display', 'none', 'important');
+    }
+}
     const myId = currentUser ? btoa(clean(currentUser.email).toLowerCase()) : null;
 if(myId === profileId) {
     document.getElementById('editAvBtn').classList.remove('hidden');
