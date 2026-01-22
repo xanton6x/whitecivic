@@ -245,14 +245,14 @@ button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; p
 @keyframes slideIn {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
-}
-
+    
 .comments-box {
-    display: none; /* מוסתר כברירת מחדל */
     margin-top: 10px;
-    padding: 5px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    border-right: 2px solid var(--cm-blue); /* פס כחול קטן בצד להפרדה */
 }
-
 /* רק כשיש את ה-class הזה, התיבה תוצג */
 .comments-box.show {
     display: block !important;
