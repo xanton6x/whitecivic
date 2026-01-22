@@ -76,7 +76,7 @@ card.innerHTML = `
     
     <div style="white-space:pre-wrap; margin-bottom:10px;">${u.text}</div>
     
-    ${u.image ? `<img src="${u.image}" class="card-image" style="width:100%; border-radius:10px; margin-bottom:10px; display:block;">` : ''}
+   ${u.image ? `<img src="${u.image}" class="card-image-thumb" onclick="window.openFullImage('${u.image}')">` : ''}
     
     <div style="margin-top:10px; display:flex; gap:15px; font-size:13px; color:var(--cm-gray); border-bottom:1px solid #333; padding-bottom:5px; align-items:center;">
         <span style="cursor:pointer" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</span>
