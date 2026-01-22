@@ -24,18 +24,20 @@
         .feed-meta { display: flex; flex-direction: column; justify-content: center; }
         .author-line { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
         .feed-meta b { color: white; cursor: pointer; font-size: 15px; }
+        .feed-meta b:hover { text-decoration: underline; }
         .post-time { font-size: 11px; color: var(--cm-gray); margin-top: 2px; }
-        .card-image { width: 100%; max-height: 400px; object-fit: cover; border-radius: 12px; margin-top: 10px; }
         
         .post-actions { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--cm-border); display: flex; gap: 20px; font-size: 13px; color: var(--cm-gray); }
-        .action-item { cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .action-item { cursor: pointer; display: flex; align-items: center; gap: 4px; transition: 0.2s; }
+        .action-item:hover { color: white; }
 
         /* Profile Card */
         .profile-card { background: var(--cm-card); border-radius: 20px; overflow: hidden; border: 1px solid var(--cm-border); margin-bottom: 20px; text-align: center; padding-bottom: 20px; }
         .avatar-container { position: relative; width: 90px; height: 90px; margin: -45px auto 0 auto; }
         .profile-avatar { width: 90px; height: 90px; border-radius: 50%; border: 4px solid var(--cm-card); object-fit: cover; background: #333; }
         
-        button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; padding: 8px 16px; }
+        button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; padding: 8px 16px; transition: 0.2s; }
+        button:active { transform: scale(0.95); }
         .btn-primary { background: var(--cm-blue); color: white; }
         .hidden { display: none !important; }
     </style>
@@ -47,8 +49,8 @@
         <div class="logo" onclick="location.href='index.html'">CAR<span>MEET</span></div>
         <div id="authNav" style="display:flex; align-items:center;">
             <span id="guestNav">
-                <button class="btn-primary" onclick="openModal('register')">הרשמה</button>
-                <button style="background:none; color:white;" onclick="openModal('login')">כניסה</button>
+                <button class="btn-primary" onclick="alert('נא להירשם במערכת')">הרשמה</button>
+                <button style="background:none; color:white;" onclick="alert('נא להיכנס למערכת')">כניסה</button>
             </span>
             <span id="userNav" class="hidden" style="display:flex; align-items:center;">
                 <div class="notif-btn" onclick="alert('אין התראות חדשות')">🔔<span id="notifCount" class="notif-badge">0</span></div>
@@ -71,7 +73,7 @@
     </div>
 
     <div class="card" id="postCreator">
-        <textarea id="postInp" style="width:100%; background:none; border:none; color:white; outline:none; resize:none;" placeholder="כתוב משהו..."></textarea>
+        <textarea id="postInp" style="width:100%; background:none; border:none; color:white; outline:none; resize:none; font-size:16px;" placeholder="כתוב משהו..."></textarea>
         <button class="btn-primary" id="sendPost" style="float:left; margin-top:10px;">פרסום</button>
         <div style="clear:both;"></div>
     </div>
@@ -81,8 +83,8 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getDatabase, ref, push, onChildAdded, update, get, remove, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getDatabase, ref, push, onChildAdded, get, onValue, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = { apiKey: "AIzaSyAexYNdpzOgbji6Se7XCdeNBdQfn_LG0LQ", authDomain: "whitecivic-21e7f.firebaseapp.com", databaseURL: "https://whitecivic-21e7f-default-rtdb.europe-west1.firebasedatabase.app", projectId: "whitecivic-21e7f" };
     const app = initializeApp(firebaseConfig);
@@ -92,6 +94,8 @@
     const q = new URLSearchParams(window.location.search);
     const profileId = q.get('user');
     let currentUser = null;
+
+    const clean = (e) => e ? e.split('@')[0] : "";
 
     onAuthStateChanged(auth, (u) => {
         if (u) {
@@ -103,23 +107,26 @@
         if (profileId) loadProfileInfo();
     });
 
-    // פונקציית שליחת פוסט עם התראה
+    document.getElementById('logoutBtn').onclick = () => signOut(auth).then(() => location.reload());
+
+    // פונקציית שליחת פוסט
     document.getElementById('sendPost').onclick = async () => {
-        if(!currentUser) return;
-        const txt = document.getElementById('postInp').value;
-        const myId = btoa(clean(currentUser.email).toLowerCase());
+        const txt = document.getElementById('postInp').value.trim();
+        if(!currentUser || !txt) return;
         
-        const newPostRef = push(ref(db, 'feed'), { 
-            from: clean(currentUser.email), 
+        const myName = clean(currentUser.email);
+        const myId = btoa(myName.toLowerCase());
+        
+        await push(ref(db, 'feed'), { 
+            from: myName, 
             toId: profileId || 'public', 
             text: txt, 
             time: Date.now() 
         });
 
-        // שליחת התראה אם הפרסום הוא על קיר של מישהו אחר
         if (profileId && profileId !== myId) {
             push(ref(db, `notifications/${profileId}`), {
-                fromName: clean(currentUser.email),
+                fromName: myName,
                 type: 'post',
                 time: Date.now()
             });
@@ -127,72 +134,46 @@
         document.getElementById('postInp').value = "";
     };
 
-    // טעינת הפיד (תקין גם בדף הבית וגם בפרופיל)
+    // טעינת הפיד ועיבוד התצוגה (יוסי ▸ אנטון)
     onChildAdded(ref(db, 'feed'), (snap) => {
         const d = snap.val(), id = snap.key;
-        
-        // סינון פרופיל: הצג רק פוסטים שקשורים לפרופיל הנוכחי
+        const fromId = btoa(clean(d.from).toLowerCase());
+
+        // סינון לפי דף פרופיל
         if (profileId) {
-            const isFromProfile = btoa(d.from.toLowerCase()) === profileId;
+            const isFromProfile = fromId === profileId;
             const isToProfile = d.toId === profileId;
             if (!isFromProfile && !isToProfile) return;
         }
 
         const card = document.createElement('div');
         card.className = 'card';
-        
-        onValue(ref(db, `feed/${id}`), async (s) => {
-            if(!s.exists()) { card.remove(); return; }
-            const post = s.val();
-            
-            // עיצוב "יוסי ▸ אנטון"
-// טעינת הפיד (תקין גם בדף הבית וגם בפרופיל)
-    onChildAdded(ref(db, 'feed'), (snap) => {
-        const d = snap.val(), id = snap.key;
-        
-        // סינון פרופיל: הצג רק פוסטים שקשורים לפרופיל הנוכחי
-        if (profileId) {
-            const isFromProfile = btoa(clean(d.from).toLowerCase()) === profileId;
-            const isToProfile = d.toId === profileId;
-            if (!isFromProfile && !isToProfile) return;
-        }
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        // הוספה ללוח מיד
         document.getElementById('board').prepend(card);
-        
-        // האזנה לשינויים בפוסט (לייקים וכדומה)
+
+        // עדכון תוכן הפוסט בזמן אמת
         onValue(ref(db, `feed/${id}`), async (s) => {
             if(!s.exists()) { card.remove(); return; }
             const post = s.val();
-            const fromUser = clean(post.from);
-            const fromId = btoa(fromUser.toLowerCase());
-
-            // בניית שורת הכותב והמקבל
-            let authorHtml = `<b onclick="location.href='?user=${fromId}'">${fromUser}</b>`;
+            const authorName = clean(post.from);
             
-            // בדיקה אם הפוסט נכתב על קיר של מישהו אחר
+            // בניית שורת השמות
+            let namesHtml = `<b onclick="location.href='?user=${fromId}'">${authorName}</b>`;
+            
             if (post.toId && post.toId !== 'public' && post.toId !== fromId) {
-                const targetSnap = await get(ref(db, 'users/' + post.toId));
-                let targetName = "משתמש"; // ברירת מחדל
-                if (targetSnap.exists()) {
-                    targetName = targetSnap.val().username;
-                }
-                authorHtml += ` <span style="color:var(--cm-gray); margin: 0 4px; font-weight:normal;">▸</span> <b onclick="location.href='?user=${post.toId}'">${targetName}</b>`;
+                const targetSnap = await get(ref(db, `users/${post.toId}`));
+                const targetName = targetSnap.exists() ? targetSnap.val().username : "משתמש";
+                namesHtml += ` <span style="color:var(--cm-gray); font-weight:normal; margin:0 2px;">▸</span> <b onclick="location.href='?user=${post.toId}'">${targetName}</b>`;
             }
 
             card.innerHTML = `
                 <div class="post-header">
-                    <img src="https://ui-avatars.com/api/?name=${fromUser}&background=random" class="post-avatar">
+                    <img src="https://ui-avatars.com/api/?name=${authorName}&background=random" class="post-avatar" onclick="location.href='?user=${fromId}'">
                     <div class="feed-meta">
-                        <div class="author-line">
-                            ${authorHtml}
-                        </div>
+                        <div class="author-line">${namesHtml}</div>
                         <span class="post-time">${new Date(post.time).toLocaleString('he-IL')}</span>
                     </div>
                 </div>
-                <div style="white-space:pre-wrap; font-size:15px; padding: 5px 2px;">${post.text}</div>
+                <div style="white-space:pre-wrap; font-size:15px; line-height:1.4;">${post.text}</div>
                 <div class="post-actions">
                     <div class="action-item" onclick="likePost('${id}', '${fromId}')">
                         ❤️ <span>${post.likes ? Object.keys(post.likes).length : 0}</span> לייקים
@@ -202,7 +183,6 @@
         });
     });
 
-    // מערכת התראות לייקים
     window.likePost = async (postId, authorId) => {
         if(!currentUser) return;
         const myId = btoa(clean(currentUser.email).toLowerCase());
@@ -234,11 +214,15 @@
             const d = s.val();
             document.getElementById('pName').innerText = d.username;
             document.getElementById('pAvatar').src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
+        } else {
+            document.getElementById('pName').innerText = "פרופיל";
+            document.getElementById('pAvatar').src = `https://ui-avatars.com/api/?name=User`;
         }
     }
 
-    const clean = (e) => e ? e.split('@')[0] : "";
-    window.goMyProfile = () => location.href = '?user=' + btoa(clean(currentUser.email).toLowerCase());
+    window.goMyProfile = () => {
+        if(currentUser) location.href = '?user=' + btoa(clean(currentUser.email).toLowerCase());
+    };
 </script>
 </body>
 </html>
