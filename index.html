@@ -22,7 +22,7 @@
         .star-rating span { transition: 0.2s; }
         .star-rating span:hover { transform: scale(1.2); }
 
-        /* Feed Cards Update */
+        /* Feed Cards */
         .card { background: var(--cm-card); border-radius: 16px; padding: 15px; margin-bottom: 15px; border: 1px solid var(--cm-border); position: relative; }
         .post-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
         .post-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; background: #333; cursor: pointer; border: 1px solid var(--cm-border); }
@@ -208,21 +208,31 @@
             const isAdmin = currentUser && clean(currentUser.email).toLowerCase() === SUPER_ADMIN;
             const isOwner = currentUser && clean(currentUser.email) === postData.from;
             
-            // שליפת תמונת המשתמש שיצר את הפוסט
-            const userSnap = await get(ref(db, 'users/' + btoa(postData.from.toLowerCase())));
-            const userData = userSnap.val() || {};
-            const userImg = userData.avatar || `https://ui-avatars.com/api/?name=${postData.from}&background=random&color=fff`;
+            // שליפת נתוני הכותב
+            const authorSnap = await get(ref(db, 'users/' + btoa(postData.from.toLowerCase())));
+            const authorData = authorSnap.val() || {};
+            const authorImg = authorData.avatar || `https://ui-avatars.com/api/?name=${postData.from}&background=random&color=fff`;
+
+            // לוגיקה להצגת נמען (מי שלח למי)
+            let recipientHtml = "";
+            if (postData.toId && postData.toId !== 'public' && postData.toId !== btoa(postData.from.toLowerCase())) {
+                const targetSnap = await get(ref(db, 'users/' + postData.toId));
+                if (targetSnap.exists()) {
+                    recipientHtml = ` <span style="color:var(--cm-blue); font-size:12px;">⬅️</span> <b onclick="location.href='?user=${postData.toId}'">${targetSnap.val().username}</b>`;
+                }
+            }
 
             card.innerHTML = `
                 <div class="post-header">
-                    <img src="${userImg}" class="post-avatar" onclick="location.href='?user=${btoa(postData.from.toLowerCase())}'">
+                    <img src="${authorImg}" class="post-avatar" onclick="location.href='?user=${btoa(postData.from.toLowerCase())}'">
                     <div class="feed-meta">
                         <b onclick="location.href='?user=${btoa(postData.from.toLowerCase())}'">${postData.from}</b>
+                        ${recipientHtml}
                         <span class="post-time">${new Date(postData.time).toLocaleString('he-IL')}</span>
                     </div>
                 </div>
                 ${(isAdmin || isOwner) ? `<span style="position:absolute; left:15px; top:15px; cursor:pointer; color:#ff3b30; font-size:11px;" onclick="deletePost('${id}')">מחיקה</span>` : ''}
-                <div style="white-space:pre-wrap;">${postData.text}</div>
+                <div style="white-space:pre-wrap; margin-top:5px;">${postData.text}</div>
                 ${postData.image ? `<img src="${postData.image}" class="card-image">` : ''}
                 <div style="margin-top:10px; display:flex; gap:15px; font-size:13px; color:var(--cm-gray);">
                     <span style="cursor:pointer" onclick="toggleLike('${id}')">❤️ ${postData.likes?Object.keys(postData.likes).length:0}</span>
@@ -261,7 +271,7 @@
         if(currentUser) location.href = '?user=' + btoa(clean(currentUser.email).toLowerCase());
     };
 
-    // --- IMAGE PREVIEW FOR POSTS ---
+    // --- PREVIEWS & UPLOADS ---
     document.getElementById('postImgInp').onchange = (e) => {
         const file = e.target.files[0];
         if(!file) return;
@@ -270,6 +280,17 @@
             const img = document.getElementById('imgPreview');
             img.src = ev.target.result;
             img.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    };
+
+    document.getElementById('fileInp').onchange = (e) => {
+        const file = e.target.files[0];
+        if(!file || !currentUser) return;
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+            const myId = btoa(clean(currentUser.email).toLowerCase());
+            await update(ref(db, 'users/' + myId), { avatar: ev.target.result });
         };
         reader.readAsDataURL(file);
     };
@@ -298,18 +319,6 @@
             }
         });
     }
-
-    // --- AVATAR UPLOAD ---
-    document.getElementById('fileInp').onchange = (e) => {
-        const file = e.target.files[0];
-        if(!file || !currentUser) return;
-        const reader = new FileReader();
-        reader.onload = async (ev) => {
-            const myId = btoa(clean(currentUser.email).toLowerCase());
-            await update(ref(db, 'users/' + myId), { avatar: ev.target.result });
-        };
-        reader.readAsDataURL(file);
-    };
 
     function renderStars(currentAvg) {
         const box = document.getElementById('ratingDisplay'); box.innerHTML = "";
