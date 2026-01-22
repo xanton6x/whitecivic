@@ -154,9 +154,29 @@ header {
     z-index: 500; 
 }
 
-.user-item { display: flex; align-items: center; gap: 10px; padding: 12px; cursor: pointer; position: relative; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.user-item:hover { background: rgba(255,255,255,0.05); }
-.status-dot { width: 10px; height: 10px; border-radius: 50%; background: #555; position: absolute; right: 38px; bottom: 12px; border: 2px solid var(--cm-card); z-index: 2; }
+.user-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #333;
+}
+
+.user-item:hover {
+    background: rgba(255,255,255,0.05);
+}
+.status-dot {
+    position: absolute;
+    bottom: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid #1c1c1e; /* צבע הרקע של האתר כדי ליצור הפרדה */
+    background: #8e8e93; /* ברירת מחדל אפור */
+    transition: background 0.3s ease;
+}
 .status-dot.online { background: var(--cm-online); box-shadow: 0 0 5px var(--cm-online); }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; }
