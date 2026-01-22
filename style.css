@@ -167,3 +167,25 @@ header {
 button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; padding: 8px 16px; }
 .btn-primary { background: var(--cm-blue); color: white; width: 100%; }
 .hidden { display: none !important; }
+
+/* Toast Notifications */
+#toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2000;
+}
+.toast {
+    background: var(--cm-card);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    margin-top: 10px;
+    border-right: 4px solid var(--cm-blue);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    animation: slideIn 0.3s ease-out;
+}
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
