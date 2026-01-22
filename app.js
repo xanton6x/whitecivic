@@ -334,47 +334,32 @@ if (dragBtn) {
     window.addEventListener("touchend", stopDrag);
 }
 
-// האזנה לשינוי בשדה בחירת התמונה
-const avatarInp = document.getElementById('avatarInp');
-if (avatarInp) {
+// הוסף את זה בסוף הקובץ, אבל וודא שזה בתוך ה-Script
+const initAvatarUpload = () => {
+    const avatarInp = document.getElementById('avatarInp');
+    if (!avatarInp) return; // מונע קריסה אם האלמנט לא קיים בדף
+
     avatarInp.onchange = (e) => {
         const file = e.target.files[0];
-        if (!file) return;
+        if (!file || !currentUser) return;
 
         const reader = new FileReader();
         reader.onload = async (ev) => {
             const base64Image = ev.target.result;
             const myId = btoa(clean(currentUser.email).toLowerCase());
 
-            // עדכון ה-Database
             try {
                 await update(ref(db, `users/${myId}`), { avatar: base64Image });
-                document.getElementById('pAvatar').src = base64Image;
-                window.showToast("תמונת פרופיל עודכנה!");
+                const pAv = document.getElementById('pAvatar');
+                if(pAv) pAv.src = base64Image;
+                window.showToast("התמונה עודכנה!");
             } catch (err) {
-                console.error(err);
-                window.showToast("שגיאה בעדכון התמונה");
+                window.showToast("שגיאה בעדכון");
             }
         };
         reader.readAsDataURL(file);
     };
-}
+};
 
-// וודא שבתוך פונקציית loadProfileInfo מופיעה השורה הזו כדי להציג את הפלוס רק לבעל הפרופיל:
-async function loadProfileInfo() {
-    onValue(ref(db, 'users/' + profileId), (s) => {
-        if(!s.exists()) return;
-        const d = s.val();
-        document.getElementById('profileHeader')?.classList.remove('hidden');
-        document.getElementById('pName').innerText = d.username;
-        document.getElementById('pAvatar').src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
-        
-        // הצגת כפתור הפלוס רק אם זה הפרופיל שלי
-        const myId = currentUser ? btoa(clean(currentUser.email).toLowerCase()) : null;
-        if(myId === profileId) {
-            document.getElementById('editAvBtn')?.classList.remove('hidden');
-        } else {
-            document.getElementById('editAvBtn')?.classList.add('hidden');
-        }
-    });
-}
+// הפעלת הפונקציה
+initAvatarUpload();
