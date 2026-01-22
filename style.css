@@ -192,34 +192,36 @@ button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; p
 
 /* עיצוב עטיפת התגובה */
 .comment-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
+    display: flex; /* גורם להם להיות אחד ליד השני */
+    gap: 8px;      /* רווח קטן ביניהם */
     margin-top: 10px;
+    align-items: center;
 }
 
 .comment-input {
-    width: 100%;
-    padding-left: 45px !important; /* רווח לכפתור מצד שמאל */
+    flex-grow: 1;  /* לוקח את כל המקום הפנוי */
+    background: #2c2c2e;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box; /* חשוב מאוד למניעת חריגה מהשורה */
 }
 
 .send-comment-btn {
-    position: absolute;
-    left: 8px; /* מיקום הכפתור בתוך השדה (בצד שמאל בגלל ה-RTL) */
     background: var(--cm-blue);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 28px;
-    height: 28px;
+    width: 36px;
+    height: 36px;
+    min-width: 36px; /* מונע מהכפתור להתכווץ */
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 14px;
-    transition: 0.2s;
-}
-
-.send-comment-btn:active {
-    transform: scale(0.9);
+    font-size: 16px;
+    padding: 0;
 }
