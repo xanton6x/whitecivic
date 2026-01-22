@@ -148,6 +148,14 @@ window.toggleUsers = () => {
     if(p) p.style.display = (p.style.display === 'flex') ? 'none' : 'flex';
 };
 
+window.openFullImage = (src) => {
+    const modal = document.getElementById('imageModal');
+    const fullImg = document.getElementById('fullImage');
+    if (modal && fullImg) {
+        fullImg.src = src;
+        modal.style.display = "flex";
+    }
+};
 // --- LOADER ---
 async function loadComments(pid) {
     onValue(ref(db, `feed/${pid}/comments`), async snap => {
