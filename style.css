@@ -395,3 +395,73 @@ button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; p
     justify-content: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
+
+/* מיכל הפרופיל בסגנון VK */
+.vk-profile-box {
+    background: #1c1c1e;
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-bottom: 1px solid #333;
+    margin-bottom: 15px;
+}
+
+/* תמונת פרופיל קטנה יותר ומדויקת */
+.vk-avatar-wrapper {
+    position: relative;
+    width: 80px;  /* גודל קומפקטי יותר */
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+#pAvatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #333;
+}
+
+/* כפתור הפלוס - קטן ואלגנטי בפינה */
+.vk-plus-btn {
+    position: absolute !important;
+    bottom: 0;
+    right: 0;
+    background: #0077ff !important; /* כחול VK */
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 2px solid #1c1c1e;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.vk-plus-btn span {
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 0;
+    margin-top: -1px;
+}
+
+/* טקסטים בסגנון VK */
+.vk-info h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+}
+
+.vk-status {
+    font-size: 13px;
+    color: #818c99; /* אפור VK */
+    display: block;
+    text-align: center;
+    margin-top: 2px;
+}
