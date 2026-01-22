@@ -189,3 +189,37 @@ button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; p
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+
+/* עיצוב עטיפת התגובה */
+.comment-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.comment-input {
+    width: 100%;
+    padding-left: 45px !important; /* רווח לכפתור מצד שמאל */
+}
+
+.send-comment-btn {
+    position: absolute;
+    left: 8px; /* מיקום הכפתור בתוך השדה (בצד שמאל בגלל ה-RTL) */
+    background: var(--cm-blue);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.send-comment-btn:active {
+    transform: scale(0.9);
+}
