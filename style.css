@@ -277,3 +277,20 @@ button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; p
 .comments-box.show {
     display: block !important;
 }
+
+#usersToggleBtn {
+    position: fixed; /* הופך אותו לצף */
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    cursor: move; /* מראה למשתמש שאפשר להזיז */
+    touch-action: none; /* קריטי למובייל - מונע מהמסך לגלול בזמן שגוררים את הכפתור */
+    user-select: none;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
