@@ -81,37 +81,42 @@ onChildAdded(ref(db, 'feed'), (snap) => {
 
     const card = document.createElement('div');
     card.className = 'card';
-    onValue(ref(db, `feed/${id}`), s => {
-        if(!s.exists()) { card.remove(); return; }
-        const u = s.val();
-        const isAdmin = currentUser && clean(currentUser.email).toLowerCase() === SUPER_ADMIN;
-        const isOwner = currentUser && clean(currentUser.email) === u.from;
-        const comCount = u.comments ? Object.keys(u.comments).length : 0;
 
-// חפש את החלק הזה בתוך ה-onChildAdded והחלף אותו:
-card.innerHTML = `
-    <div class="feed-meta">
-        <b onclick="location.href='?user=${btoa(u.from.toLowerCase())}'">${u.from}</b>
-        <span class="post-time">${new Date(u.time).toLocaleString('he-IL')}</span>
-    </div>
-    ${(isAdmin || isOwner) ? `<span style="position:absolute; left:15px; top:15px; cursor:pointer; color:#ff3b30; font-size:11px;" onclick="deletePost('${id}')">מחיקה</span>` : ''}
-    <div style="white-space:pre-wrap; margin-bottom:10px;">${u.text}</div>
-    ${u.image ? `<img src="${u.image}" class="card-image">` : ''}
-    
-    <div style="margin-top:10px; display:flex; gap:15px; font-size:13px; color:var(--cm-gray); padding-bottom:5px;">
-        <span style="cursor:pointer" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</span>
-        <span class="toggle-comments-btn" onclick="toggleCommentsDisplay('${id}')" id="btn-${id}">
-            💬 ${comCount > 0 ? `הצג ${comCount} תגובות` : 'תגובות'}
-        </span>
-    </div>
-    
-    <div id="coms-${id}" class="comments-box"></div>
-    
-    <div class="comment-wrapper">
-        <input type="text" class="comment-input" placeholder="הוסף תגובה..." id="inp-${id}" onkeypress="if(event.key==='Enter') addComment('${id}', this)">
-        <button class="send-comment-btn" onclick="addComment('${id}', document.getElementById('inp-${id}'))">➤</button>
-    </div>
-`;
+onValue(ref(db, `feed/${id}`), s => {
+    if(!s.exists()) { card.remove(); return; }
+    const u = s.val();
+    const isAdmin = currentUser && clean(currentUser.email).toLowerCase() === SUPER_ADMIN;
+    const isOwner = currentUser && clean(currentUser.email) === u.from;
+    const comCount = u.comments ? Object.keys(u.comments).length : 0;
+
+    card.innerHTML = `
+        <div class="feed-meta">
+            <b onclick="location.href='?user=${btoa(u.from.toLowerCase())}'">${u.from}</b>
+            <span class="post-time">${new Date(u.time).toLocaleString('he-IL')}</span>
+        </div>
+        ${(isAdmin || isOwner) ? `<span style="position:absolute; left:15px; top:15px; cursor:pointer; color:#ff3b30; font-size:11px;" onclick="deletePost('${id}')">מחיקה</span>` : ''}
+        
+        <div style="white-space:pre-wrap; margin-bottom:10px;">${u.text}</div>
+        ${u.image ? `<img src="${u.image}" class="card-image">` : ''}
+        
+        <div style="margin-top:10px; display:flex; gap:15px; font-size:13px; color:var(--cm-gray); border-bottom:1px solid #333; padding-bottom:5px; align-items:center;">
+            <span style="cursor:pointer" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</span>
+            
+            <span class="toggle-comments-btn" style="cursor:pointer; color:var(--cm-blue);" onclick="toggleCommentsDisplay('${id}')">
+                💬 ${comCount} תגובות (לחץ לצפייה)
+            </span>
+        </div>
+        
+        <div id="coms-${id}" class="comments-box"></div>
+        
+        <div class="comment-wrapper">
+            <input type="text" class="comment-input" placeholder="הוסף תגובה..." id="inp-${id}" 
+                   onkeypress="if(event.key==='Enter') addComment('${id}', this)">
+            <button class="send-comment-btn" onclick="addComment('${id}', document.getElementById('inp-${id}'))">➤</button>
+        </div>
+    `;
+    loadComments(id);
+});
         loadComments(id);
     });
     document.getElementById('board').prepend(card);
@@ -156,19 +161,49 @@ window.deletePost = (id) => confirm('למחוק פוסט?') && remove(ref(db, `f
 
 window.deleteComment = (pid, cid) => confirm('למחוק תגובה?') && remove(ref(db, `feed/${pid}/comments/${cid}`));
 
-window.addComment = (pid, inp) => {
-    if(!currentUser || !inp.value.trim()) return;
-    push(ref(db, `feed/${pid}/comments`), { from: clean(currentUser.email), text: inp.value.trim() });
-    inp.value = "";
-    window.showToast("תגובה נוספה");
+// פונקציית הצגת/הסתרת תגובות
+window.toggleCommentsDisplay = (id) => {
+    const box = document.getElementById(`coms-${id}`);
+    if (!box) return;
+    
+    // אם התיבה מוסתרת (display: none), נציג אותה
+    if (box.style.display === 'block') {
+        box.style.display = 'none';
+    } else {
+        box.style.display = 'block';
+    }
 };
 
+// עדכון הוספת תגובה
+window.addComment = (pid, inp) => {
+    const val = inp.value.trim();
+    if(!currentUser || !val) return;
+
+    // כששולחים תגובה, אנחנו רוצים שהתיבה תיפתח אוטומטית
+    const box = document.getElementById(`coms-${pid}`);
+    if(box) box.style.display = 'block';
+
+    push(ref(db, `feed/${pid}/comments`), { 
+        from: clean(currentUser.email), 
+        text: val 
+    }).then(() => {
+        inp.value = "";
+        window.showToast("תגובה נוספה");
+    });
+};
+
+// פונקציית הלייק (לוודא שאין בה קריאה לתגובות)
 window.toggleLike = async (id) => {
     if(!currentUser) return window.openModal('login');
     const myId = btoa(clean(currentUser.email).toLowerCase());
     const r = ref(db, `feed/${id}/likes/${myId}`);
     const s = await get(r);
-    s.exists() ? remove(r) : set(r, true);
+    if(s.exists()) {
+        remove(r);
+    } else {
+        set(r, true);
+    }
+    // לא להוסיף כאן שום קריאה ל-addComment!
 };
 
 window.goMyProfile = () => {
