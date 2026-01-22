@@ -18,9 +18,23 @@ const profileId = q.get('user');
 const SUPER_ADMIN = "anton";
 let currentUser = null;
 
-// Helpers
+// --- HELPERS ---
 const clean = (e) => e ? e.split('@')[0] : "";
 const toEmail = (n) => `${n.toLowerCase().trim()}@carmeet.com`;
+
+// --- פונקציית התראות (TOASTS) ---
+window.showToast = (msg) => {
+    const container = document.getElementById('toast-container');
+    if (!container) return; // הגנה למקרה ששכחת להוסיף ל-HTML
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerText = msg;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+};
 
 onAuthStateChanged(auth, (u) => {
     if (u) {
@@ -31,6 +45,12 @@ onAuthStateChanged(auth, (u) => {
         document.getElementById('userNav').classList.remove('hidden');
         document.getElementById('guestNav').classList.add('hidden');
         document.getElementById('usersToggleBtn').classList.remove('hidden');
+        
+        // הצגת כפתור עריכת תמונה רק אם אני בפרופיל של עצמי
+        if (profileId === myId) {
+            const editBtn = document.getElementById('editAvBtn');
+            if (editBtn) editBtn.classList.remove('hidden');
+        }
     }
     if (profileId) loadProfileInfo();
 });
@@ -72,7 +92,7 @@ document.getElementById('sendPost').onclick = async () => {
     const txt = document.getElementById('postInp').value;
     const imgPreview = document.getElementById('imgPreview');
     const img = imgPreview.src;
-    if(!txt && !imgPreview.style.display === 'block') return;
+    if(!txt && imgPreview.style.display !== 'block') return;
 
     push(ref(db, 'feed'), {
         from: clean(currentUser.email),
@@ -83,6 +103,7 @@ document.getElementById('sendPost').onclick = async () => {
     });
     document.getElementById('postInp').value = "";
     imgPreview.style.display = 'none';
+    window.showToast("הפוסט פורסם בהצלחה! 🏎️");
 };
 
 onChildAdded(ref(db, 'feed'), (snap) => {
@@ -117,7 +138,12 @@ onChildAdded(ref(db, 'feed'), (snap) => {
 });
 
 // --- GLOBAL FUNCTIONS ---
-window.deletePost = (id) => confirm('למחוק?') && remove(ref(db, `feed/${id}`));
+window.deletePost = (id) => {
+    if (confirm('למחוק את הפוסט?')) {
+        remove(ref(db, `feed/${id}`));
+        window.showToast("הפוסט נמחק");
+    }
+};
 
 window.toggleLike = async (id) => {
     if(!currentUser) return window.openModal('login');
@@ -125,12 +151,14 @@ window.toggleLike = async (id) => {
     const r = ref(db, `feed/${id}/likes/${myId}`);
     const s = await get(r);
     s.exists() ? remove(r) : set(r, true);
+    window.showToast(s.exists() ? "הלייק הוסר" : "נתת לייק! ❤️");
 };
 
 window.addComment = (pid, inp) => {
     if(!currentUser || !inp.value.trim()) return;
     push(ref(db, `feed/${pid}/comments`), { from: clean(currentUser.email), text: inp.value.trim() });
     inp.value = "";
+    window.showToast("תגובה נוספה");
 };
 
 window.toggleUsers = () => { 
@@ -179,12 +207,32 @@ async function rateUser(score) {
     if(myId === profileId) return;
     const rRef = ref(db, `users/${profileId}/ratings/${myId}`);
     const snap = await get(rRef);
-    if(snap.exists()) return;
+    if(snap.exists()) return window.showToast("כבר דירגת משתמש זה");
     const uSnap = await get(ref(db, `users/${profileId}`));
     const d = uSnap.val();
     await update(ref(db, `users/${profileId}`), { ratingTotal: (d.ratingTotal || 0) + score, ratingCount: (d.ratingCount || 0) + 1 });
     await set(rRef, score);
+    window.showToast("תודה על הדירוג! ⭐");
 }
+
+// --- עדכון תמונת פרופיל ---
+document.getElementById('fileInp').onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+        const base64Img = ev.target.result;
+        const myId = btoa(clean(currentUser.email).toLowerCase());
+        try {
+            await update(ref(db, 'users/' + myId), { avatar: base64Img });
+            document.getElementById('pAvatar').src = base64Img;
+            window.showToast("התמונה עודכנה בהצלחה! ✨");
+        } catch (err) {
+            window.showToast("שגיאה בעדכון התמונה");
+        }
+    };
+    reader.readAsDataURL(file);
+};
 
 onValue(ref(db, 'users'), snap => {
     const list = document.getElementById('globalUsersList');
@@ -211,7 +259,7 @@ onValue(ref(db, 'users'), snap => {
 
 document.getElementById('logoutBtn').onclick = () => signOut(auth).then(()=>location.href='index.html');
 
-// תצוגה מקדימה לתמונה
+// תצוגה מקדימה לתמונה בפוסט
 document.getElementById('postImgInp').onchange = (e) => {
     const reader = new FileReader();
     reader.onload = (ev) => {
