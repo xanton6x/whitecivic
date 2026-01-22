@@ -95,7 +95,19 @@ onChildAdded(ref(db, 'feed'), (snap) => {
 // --- GLOBAL FUNCTIONS ---
 window.toggleCommentsDisplay = (id) => {
     const box = document.getElementById(`coms-${id}`);
-    if (box) box.classList.toggle('show');
+    const btn = document.getElementById(`btn-text-${id}`);
+    if (!box) return;
+
+    // בדיקה אם התיבה כרגע מוסתרת
+    const isHidden = window.getComputedStyle(box).display === 'none';
+
+    if (isHidden) {
+        box.style.setProperty('display', 'block', 'important');
+        if (btn) btn.innerText = "(הסתר)";
+    } else {
+        box.style.setProperty('display', 'none', 'important');
+        if (btn) btn.innerText = "(צפה)";
+    }
 };
 
 window.deletePost = (id) => confirm('למחוק פוסט?') && remove(ref(db, `feed/${id}`));
