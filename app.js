@@ -265,3 +265,62 @@ async function loadProfileInfo() {
         if(document.getElementById('pAvatar')) document.getElementById('pAvatar').src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
     });
 }
+
+const dragBtn = document.getElementById("usersToggleBtn");
+
+if (dragBtn) {
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    // פונקציה להתחלת גרירה
+    const startDrag = (e) => {
+        isDragging = true;
+        dragBtn.style.transition = "none"; // מבטל אנימציות בזמן גרירה
+        
+        // בדיקה אם זה טאץ' או עכבר
+        const clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
+
+        offsetX = clientX - dragBtn.getBoundingClientRect().left;
+        offsetY = clientY - dragBtn.getBoundingClientRect().top;
+    };
+
+    // פונקציה בזמן תנועה
+    const moveDrag = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+
+        const clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+
+        // חישוב מיקום חדש
+        let x = clientX - offsetX;
+        let y = clientY - offsetY;
+
+        // הגבלה שהכפתור לא יצא מגבולות המסך
+        const maxX = window.innerWidth - dragBtn.offsetWidth;
+        const maxY = window.innerHeight - dragBtn.offsetHeight;
+        
+        x = Math.max(0, Math.min(x, maxX));
+        y = Math.max(0, Math.min(y, maxY));
+
+        dragBtn.style.left = x + "px";
+        dragBtn.style.top = y + "px";
+        dragBtn.style.bottom = "auto";
+        dragBtn.style.right = "auto";
+    };
+
+    // סיום גרירה
+    const stopDrag = () => {
+        isDragging = false;
+    };
+
+    // חיבור האירועים לכפתור
+    dragBtn.addEventListener("mousedown", startDrag);
+    window.addEventListener("mousemove", moveDrag);
+    window.addEventListener("mouseup", stopDrag);
+
+    dragBtn.addEventListener("touchstart", startDrag, { passive: false });
+    window.addEventListener("touchmove", moveDrag, { passive: false });
+    window.addEventListener("touchend", stopDrag);
+}
