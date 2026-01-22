@@ -168,7 +168,7 @@ button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; p
 .btn-primary { background: var(--cm-blue); color: white; width: 100%; }
 .hidden { display: none !important; }
 
-/* Toast Notifications */
+/* התראות Toast */
 #toast-container {
     position: fixed;
     bottom: 20px;
@@ -176,52 +176,73 @@ button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; p
     z-index: 2000;
 }
 .toast {
-    background: var(--cm-card);
+    background: #333;
     color: white;
     padding: 12px 20px;
     border-radius: 10px;
     margin-top: 10px;
-    border-right: 4px solid var(--cm-blue);
+    border-right: 4px solid #007aff;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
     animation: slideIn 0.3s ease-out;
 }
-@keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-}
 
-/* עיצוב עטיפת התגובה */
+/* מבנה התגובות והשליחה */
 .comment-wrapper {
-    display: flex; /* גורם להם להיות אחד ליד השני */
-    gap: 8px;      /* רווח קטן ביניהם */
-    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
     align-items: center;
 }
 
 .comment-input {
-    flex-grow: 1;  /* לוקח את כל המקום הפנוי */
-    background: #2c2c2e;
-    border: none;
+    flex: 1;
+    background: #2c2c2e !important;
+    border: 1px solid #444 !important;
     color: white;
     padding: 10px 15px;
     border-radius: 20px;
     font-size: 14px;
     outline: none;
-    box-sizing: border-box; /* חשוב מאוד למניעת חריגה מהשורה */
 }
 
 .send-comment-btn {
-    background: var(--cm-blue);
+    background: #007aff;
     color: white;
     border: none;
     border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    min-width: 36px; /* מונע מהכפתור להתכווץ */
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     font-size: 16px;
-    padding: 0;
+}
+
+.comment-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+}
+
+.comment-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.comment-content {
+    background: #2c2c2e;
+    padding: 8px 12px;
+    border-radius: 12px;
+    flex: 1;
+    font-size: 13px;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
