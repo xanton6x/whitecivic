@@ -133,8 +133,15 @@ card.innerHTML = `
     <div id="coms-${id}" style="margin-top:10px;"></div>
     
     <div class="comment-wrapper">
-        <input type="text" class="comment-input" placeholder="הוסף תגובה..." id="inp-${id}" onkeypress="if(event.key==='Enter') addComment('${id}', this)">
-        <button class="send-comment-btn" onclick="addComment('${id}', document.getElementById('inp-${id}'))">➤</button>
+        <input type="text" 
+               class="comment-input" 
+               placeholder="הוסף תגובה..." 
+               id="inp-${id}" 
+               onkeypress="if(event.key==='Enter') addComment('${id}', this)">
+        <button class="send-comment-btn" 
+                onclick="const el = document.getElementById('inp-${id}'); addComment('${id}', el)">
+                ➤
+        </button>
     </div>
 `;
     });
