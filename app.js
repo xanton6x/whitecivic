@@ -37,12 +37,17 @@ onAuthStateChanged(auth, (u) => {
     if (u) {
         currentUser = u;
         const myId = btoa(clean(u.email).toLowerCase());
-        set(ref(db, 'status/' + myId), { state: 'online' });
-        onDisconnect(ref(db, 'status/' + myId)).set({ state: 'offline' });
         
-        if(document.getElementById('userNav')) document.getElementById('userNav').classList.remove('hidden');
-        if(document.getElementById('guestNav')) document.getElementById('guestNav').classList.add('hidden');
-        if(document.getElementById('usersToggleBtn')) document.getElementById('usersToggleBtn').classList.remove('hidden');
+        // עדכון סטטוס ל-online
+        const statusRef = ref(db, 'status/' + myId);
+        set(statusRef, { state: 'online', last_changed: Date.now() });
+        
+        // הגדרה שבעת ניתוק הסטטוס ישתנה ל-offline
+        onDisconnect(statusRef).set({ state: 'offline', last_changed: Date.now() });
+        
+        document.getElementById('userNav')?.classList.remove('hidden');
+        document.getElementById('guestNav')?.classList.add('hidden');
+        document.getElementById('usersToggleBtn')?.classList.remove('hidden');
     }
     if (profileId) loadProfileInfo();
 });
