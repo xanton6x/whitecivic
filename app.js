@@ -166,10 +166,20 @@ window.toggleLike = async (id) => {
 };
 
 window.addComment = (pid, inp) => {
-    if(!currentUser || !inp.value.trim()) return;
-    push(ref(db, `feed/${pid}/comments`), { from: clean(currentUser.email), text: inp.value.trim() });
-    inp.value = "";
-    window.showToast("תגובה נוספה");
+    if (!currentUser) return window.openModal('login');
+    const val = inp.value.trim();
+    if (!val) return;
+
+    push(ref(db, `feed/${pid}/comments`), { 
+        from: clean(currentUser.email), 
+        text: val 
+    }).then(() => {
+        inp.value = ""; // מנקה את השדה רק אחרי שהצליח
+        window.showToast("תגובה נוספה");
+    }).catch((err) => {
+        console.error("Error adding comment:", err);
+        window.showToast("שגיאה בשליחת התגובה");
+    });
 };
 
 window.toggleUsers = () => { 
