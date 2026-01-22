@@ -146,32 +146,60 @@
             const post = s.val();
             
             // עיצוב "יוסי ▸ אנטון"
-            let recipientHtml = "";
-            if (post.toId && post.toId !== 'public' && post.toId !== btoa(post.from.toLowerCase())) {
+// טעינת הפיד (תקין גם בדף הבית וגם בפרופיל)
+    onChildAdded(ref(db, 'feed'), (snap) => {
+        const d = snap.val(), id = snap.key;
+        
+        // סינון פרופיל: הצג רק פוסטים שקשורים לפרופיל הנוכחי
+        if (profileId) {
+            const isFromProfile = btoa(clean(d.from).toLowerCase()) === profileId;
+            const isToProfile = d.toId === profileId;
+            if (!isFromProfile && !isToProfile) return;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        // הוספה ללוח מיד
+        document.getElementById('board').prepend(card);
+        
+        // האזנה לשינויים בפוסט (לייקים וכדומה)
+        onValue(ref(db, `feed/${id}`), async (s) => {
+            if(!s.exists()) { card.remove(); return; }
+            const post = s.val();
+            const fromUser = clean(post.from);
+            const fromId = btoa(fromUser.toLowerCase());
+
+            // בניית שורת הכותב והמקבל
+            let authorHtml = `<b onclick="location.href='?user=${fromId}'">${fromUser}</b>`;
+            
+            // בדיקה אם הפוסט נכתב על קיר של מישהו אחר
+            if (post.toId && post.toId !== 'public' && post.toId !== fromId) {
                 const targetSnap = await get(ref(db, 'users/' + post.toId));
+                let targetName = "משתמש"; // ברירת מחדל
                 if (targetSnap.exists()) {
-                    recipientHtml = ` <span style="color:var(--cm-gray); margin: 0 3px;">▸</span> <b onclick="location.href='?user=${post.toId}'">${targetSnap.val().username}</b>`;
+                    targetName = targetSnap.val().username;
                 }
+                authorHtml += ` <span style="color:var(--cm-gray); margin: 0 4px; font-weight:normal;">▸</span> <b onclick="location.href='?user=${post.toId}'">${targetName}</b>`;
             }
 
             card.innerHTML = `
                 <div class="post-header">
-                    <img src="https://ui-avatars.com/api/?name=${post.from}" class="post-avatar">
+                    <img src="https://ui-avatars.com/api/?name=${fromUser}&background=random" class="post-avatar">
                     <div class="feed-meta">
                         <div class="author-line">
-                            <b onclick="location.href='?user=${btoa(post.from.toLowerCase())}'">${post.from}</b>
-                            ${recipientHtml}
+                            ${authorHtml}
                         </div>
                         <span class="post-time">${new Date(post.time).toLocaleString('he-IL')}</span>
                     </div>
                 </div>
-                <div style="white-space:pre-wrap; font-size:15px;">${post.text}</div>
+                <div style="white-space:pre-wrap; font-size:15px; padding: 5px 2px;">${post.text}</div>
                 <div class="post-actions">
-                    <div class="action-item" onclick="likePost('${id}', '${btoa(post.from.toLowerCase())}')">❤️ ${post.likes ? Object.keys(post.likes).length : 0} לייק</div>
+                    <div class="action-item" onclick="likePost('${id}', '${fromId}')">
+                        ❤️ <span>${post.likes ? Object.keys(post.likes).length : 0}</span> לייקים
+                    </div>
                 </div>
             `;
         });
-        document.getElementById('board').prepend(card);
     });
 
     // מערכת התראות לייקים
