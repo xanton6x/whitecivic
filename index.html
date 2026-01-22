@@ -25,18 +25,17 @@
 </header>
 
 <div class="container">
-    <div id="profileHeader" class="hidden">
-        <div class="profile-card">
-            <div style="height: 80px; background: linear-gradient(45deg, #1c1c1e, #007aff);"></div>
-            <div class="avatar-container">
-                <img id="pAvatar" class="profile-avatar" src="">
-                <div id="editAvBtn" class="edit-avatar-badge hidden" onclick="document.getElementById('fileInp').click()">+</div>
-            </div>
-            <input type="file" id="fileInp" class="hidden" accept="image/*">
-            <div style="font-size:22px; font-weight:800; margin-top:10px;"><span id="pName"></span> <span id="pBadge"></span></div>
-            <div id="ratingDisplay" class="star-rating"></div>
-            <div id="ratingValue" style="font-size:12px; color:var(--cm-gray);">דירוג: 0.0</div>
-        </div>
+    <div id="profileHeader" class="hidden" style="text-align:center; padding:20px; position:relative;">
+    <div style="position: relative; width: 100px; height: 100px; margin: 0 auto;">
+        <img id="pAvatar" src="" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:2px solid var(--cm-blue);">
+        
+        <label for="avatarInp" id="editAvBtn" class="hidden" style="position:absolute; bottom:0; right:0; background:var(--cm-blue); width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px solid #1c1c1e;">
+            <span style="color:white; font-size:20px; font-weight:bold;">+</span>
+        </label>
+        <input type="file" id="avatarInp" accept="image/*" style="display:none;">
+    </div>
+    <h2 id="pName" style="margin-top:10px;"></h2>
+</div>
     </div>
 
     <div class="card" id="postCreator">
