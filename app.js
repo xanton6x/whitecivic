@@ -96,18 +96,15 @@ onValue(ref(db, `feed/${id}`), s => {
         </div>
         ${(isAdmin || isOwner) ? `<span style="position:absolute; left:15px; top:15px; cursor:pointer; color:#ff3b30; font-size:11px;" onclick="deletePost('${id}')">מחיקה</span>` : ''}
         
-        <div style="white-space:pre-wrap; margin-bottom:10px;">${u.text}</div>
-        ${u.image ? `<img src="${u.image}" class="card-image">` : ''}
-        
-        <div style="margin-top:10px; display:flex; gap:15px; font-size:13px; color:var(--cm-gray); border-bottom:1px solid #333; padding-bottom:5px; align-items:center;">
-            <span style="cursor:pointer" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</span>
-            
-            <span class="toggle-comments-btn" style="cursor:pointer; color:var(--cm-blue);" onclick="toggleCommentsDisplay('${id}')">
-                💬 ${comCount} תגובות (לחץ לצפייה)
-            </span>
-        </div>
-        
-        <div id="coms-${id}" class="comments-box"></div>
+<div style="margin-top:10px; display:flex; gap:15px; font-size:13px; color:var(--cm-gray); align-items:center;">
+    <span style="cursor:pointer" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</span>
+    
+    <span class="toggle-comments-btn" style="cursor:pointer; color:var(--cm-blue); font-weight:bold;" onclick="toggleCommentsDisplay('${id}')">
+        💬 הצג תגובות (${comCount})
+    </span>
+</div>
+
+<div id="coms-${id}" class="comments-box"></div>
         
         <div class="comment-wrapper">
             <input type="text" class="comment-input" placeholder="הוסף תגובה..." id="inp-${id}" 
