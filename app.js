@@ -275,9 +275,25 @@ async function loadProfileInfo() {
     onValue(ref(db, 'users/' + profileId), (s) => {
         if(!s.exists()) return;
         const d = s.val();
-        if(document.getElementById('profileHeader')) document.getElementById('profileHeader').classList.remove('hidden');
+        
+        // הצגת הדיב הראשי
+        const header = document.getElementById('profileHeader');
+        if(header) header.classList.remove('hidden');
+        
+        // עדכון פרטים
         if(document.getElementById('pName')) document.getElementById('pName').innerText = d.username;
         if(document.getElementById('pAvatar')) document.getElementById('pAvatar').src = d.avatar || `https://ui-avatars.com/api/?name=${d.username}`;
+        
+        // בדיקת בעלות על הפרופיל להצגת הפלוס
+        const editBtn = document.getElementById('editAvBtn');
+        if(editBtn && currentUser) {
+            const myId = btoa(clean(currentUser.email).toLowerCase());
+            if(myId === profileId) {
+                editBtn.classList.remove('hidden'); // כאן הפלוס חוזר!
+            } else {
+                editBtn.classList.add('hidden');
+            }
+        }
     });
 }
 
