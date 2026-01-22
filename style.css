@@ -247,36 +247,22 @@ button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; p
     to { transform: translateX(0); opacity: 1; }
 }
 
-/* הסתרת תיבת התגובות כברירת מחדל */
+/* מחיקת הגדרות קודמות של comments-box והוספת אלו: */
 .comments-box {
     display: none; /* מוסתר בהתחלה */
     margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #333;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    max-height: 300px;
+    overflow-y: auto;
 }
 
-/* כפתור פתיחת תגובות */
 .toggle-comments-btn {
-    background: none;
-    border: none;
-    color: var(--cm-blue);
-    font-size: 13px;
-    cursor: pointer;
-    padding: 5px 0;
     font-weight: bold;
+    user-select: none;
 }
 
-.toggle-comments-btn:hover {
-    text-decoration: underline;
-}
-
-/* כשהתיבה פתוחה */
-.comments-box.open {
-    display: block;
-    animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+.toggle-comments-btn:active {
+    opacity: 0.6;
 }
