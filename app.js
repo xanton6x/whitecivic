@@ -69,15 +69,15 @@ onChildAdded(ref(db, 'feed'), (snap) => {
             </div>
             ${(isAdmin || isOwner) ? `<span style="position:absolute; left:15px; top:15px; cursor:pointer; color:#ff3b30; font-size:11px;" onclick="deletePost('${id}')">מחיקה</span>` : ''}
             
-            <div style="white-space:pre-wrap; margin-bottom:10px;">${u.text}</div>
-            ${u.image ? `<img src="${u.image}" class="card-image">` : ''}
-            
-            <div style="margin-top:10px; display:flex; gap:15px; font-size:13px; color:var(--cm-gray); border-bottom:1px solid #333; padding-bottom:5px; align-items:center;">
-                <span style="cursor:pointer" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</span>
-                <span style="cursor:pointer; color:var(--cm-blue); font-weight:bold;" onclick="toggleCommentsDisplay('${id}')">
-                    💬 ${comCount} תגובות (צפה)
-                </span>
-            </div>
+<div style="margin-top:10px; display:flex; gap:15px; font-size:13px; color:var(--cm-gray); border-bottom:1px solid #333; padding-bottom:5px; align-items:center;">
+    <span style="cursor:pointer" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</span>
+    
+    <span style="cursor:pointer; color:var(--cm-blue); font-weight:bold;" onclick="toggleCommentsDisplay('${id}')">
+        💬 ${comCount} תגובות <span id="btn-text-${id}">(צפה)</span>
+    </span>
+</div>
+
+<div id="coms-${id}" class="comments-box" style="display: none;"></div>
             
             <div id="coms-${id}" class="comments-box"></div>
             
