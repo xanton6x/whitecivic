@@ -67,30 +67,31 @@ onChildAdded(ref(db, 'feed'), (snap) => {
         const isOwner = currentUser && clean(currentUser.email) === u.from;
         const comCount = u.comments ? Object.keys(u.comments).length : 0;
 
-        card.innerHTML = `
-            <div class="feed-meta">
-                <b style="cursor:pointer" onclick="location.href='?user=${btoa(u.from.toLowerCase())}'">${u.from}</b>
-                <span class="post-time">${new Date(u.time).toLocaleString('he-IL')}</span>
-            </div>
-            ${(isAdmin || isOwner) ? `<span style="position:absolute; left:15px; top:15px; cursor:pointer; color:#ff3b30; font-size:11px;" onclick="deletePost('${id}')">מחיקה</span>` : ''}
-            
-<div style="margin-top:10px; display:flex; gap:15px; font-size:13px; color:var(--cm-gray); border-bottom:1px solid #333; padding-bottom:5px; align-items:center;">
-    <span style="cursor:pointer" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</span>
+card.innerHTML = `
+    <div class="feed-meta">
+        <b style="cursor:pointer" onclick="location.href='?user=${btoa(u.from.toLowerCase())}'">${u.from}</b>
+        <span class="post-time">${new Date(u.time).toLocaleString('he-IL')}</span>
+    </div>
+    ${(isAdmin || isOwner) ? `<span style="position:absolute; left:15px; top:15px; cursor:pointer; color:#ff3b30; font-size:11px;" onclick="deletePost('${id}')">מחיקה</span>` : ''}
     
-    <span style="cursor:pointer; color:var(--cm-blue); font-weight:bold;" onclick="toggleCommentsDisplay('${id}')">
-        💬 ${comCount} תגובות <span id="btn-text-${id}">(צפה)</span>
-    </span>
-</div>
-
-<div id="coms-${id}" class="comments-box" style="display: none;"></div>
-            
-            <div id="coms-${id}" class="comments-box"></div>
-            
-            <div class="comment-wrapper">
-                <input type="text" class="comment-input" placeholder="תגובה..." id="inp-${id}" onkeypress="if(event.key==='Enter') addComment('${id}', this)">
-                <button class="send-comment-btn" onclick="addComment('${id}', document.getElementById('inp-${id}'))">➤</button>
-            </div>
-        `;
+    <div style="white-space:pre-wrap; margin-bottom:10px;">${u.text}</div>
+    
+    ${u.image ? `<img src="${u.image}" class="card-image" style="width:100%; border-radius:10px; margin-bottom:10px; display:block;">` : ''}
+    
+    <div style="margin-top:10px; display:flex; gap:15px; font-size:13px; color:var(--cm-gray); border-bottom:1px solid #333; padding-bottom:5px; align-items:center;">
+        <span style="cursor:pointer" onclick="toggleLike('${id}')">❤️ ${u.likes?Object.keys(u.likes).length:0}</span>
+        <span style="cursor:pointer; color:var(--cm-blue); font-weight:bold;" onclick="toggleCommentsDisplay('${id}')">
+            💬 ${comCount} תגובות <span id="btn-text-${id}">(צפה)</span>
+        </span>
+    </div>
+    
+    <div id="coms-${id}" class="comments-box" style="display: none;"></div>
+    
+    <div class="comment-wrapper">
+        <input type="text" class="comment-input" placeholder="תגובה..." id="inp-${id}" onkeypress="if(event.key==='Enter') addComment('${id}', this)">
+        <button class="send-comment-btn" onclick="addComment('${id}', document.getElementById('inp-${id}'))">➤</button>
+    </div>
+`;
         loadComments(id);
     });
     const board = document.getElementById('board');
