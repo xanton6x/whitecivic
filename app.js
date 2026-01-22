@@ -32,31 +32,31 @@ window.showToast = (msg) => {
     setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 3000);
 };
 
+// פונקציית פתיחה/סגירה של תגובות
 window.toggleCommentsDisplay = (id) => {
     const box = document.getElementById(`coms-${id}`);
-    const btn = document.getElementById(`btn-${id}`);
-    
-    if (box.classList.contains('open')) {
-        box.classList.remove('open');
-        // עדכון הטקסט חזרה (אפשר גם להשאיר "הצג")
-        // btn.innerText = "💬 הצג תגובות"; 
-    } else {
-        box.classList.add('open');
-        // btn.innerText = "💬 הסתר תגובות";
+    if (box) {
+        box.classList.toggle('show');
+        console.log("Toggled box for post:", id); // לבדיקה בקונסול
     }
 };
 
-// עדכון קטן לפונקציית addComment כדי שתפתח את התיבה אוטומטית כשמוסיפים תגובה
-const originalAddComment = window.addComment;
+// עדכון הוספת תגובה - שתיפתח אוטומטית כששולחים
 window.addComment = (pid, inp) => {
-    if(inp.value.trim()) {
-        const box = document.getElementById(`coms-${pid}`);
-        if(box) box.classList.add('open'); // פותח את התגובות בשליחה
-    }
-    // קורא לפונקציה המקורית שכתבנו קודם (וודא שהיא קיימת ב-app.js)
-    push(ref(db, `feed/${pid}/comments`), { from: clean(currentUser.email), text: inp.value.trim() });
-    inp.value = "";
-    window.showToast("תגובה נוספה");
+    const val = inp.value.trim();
+    if(!currentUser || !val) return;
+
+    // פתיחת התיבה כדי שהמשתמש יראה את התגובה שלו מיד
+    const box = document.getElementById(`coms-${pid}`);
+    if(box) box.classList.add('show');
+
+    push(ref(db, `feed/${pid}/comments`), { 
+        from: clean(currentUser.email), 
+        text: val 
+    }).then(() => {
+        inp.value = "";
+        window.showToast("תגובה נוספה");
+    });
 };
 
 // --- AUTH STATE ---
