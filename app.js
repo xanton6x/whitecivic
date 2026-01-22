@@ -182,18 +182,33 @@ async function loadComments(pid) {
 // --- USERS LIST ---
 onValue(ref(db, 'users'), snap => {
     const list = document.getElementById('globalUsersList');
-    if(!list) return; list.innerHTML = "";
+    if(!list) return; 
+    list.innerHTML = "";
+    
     snap.forEach(c => {
         const u = c.val(), id = c.key;
         const div = document.createElement('div');
         div.className = 'user-item';
         div.onclick = () => location.href = `?user=${id}`;
+        
+        // יצירת מבנה המשתמש עם נקודת סטטוס
         div.innerHTML = `
-            <img src="${u.avatar || 'https://ui-avatars.com/api/?name='+u.username}" style="width:30px;height:30px;border-radius:50%;object-fit:cover;">
-            <div id="dot-${id}" class="status-dot"></div>
+            <div style="position: relative;">
+                <img src="${u.avatar || 'https://ui-avatars.com/api/?name='+u.username}" style="width:35px;height:35px;border-radius:50%;object-fit:cover;">
+                <div id="dot-${id}" class="status-dot"></div>
+            </div>
             <span>${u.username}</span>
         `;
         list.appendChild(div);
+
+        // האזנה לסטטוס הספציפי של המשתמש הזה
+        onValue(ref(db, 'status/' + id), s => {
+            const dot = document.getElementById('dot-' + id);
+            if(dot) {
+                const isOnline = s.exists() && s.val().state === 'online';
+                dot.style.background = isOnline ? '#4cd964' : '#8e8e93'; // ירוק למחובר, אפור למנותק
+            }
+        });
     });
 });
 
