@@ -60,6 +60,54 @@ header {
     padding-bottom: 20px; 
 }
 
+/* תיקון אזור הפרופיל */
+#profileHeader {
+    background: #1c1c1e; /* רקע כהה תואם לשאר האתר */
+    border-radius: 20px;
+    padding: 30px 20px;
+    margin-bottom: 20px;
+    border: 1px solid #333;
+}
+
+/* המיכל של תמונת הפרופיל והפלוס */
+.avatar-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 15px auto;
+}
+
+#pAvatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--cm-blue);
+}
+
+/* כפתור הפלוס */
+#editAvBtn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--cm-blue);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 3px solid #1c1c1e; /* יוצר "חיתוך" יפה מסביב לפלוס */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+#editAvBtn span {
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 1;
+}
 .avatar-container { position: relative; width: 90px; height: 90px; margin: -45px auto 0 auto; }
 
 .profile-avatar { 
