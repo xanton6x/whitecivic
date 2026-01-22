@@ -247,22 +247,13 @@ button { cursor: pointer; border: none; border-radius: 10px; font-weight: 600; p
     to { transform: translateX(0); opacity: 1; }
 }
 
-/* מחיקת הגדרות קודמות של comments-box והוספת אלו: */
 .comments-box {
-    display: none; /* מוסתר בהתחלה */
+    display: none; /* מוסתר כברירת מחדל */
     margin-top: 10px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 10px;
-    max-height: 300px;
-    overflow-y: auto;
+    padding: 5px;
 }
 
-.toggle-comments-btn {
-    font-weight: bold;
-    user-select: none;
-}
-
-.toggle-comments-btn:active {
-    opacity: 0.6;
+/* רק כשיש את ה-class הזה, התיבה תוצג */
+.comments-box.show {
+    display: block !important;
 }
