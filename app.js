@@ -50,6 +50,12 @@ onAuthStateChanged(auth, (u) => {
         document.getElementById('usersToggleBtn')?.classList.remove('hidden');
     }
     if (profileId) loadProfileInfo();
+    const myId = currentUser ? btoa(clean(currentUser.email).toLowerCase()) : null;
+if(myId === profileId) {
+    document.getElementById('editAvBtn').classList.remove('hidden');
+} else {
+    document.getElementById('editAvBtn').classList.add('hidden');
+}
 });
 
 // --- FEED ---
