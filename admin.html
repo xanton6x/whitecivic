@@ -1,19 +1,80 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <title>לוח בקרה</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניהול - לוח בקרה</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-    <h2>הגדרות עיצוב</h2>
-    <div class="admin-controls">
-        <label>בחר צבע ראשי:</label>
-        <input type="color" id="colorPicker">
-        
-        <label>שנה כותרת:</label>
-        <input type="text" id="titleInput">
-        
-        <button onclick="saveSettings()">שמור הגדרות</button>
+<body class="admin-body">
+    <div class="admin-container">
+        <header class="admin-header">
+            <h1>🛠️ לוח בקרה</h1>
+            <button onclick="logout()" class="logout-btn">התנתק</button>
+        </header>
+
+        <!-- סטטיסטיקות -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalReviews">0</div>
+                <div class="stat-label">סה"כ חוות דעת</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingReviews">0</div>
+                <div class="stat-label">ממתינים לאישור</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="avgRatingStat">0.0</div>
+                <div class="stat-label">דירוג ממוצע</div>
+            </div>
+        </section>
+
+        <!-- הגדרות עיצוב -->
+        <section class="admin-section">
+            <h2>🎨 הגדרות תצוגה</h2>
+            <div class="admin-controls">
+                <div class="control-group">
+                    <label>שם הרכב/כותרת:</label>
+                    <input type="text" id="titleInput" placeholder="לדוג' טויוטה קורולה 2020">
+                </div>
+                
+                <div class="control-group">
+                    <label>תיאור משנה:</label>
+                    <input type="text" id="subtitleInput" placeholder="לדוג' למכירה | 85,000 קמ">
+                </div>
+
+                <div class="control-group">
+                    <label>צבע ראשי:</label>
+                    <input type="color" id="colorPicker" value="#007bff">
+                </div>
+
+                <div class="control-group">
+                    <label>מצב תצוגה:</label>
+                    <select id="themeSelect">
+                        <option value="light">בהיר</option>
+                        <option value="dark">כהה</option>
+                        <option value="auto">אוטומטי</option>
+                    </select>
+                </div>
+
+                <button onclick="saveSettings()" class="save-btn">💾 שמור הגדרות</button>
+            </div>
+        </section>
+
+        <!-- ניהול חוות דעת -->
+        <section class="admin-section">
+            <h2>💬 ניהול חוות דעת</h2>
+            <div class="reviews-management" id="adminReviewsList">
+                <!-- רשימת חוות דעת לניהול -->
+            </div>
+        </section>
+
+        <!-- ייצוא נתונים -->
+        <section class="admin-section">
+            <h2>📥 ייצוא נתונים</h2>
+            <button onclick="exportReviews()" class="export-btn">הורד חוות דעת כ-JSON</button>
+            <button onclick="clearAllReviews()" class="danger-btn">🗑️ נקה את כל החוות דעת</button>
+        </section>
     </div>
 
     <script src="js/admin.js"></script>

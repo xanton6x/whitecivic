@@ -2,19 +2,85 @@
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional Adaptive Site</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>חוות דעת - הרכב שלי</title>
     <link rel="stylesheet" href="css/style.css">
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <header>
-        <h1 id="site-title">האתר המקצועי שלי</h1>
-    </header>
+    <div class="telegram-container">
+        <!-- Header -->
+        <header class="tg-header">
+            <div class="car-showcase">
+                <div class="car-image-placeholder">
+                    🚗
+                </div>
+                <h1 id="site-title">טויוטה קורולה 2020</h1>
+                <p class="car-subtitle">למכירה | 85,000 ק"מ</p>
+                <div class="rating-summary">
+                    <span class="stars" id="avg-rating">⭐⭐⭐⭐⭐</span>
+                    <span class="review-count" id="review-count">(0 חוות דעת)</span>
+                </div>
+            </div>
+        </header>
 
-    <main id="content-area">
-        <div class="card">תוכן אדפטיבי 1</div>
-        <div class="card">תוכן אדפטיבי 2</div>
-    </main>
+        <!-- טופס חוות דעת -->
+        <section class="review-form-section">
+            <h3>השאר חוות דעת</h3>
+            <form id="reviewForm" class="review-form">
+                <div class="form-group">
+                    <label>שמך:</label>
+                    <input type="text" id="reviewerName" placeholder="הכנס שם" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>דירוג:</label>
+                    <div class="star-rating-input" id="starInput">
+                        <span data-value="1">⭐</span>
+                        <span data-value="2">⭐</span>
+                        <span data-value="3">⭐</span>
+                        <span data-value="4">⭐</span>
+                        <span data-value="5">⭐</span>
+                    </div>
+                    <input type="hidden" id="ratingValue" value="5" required>
+                </div>
+
+                <div class="form-group">
+                    <label>תמונה (אופציונלי):</label>
+                    <input type="file" id="reviewImage" accept="image/*" capture="environment">
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>חוות דעת:</label>
+                    <textarea id="reviewText" rows="3" placeholder="ספר/י על החוויה שלך..." required></textarea>
+                </div>
+
+                <button type="submit" class="tg-button primary">
+                    📤 שלח חוות דעת
+                </button>
+            </form>
+        </section>
+
+        <!-- רשימת חוות דעת -->
+        <main id="content-area" class="reviews-container">
+            <h3>חוות דעת אחרונות</h3>
+            <div id="reviewsList" class="reviews-list">
+                <!-- חוות דעת ייטענו כאן דינמית -->
+            </div>
+        </main>
+
+        <!-- כפתורי פעולה -->
+        <div class="action-buttons">
+            <button onclick="shareApp()" class="tg-button secondary">
+                📤 שתף
+            </button>
+            <button onclick="contactSeller()" class="tg-button primary">
+                💬 צור קשר
+            </button>
+        </div>
+    </div>
 
     <script src="js/main.js"></script>
 </body>
